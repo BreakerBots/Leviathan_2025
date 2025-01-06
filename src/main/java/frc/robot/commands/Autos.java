@@ -9,9 +9,23 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public final class Autos {
-  /** Example static factory for an autonomous command. */
+  /**
+   * Creates an example autonomous routine
+   * 
+   * Command Sequence:
+   * 1. Runs example method command (one-time action)
+   * 2. Runs example command until it completes
+   *
+   * @param subsystem The subsystem needed for this auto routine
+   * @return A command that will run during autonomous
+   */
   public static Command exampleAuto(ExampleSubsystem subsystem) {
-    return Commands.sequence(subsystem.exampleMethodCommand(), new ExampleCommand(subsystem));
+    // Commands.sequence runs multiple commands in order
+    // Each command must finish before the next starts
+    return Commands.sequence(
+        subsystem.exampleMethodCommand(), 
+        new ExampleCommand(subsystem)
+    );
   }
 
   private Autos() {

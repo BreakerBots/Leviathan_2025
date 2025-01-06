@@ -13,7 +13,17 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  /** 
+   * Constants related to operator controls and human interface devices.
+   * USB ports are numbered 0-5 on the Driver Station
+   */
   public static class OperatorConstants {
+    /** USB port number for main driver controller (listed in Driver Station) */
     public static final int kDriverControllerPort = 0;
   }
+
+  // Consider adding these categories:
+  // public static class DriveConstants { ... }
+  // public static class AutoConstants { ... }
+  // public static class VisionConstants { ... }
 }

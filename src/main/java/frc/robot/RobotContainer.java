@@ -19,10 +19,14 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
+  // === SUBSYSTEMS ===
+  // Subsystems are robot components like drivebase, arm, shooter, etc.
+  // They contain the methods to control physical hardware
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
+  // === CONTROLLERS ===
+  // Xbox controller used for main driver
+  // Ports can be checked/changed in Driver Station
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
@@ -42,12 +46,12 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    // === DRIVER CONTROLS ===
+    // When example condition becomes true, run ExampleCommand
     new Trigger(m_exampleSubsystem::exampleCondition)
         .onTrue(new ExampleCommand(m_exampleSubsystem));
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
+    // B Button: Runs example action while held, stops when released
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
   }
 
@@ -57,7 +61,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
+    // This command will be run during the autonomous period
+    // You can create different auto routines and select them via Shuffleboard/SmartDashboard
     return Autos.exampleAuto(m_exampleSubsystem);
   }
 }
