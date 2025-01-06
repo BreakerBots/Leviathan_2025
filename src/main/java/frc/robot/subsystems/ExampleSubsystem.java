@@ -8,36 +8,43 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ExampleSubsystem extends SubsystemBase {
+  // === HARDWARE ===
+  // Define hardware components here (motors, sensors, etc.)
+  
+  // === STATE VARIABLES ===
+  // Track internal state of the subsystem here
+  
   /** Creates a new ExampleSubsystem. */
   public ExampleSubsystem() {}
 
   /**
-   * Example command factory method.
-   *
-   * @return a command
+   * Creates a command that performs a one-time action
+   * Example usage: Setting a solenoid, zeroing sensors
    */
   public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          /* one-time action goes here */
+          // One-time action code goes here
         });
   }
 
   /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
+   * Checks if some condition is met
+   * Example usage: Checking if a sensor is triggered or position reached
+   * @return true if condition is met, false otherwise
    */
   public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
     return false;
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // This method runs every 20ms (50 times per second)
+    // Common tasks to do here:
+    // 1. Update sensor readings
+    // 2. Run control loops (PID, etc.)
+    // 3. Update dashboard values
+    // 4. Update internal state variables
   }
 
   @Override
