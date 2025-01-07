@@ -16,7 +16,9 @@ import java.util.function.Supplier;
 // import org.ironmaple.simulation.SimulatedArena;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -72,11 +74,7 @@ import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfi
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.math.BreakerMath;
 
-public class BreakerSwerveDrivetrain<
-    DriveMotorT extends CommonTalon,
-    SteerMotorT extends CommonTalon,
-    EncoderT extends ParentDevice> 
-      extends SwerveDrivetrain<DriveMotorT, SteerMotorT, EncoderT> implements Subsystem {
+public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements Subsystem {
 
   /** Creates a new BreakerSwerveDrivetrain. */
   protected Notifier simNotifier = null;
@@ -97,7 +95,7 @@ public class BreakerSwerveDrivetrain<
 
   public BreakerSwerveDrivetrain(
     BreakerSwerveDrivetrainConstants driveTrainConstants, 
-    SwerveModuleConstants... modules
+    SwerveModuleConstants<?,?,?>... modules
   ) {
     this(driveTrainConstants,
     VecBuilder.fill(0.1, 0.1, 0.1),
@@ -109,13 +107,21 @@ public class BreakerSwerveDrivetrain<
       BreakerSwerveDrivetrainConstants driveTrainConstants, 
       Matrix<N3, N1> odometryStandardDeviation, 
       Matrix<N3, N1> visionStandardDeviation,
-      SwerveModuleConstants<DriveMotorT, SteerMotorT, EncoderT>... modules
+      SwerveModuleConstants<?,?,?>... modules
     ) {
-    super(driveTrainConstants, driveTrainConstants.odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation, modules);
+    super(
+      TalonFX::new,
+      TalonFX::new,
+      CANcoder::new,
+      driveTrainConstants, 
+      driveTrainConstants.odometryUpdateFrequency, 
+      odometryStandardDeviation, 
+      visionStandardDeviation, 
+      modules);
     this.constants = driveTrainConstants;
     super.registerTelemetry(this::telemetryCallbackWrapperFunction);
     double tempCommonMaxModuleSpeed = Double.MAX_VALUE;
-    for (SwerveModuleConstants modConst : modules) {
+    for (SwerveModuleConstants<?,?,?> modConst : modules) {
       tempCommonMaxModuleSpeed = Math.min(tempCommonMaxModuleSpeed, modConst.SpeedAt12Volts); //@TODO this uses the 12v nominal speed because a direct max speed is not yet exposed
     }
     commonMaxModuleSpeed = tempCommonMaxModuleSpeed;
@@ -251,8 +257,7 @@ public class BreakerSwerveDrivetrain<
     PIDController x = new PIDController(constants.choreoConfig.translationPID.kP, constants.choreoConfig.translationPID.kI, constants.choreoConfig.translationPID.kD);
     PIDController y = new PIDController(constants.choreoConfig.translationPID.kP, constants.choreoConfig.translationPID.kI, constants.choreoConfig.translationPID.kD);
     PIDController r = new PIDController(constants.choreoConfig.rotationPID.kP, constants.choreoConfig.rotationPID.kI, constants.choreoConfig.rotationPID.kD);
-    autoFactory = Choreo.createAutoFactory(
-      this, 
+    autoFactory = new AutoFactory(
       () -> this.getState().Pose, 
       new BreakerSwerveChoreoController(this, x, y, r),
       () -> {return DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red;}, 
@@ -307,11 +312,6 @@ public class BreakerSwerveDrivetrain<
       
   }
 
-  @Override
-  public void simulationPeriodic() {
-      SimulatedArena.getInstance().simulationPeriodic();
-  }
-
   public static class BreakerSwerveDrivetrainConstants extends SwerveDrivetrainConstants {
     public double odometryUpdateFrequency = 250;
     public double simUpdateFrequency = 200;
@@ -319,7 +319,7 @@ public class BreakerSwerveDrivetrain<
     public Rotation2d redAlliancePerspectiveRotation = Rotation2d.fromDegrees(180);
     public ChoreoConfig choreoConfig = new ChoreoConfig();
     public PathplannerConfig pathplannerConfig = new PathplannerConfig();
-    public MapleSimConfig simulationConfig = new MapleSimConfig();
+    // public MapleSimConfig simulationConfig = new MapleSimConfig();
 
     public BreakerSwerveDrivetrainConstants() {
       super();
@@ -428,18 +428,18 @@ public class BreakerSwerveDrivetrain<
       }
     }
 
-    public static class MapleSimConfig {
-      public DCMotor driveMotor = DCMotor.getKrakenX60Foc(1);
-      public DCMotor steerMotor = DCMotor.getFalcon500Foc(1);
-      public double tireCoefficientOfFriction = 1.01;
-      public Mass robotMass = Units.Pound.of(100);
-      public Distance bumperLengthX = Units.Inches.of(35);
-      public Distance bumperWidthY = Units.Inches.of(35);
+    // public static class MapleSimConfig {
+    //   public DCMotor driveMotor = DCMotor.getKrakenX60Foc(1);
+    //   public DCMotor steerMotor = DCMotor.getFalcon500Foc(1);
+    //   public double tireCoefficientOfFriction = 1.01;
+    //   public Mass robotMass = Units.Pound.of(100);
+    //   public Distance bumperLengthX = Units.Inches.of(35);
+    //   public Distance bumperWidthY = Units.Inches.of(35);
 
-      public MapleSimConfig withDriveMotor(DCMotor driveMotor) {
-        this.driveMotor = driveMotor;
-        return this;
-      }
-    }
+    //   public MapleSimConfig withDriveMotor(DCMotor driveMotor) {
+    //     this.driveMotor = driveMotor;
+    //     return this;
+    //   }
+    // }
   } 
 }
