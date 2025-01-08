@@ -259,9 +259,11 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
     PIDController r = new PIDController(constants.choreoConfig.rotationPID.kP, constants.choreoConfig.rotationPID.kI, constants.choreoConfig.rotationPID.kD);
     autoFactory = new AutoFactory(
       () -> this.getState().Pose, 
+      (Pose3d pose) -> resetPose(null),
+      
       new BreakerSwerveChoreoController(this, x, y, r),
-      () -> {return DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red;}, 
-      constants.choreoConfig.autoBindings, 
+      () -> {return DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red;},
+      this,
       this::logChoreoPath);
   }
 
@@ -376,7 +378,6 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
     public static class ChoreoConfig {
       public PIDConstants translationPID = new PIDConstants(10, 0, 0);
       public PIDConstants rotationPID = new PIDConstants(10, 0, 0);
-      public AutoBindings autoBindings = new AutoBindings();
       public ChoreoConfig() {}
 
       public ChoreoConfig withTranslationPID(PIDConstants translationPID) {
@@ -386,11 +387,6 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 
       public ChoreoConfig withRotationPID(PIDConstants rotationPID) {
         this.rotationPID = rotationPID;
-        return this;
-      }
-
-      public ChoreoConfig withAutoBindings(AutoBindings autoBindings) {
-        this.autoBindings = autoBindings;
         return this;
       }
     }
