@@ -42,7 +42,7 @@ Subsystems represent robot hardware abstractions. Located in `subsystems/`:
 ## Getting Started
 
 ### Prerequisites
-- WPILib 2024/25 VS Code
+- WPILib 2025 VS Code
 - Java 11 or newer
 - Git
 - ChoreoLib

@@ -5,9 +5,13 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.BreakerLib.driverstation.BreakerInputStream;
+import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
+import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
+import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExponential;
+import frc.robot.subsystems.Drivetrain;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -22,18 +26,20 @@ public class RobotContainer {
   // === SUBSYSTEMS ===
   // Subsystems are robot components like drivebase, arm, shooter, etc.
   // They contain the methods to control physical hardware
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final Drivetrain drivetrain = new Drivetrain();
 
   // === CONTROLLERS ===
   // Xbox controller used for main driver
   // Ports can be checked/changed in Driver Station
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final BreakerXboxController controller =
+      new BreakerXboxController(OperatorConstants.kDriverControllerPort);
+
+  private BreakerInputStream driverX, driverY, driverOmega;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
-    configureBindings();
+    configureControls();
   }
 
   /**
@@ -45,14 +51,23 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
-    // === DRIVER CONTROLS ===
-    // When example condition becomes true, run ExampleCommand
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+  private void configureControls() {
+     BreakerInputStream2d driverTranslation = controller.getLeftThumbstick();
+    driverTranslation = driverTranslation
+            .clamp(1.0)
+            .deadband(Constants.OperatorConstants.TRANSLATIONAL_DEADBAND, 1.0)
+            .mapToMagnitude(new BreakerLinearizedConstrainedExponential(0.075, 3.0, true))
+            .scale(Constants.DriveConstants.MAXIMUM_TRANSLATIONAL_VELOCITY.in(Units.MetersPerSecond));
+    driverX = driverTranslation.getY();
+    driverY = driverTranslation.getX();
 
-    // B Button: Runs example action while held, stops when released
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    driverOmega = controller.getRightThumbstick().getX()
+            .clamp(1.0)
+            .deadband(Constants.OperatorConstants.ROTATIONAL_DEADBAND, 1.0)
+            .map(new BreakerLinearizedConstrainedExponential(0.0, 3.0, true))
+            .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
+
+    drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
   }
 
   /**
@@ -63,6 +78,6 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return null;
   }
 }
