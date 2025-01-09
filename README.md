@@ -21,6 +21,10 @@ src/main/java/frc/robot/
 
 ## Key Components
 
+### BreakerLib
+   - A standerdized utility library for BreakerBots WPILib projects
+   - Includes various device drivers, utils, and more
+
 ### Core Classes
 - `Robot.java`: Manages robot lifecycle and mode transitions (auto, teleop, etc.)
 - `RobotContainer.java`: Creates/configures subsystems and commands
@@ -32,8 +36,8 @@ Commands define actions the robot can perform. Located in `commands/`:
 - `ExampleCommand.java`: Template for new commands
 
 ### Subsystems
-Subsystems control robot hardware. Located in `subsystems/`:
-- `ExampleSubsystem.java`: Template for new subsystems
+Subsystems represent robot hardware abstractions. Located in `subsystems/`:
+- `Drivetrain.java`: User Implementation of BreakerLib's "BreakerSwerveDrive" class, which uses the Phoenix Swerve API
 
 ## Getting Started
 
@@ -41,12 +45,22 @@ Subsystems control robot hardware. Located in `subsystems/`:
 - WPILib 2024/25 VS Code
 - Java 11 or newer
 - Git
+- ChoreoLib
+- PhotonLib
+- PathPlannerLib
+- Phoenix 6
+- DogLog
+- GVersion
 
 ### Setup
 1. Clone the repository:
    ```bash
    git clone git@github.com:BreakerBots/Leviathan_2025.git
    ```
+   or:
+      1. Open Github Desktop
+      2. Navigate to: Current Repository -> Add -> Clone New Repository
+      3. Select "BreakerBots/Leviathan_2025"
 
 2. Open the project in WPILib VS Code
 
@@ -54,19 +68,14 @@ Subsystems control robot hardware. Located in `subsystems/`:
    ```bash
    ./gradlew build
    ```
+   or:
+      1. Press Ctrl+Shift+P in VS Code
+      2. Select "Build Robot Code"
 
 ### Deployment
 To deploy to the robot:
-1. Connect to the robot's network
-2. Press Ctrl+Shift+P in VS Code
-3. Select "Deploy Robot Code"
-
-## Contributing
-
-1. Create a new branch for your feature
-2. Make your changes
-3. Test thoroughly
-4. Submit a pull request
+1. Connect to the robot's network or VH-109 Access Point 
+3. Pres Shift+F5 in VS Code
 
 ## Project Status
 
