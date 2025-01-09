@@ -1,6 +1,7 @@
 package frc.robot.BreakerLib.swerve;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -11,8 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
-//TODO switch to field rel version of ApplyChassisSpeeds when support for module force FF is added
-public class BreakerSwerveChoreoController implements BiConsumer<Pose2d, SwerveSample> {
+public class BreakerSwerveChoreoController implements Consumer<SwerveSample> {
     private final BreakerSwerveDrivetrain drivetrain;
     private final PIDController xController;
     private final PIDController yController;
@@ -34,7 +34,8 @@ public class BreakerSwerveChoreoController implements BiConsumer<Pose2d, SwerveS
     }
 
     @Override
-    public void accept(Pose2d t, SwerveSample u) {
+    public void accept(SwerveSample u) {
+        var t = drivetrain.getLocalizer().getPose();
         //This section deals with the field reletive veleocitys directly commanded of the robot
 
         //here the "FF" is our base setpoint, idealy, this shoud be exatly what we are commanding of our drive as thease are the chassis speeds calculated by the choreo optimizer
@@ -55,8 +56,8 @@ public class BreakerSwerveChoreoController implements BiConsumer<Pose2d, SwerveS
         );
 
         request.Speeds = targetSpeeds;
-        // request.WheelForceFeedforwardsX = u.moduleForcesX();
-        // request.WheelForceFeedforwardsY = u.moduleForcesY();
+        request.WheelForceFeedforwardsX = u.moduleForcesX();
+        request.WheelForceFeedforwardsY = u.moduleForcesY();
         drivetrain.setControl(request);
 
         BreakerLog.log("BreakerSwerveChoreoController/Goal", u);

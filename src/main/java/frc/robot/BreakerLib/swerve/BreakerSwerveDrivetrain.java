@@ -40,13 +40,14 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
-import choreo.auto.AutoFactory.AutoBindings;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Twist2d;
@@ -71,6 +72,8 @@ import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.physics.ChassisAccels;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.HeadingCompensationConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
+import frc.robot.BreakerLib.util.Localizer;
+import frc.robot.BreakerLib.util.TimestampedValue;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.math.BreakerMath;
 
@@ -91,6 +94,7 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
   protected AutoFactory autoFactory;
 
   protected ReentrantLock stateLock = new ReentrantLock();
+  protected Localizer localizer;
 
 
   public BreakerSwerveDrivetrain(
@@ -131,6 +135,15 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
     // new BreakerSimSwerveDrivetrain(this, driveTrainConstants, modules);
     configPathPlanner();
     configChoreo();
+    localizer = new InternalLocalizer(this);
+  }
+
+  public void setLocalizer(Localizer localizer) {
+    this.localizer = localizer;
+  }
+
+  public Localizer getLocalizer() {
+    return localizer;
   }
   
   private void telemetryCallbackWrapperFunction(SwerveDriveState state) {
@@ -187,12 +200,17 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
     }
   }
 
-  public ChassisSpeeds getCurrentChassisSpeeds() {
+  public ChassisAccels getFieldRelitiveChassisAccels() {
+   ChassisAccels accels = getChassisAccels();
+   return ChassisAccels.fromRobotRelativeAccels(accels, getState().Pose.getRotation());
+  }
+
+  public ChassisSpeeds getChassisSpeeds() {
     return getKinematics().toChassisSpeeds(getState().ModuleStates);
   }
 
-  public ChassisSpeeds getCurrentFieldRelitiveChassisSpeeds() {
-    return  BreakerMath.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
+  public ChassisSpeeds getFieldRelitiveChassisSpeeds() {
+    return ChassisSpeeds.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
   }
 
   public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -242,9 +260,9 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
       };
 
       AutoBuilder.configure(
-        ()->this.getState().Pose, // Supplier of current robot pose
-        this::resetPose,  // Consumer for seeding pose against auto
-        this::getCurrentChassisSpeeds,
+        localizer::getPose, // Supplier of current robot pose
+        localizer::resetPose,  // Consumer for seeding pose against auto
+        localizer::getSpeeds,
         output, // Consumer of ChassisSpeeds to drive the robot
         new PPHolonomicDriveController(constants.pathplannerConfig.translationPID, constants.pathplannerConfig.rotationPID),
         constants.pathplannerConfig.robotConfig.get(),
@@ -258,12 +276,12 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
     PIDController y = new PIDController(constants.choreoConfig.translationPID.kP, constants.choreoConfig.translationPID.kI, constants.choreoConfig.translationPID.kD);
     PIDController r = new PIDController(constants.choreoConfig.rotationPID.kP, constants.choreoConfig.rotationPID.kI, constants.choreoConfig.rotationPID.kD);
     autoFactory = new AutoFactory(
-      () -> this.getState().Pose, 
-      (Pose3d pose) -> resetPose(null),
-      
+      localizer::getPose, 
+      localizer::resetPose,
       new BreakerSwerveChoreoController(this, x, y, r),
       () -> {return DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red;},
       this,
+      
       this::logChoreoPath);
   }
 
@@ -312,6 +330,40 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
         });
       }
       
+  }
+
+  protected static class InternalLocalizer implements Localizer {
+    private BreakerSwerveDrivetrain drivetrain;
+    private InternalLocalizer(BreakerSwerveDrivetrain drivetrain) {
+      this.drivetrain = drivetrain;
+    }
+
+    @Override
+    public TimestampedValue<Pose2d> getAtomicPose() {
+      var state = drivetrain.getState();
+      return new TimestampedValue<Pose2d>(state.Pose, state.Timestamp);
+    }
+
+    @Override
+    public Pose2d getPose() {
+      return drivetrain.getState().Pose;
+    }
+
+    @Override
+    public ChassisSpeeds getSpeeds() {
+     return drivetrain.getChassisSpeeds();
+    }
+
+    @Override
+    public ChassisAccels getAccels() {
+      return drivetrain.getChassisAccels();
+    }
+
+    @Override
+    public void resetPose(Pose2d newPose) {
+      drivetrain.resetPose(newPose);
+    }
+
   }
 
   public static class BreakerSwerveDrivetrainConstants extends SwerveDrivetrainConstants {

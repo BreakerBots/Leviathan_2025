@@ -4,6 +4,8 @@
 
 package frc.robot.BreakerLib.physics;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
 /** Add your docs here. */
@@ -22,6 +24,20 @@ public class ChassisAccels {
     public static ChassisAccels fromDeltaSpeeds(ChassisSpeeds initialVels, ChassisSpeeds endVels, double dt) {
         ChassisSpeeds accels = endVels.minus(initialVels).times(dt);
         return new ChassisAccels(accels.vxMetersPerSecond, accels.vyMetersPerSecond, accels.omegaRadiansPerSecond);
+    }
+
+    public static ChassisAccels fromRobotRelativeAccels(ChassisAccels accels, Rotation2d robotAngle) {
+        return fromRobotRelativeAccels(accels.axMetersPerSecondSquared, accels.ayMetersPerSecondSquared, accels.alphaRadiansPerSecondSquared, robotAngle);
+    }
+
+    public static ChassisAccels fromRobotRelativeAccels(
+        double axMetersPerSecondSquared, 
+        double ayMetersPerSecondSquared, 
+        double alphaRadiansPerSecondSquared,
+        Rotation2d robotAngle) {
+        // CCW rotation out of chassis frame
+        var rotated = new Translation2d(axMetersPerSecondSquared, ayMetersPerSecondSquared).rotateBy(robotAngle);
+        return new ChassisAccels(rotated.getX(), rotated.getY(), alphaRadiansPerSecondSquared);
     }
 
     public BreakerVector2 toLinearAccelerationVector() {
