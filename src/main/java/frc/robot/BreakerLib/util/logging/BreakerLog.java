@@ -132,7 +132,7 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, SwerveModule<?, ?, ?>... value) {
-        for (int i = 0; i < vadlue.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             log(key + "/" + i, value[i]);
         }
     }
