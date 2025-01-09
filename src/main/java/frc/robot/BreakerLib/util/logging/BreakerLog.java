@@ -87,8 +87,8 @@ public class BreakerLog extends DogLog implements Subsystem {
 
     public static void log(String key, Trajectory<SwerveSample> value) {
         log(key + "/Poses", value.getPoses());
-        log(key + "/InitialSample", value.getInitialSample());
-        log(key + "/FinalSample", value.getFinalSample());
+        log(key + "/InitialSample", value.getInitialSample(false).orElse(new SwerveSample(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new double[4], new double[4])));
+        log(key + "/FinalSample", value.getFinalSample(false).orElse(new SwerveSample(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new double[4], new double[4])));
         log(key + "/TotalTime", value.getTotalTime());
     }
 
@@ -125,14 +125,14 @@ public class BreakerLog extends DogLog implements Subsystem {
         log(key + "/Accelerometer/Z", value.getAccelerationZ().getValueAsDouble());
     }
 
-    public static void log(String key, SwerveModule value) {
+    public static void log(String key, SwerveModule<TalonFX, TalonFX, CANcoder> value) {
         log(key + "/DriveMotor", value.getDriveMotor());
         log(key + "/SteerMotor", value.getSteerMotor());
-        log(key + "/SteerEncoder", value.getCANcoder());
+        log(key + "/SteerEncoder", value.getEncoder());
     }
 
-    public static void log(String key, SwerveModule... value) {
-        for (int i = 0; i < value.length; i++) {
+    public static void log(String key, SwerveModule<?, ?, ?>... value) {
+        for (int i = 0; i < vadlue.length; i++) {
             log(key + "/" + i, value[i]);
         }
     }

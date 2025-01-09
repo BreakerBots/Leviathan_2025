@@ -1,6 +1,5 @@
 package frc.robot.BreakerLib.swerve;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -8,7 +7,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import choreo.trajectory.SwerveSample;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 

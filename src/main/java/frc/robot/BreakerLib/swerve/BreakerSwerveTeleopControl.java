@@ -13,6 +13,8 @@ import javax.print.DocPrintJob;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.ModuleRequest;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -119,14 +121,14 @@ public class BreakerSwerveTeleopControl extends Command {
       xImpt = linVec.getX();
       yImpt = linVec.getY();
       ChassisSpeeds desiredSpeeds = new ChassisSpeeds(xImpt, yImpt, omegaImpt);
-      desiredSpeeds.toFieldRelativeSpeeds(drivetrain.getState().Pose.getRotation());
+      desiredSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(desiredSpeeds, drivetrain.getState().Pose.getRotation());
       SwerveSetpoint curSetpoint = setpointGenerator.get().generateSetpoint(prevSetpoint, desiredSpeeds, curTimestamp - lastTimestamp);
       SwerveModuleState[] moduleStates = curSetpoint.moduleStates();
       double[] robotRelativeForcesXNewtons = curSetpoint.feedforwards().robotRelativeForcesXNewtons();
       double[] robotRelativeForcesYNewtons = curSetpoint.feedforwards().robotRelativeForcesYNewtons();
       BreakerLog.log("SwerveTeleopControlCommand/CommandedSpeeds", curSetpoint.robotRelativeSpeeds());
       for (int i = 0; i < curSetpoint.moduleStates().length; i++) {
-        SwerveModule module = drivetrain.getModule(i);
+        SwerveModule<TalonFX, TalonFX, CANcoder> module = drivetrain.getModule(i);
         module.apply(new ModuleRequest()
         .withDriveRequest(DriveRequestType.Velocity)
         .withState(moduleStates[i])
