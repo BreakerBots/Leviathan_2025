@@ -4,14 +4,22 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.BreakerLib.util.logging.BreakerLog.GitInfo;
+import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
 import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExponential;
 import frc.robot.subsystems.Drivetrain;
+import dev.doglog.DogLogOptions;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -38,8 +46,19 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    startLog();
     // Configure the trigger bindings
     configureControls();
+  }
+
+  private void startLog() {
+    BreakerLog.setOptions(new DogLogOptions(true, false, true, true, true, 20000));
+    BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
+    BreakerLog.addCANBus(DriveConstants.kCANBus);
+    BreakerLog.setEnabled(true);
+
+    GitInfo gitInfo = new GitInfo(BuildConstants.MAVEN_NAME, BuildConstants.GIT_REVISION, BuildConstants.GIT_SHA, BuildConstants.GIT_DATE, BuildConstants.GIT_BRANCH, BuildConstants.BUILD_DATE, BuildConstants.DIRTY);
+    BreakerLog.logMetadata(new Metadata("Leviathan", 2025, "Roman Abrahamson, Lee Wang, Noah Lumbra, Max Xu", gitInfo));
   }
 
   /**

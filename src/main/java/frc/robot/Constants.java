@@ -34,6 +34,10 @@ import com.pathplanner.lib.config.PIDConstants;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static class MiscConstants {
+        public static final int PDH_ID = 0;
+    }
   /** 
    * Constants related to operator controls and human interface devices.
    * USB ports are numbered 0-5 on the Driver Station
@@ -125,7 +129,7 @@ public final class Constants {
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    public static final CANBus kCANBus = new CANBus("canivore", "./logs/example.hoot");
+    public static final CANBus kCANBus = new CANBus("canivore");
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
