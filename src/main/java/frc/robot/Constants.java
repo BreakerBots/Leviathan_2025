@@ -9,11 +9,17 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 
+import edu.wpi.first.units.LinearAccelerationUnit;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.PerUnit;
+import edu.wpi.first.units.TimeUnit;
+import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.measure.*;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain.BreakerSwerveDrivetrainConstants;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain.BreakerSwerveDrivetrainConstants.ChoreoConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.HeadingCompensationConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
+import frc.robot.BreakerLib.util.MechanismRatio;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -48,6 +54,28 @@ public final class Constants {
 
     public static final double TRANSLATIONAL_DEADBAND = 0.1;
     public static final double ROTATIONAL_DEADBAND = 0.1;
+  }
+
+  public static class ElevatorConstants {
+    public static final MechanismRatio kRotationsPerMeter = new MechanismRatio(0, 0);
+
+    public static final double kP = 0;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kS = 0;
+    public static final double kV = 0;
+    public static final double kA = 0;
+    public static final double kG = 0;
+    public static final LinearVelocity kMotionMagicCruiseVelocity = MetersPerSecond.of(2.0);
+    public static final LinearAcceleration kMotionMagicAcceleration = MetersPerSecondPerSecond.of(5.0);
+    public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
+
+
+    // Thease are per-motor limits
+    public static final Current kSupplyCurrentLimit = Amps.of(60);
+    public static final Current kSupplyLowerCurrentLimit = Amps.of(60);
+    public static final Time kSupplyLowerCurrentLimitTime = Seconds.of(0);
+    public static final Current kStatorCurrentLimit = Amps.of(80);
   }
 
   public static class AutoConstants {
