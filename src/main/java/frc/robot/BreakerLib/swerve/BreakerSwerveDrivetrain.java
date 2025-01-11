@@ -108,9 +108,9 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
       startSimThread();
     }
     // new BreakerSimSwerveDrivetrain(this, driveTrainConstants, modules);
-    // configPathPlanner();
-    // configChoreo();
     localizer = new InternalLocalizer(this);
+    configPathPlanner();
+    configChoreo();
   }
 
   public void setLocalizer(Localizer localizer) {

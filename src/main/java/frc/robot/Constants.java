@@ -11,13 +11,12 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.PerUnit;
-import edu.wpi.first.units.TimeUnit;
 import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.measure.*;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain.BreakerSwerveDrivetrainConstants;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain.BreakerSwerveDrivetrainConstants.ChoreoConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.HeadingCompensationConfig;
+import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.SetpointGenerationConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.MechanismRatio;
 
@@ -96,10 +95,10 @@ public final class Constants {
                     RadiansPerSecond.of(0.001), 
                     Seconds.of(0.2),
                     new PIDConstants(1.5, 0, 0));// 1.5
-    //public static final SetpointGenerationConfig SETPOINT_GENERATION_CONFIG = new SetpointGenerationConfig(MAXIMUM_MODULE_AZIMUTH_SPEED);
+    public static final SetpointGenerationConfig SETPOINT_GENERATION_CONFIG = new SetpointGenerationConfig(MAXIMUM_MODULE_AZIMUTH_SPEED);
     public static final TeleopControlConfig TELEOP_CONTROL_CONFIG = new TeleopControlConfig()
-            .withHeadingCompensation(HEADING_COMPENSATION_CONFIG);
-            //.withSetpointGeneration(SETPOINT_GENERATION_CONFIG);
+            .withHeadingCompensation(HEADING_COMPENSATION_CONFIG)
+            .withSetpointGeneration(SETPOINT_GENERATION_CONFIG);
     public static final LinearVelocity MAXIMUM_TRANSLATIONAL_VELOCITY = MetersPerSecond.of(4.5);
     public static final AngularVelocity MAXIMUM_ROTATIONAL_VELOCITY = RadiansPerSecond.of(9.5);
 
