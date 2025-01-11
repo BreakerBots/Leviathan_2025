@@ -26,6 +26,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
@@ -57,8 +58,12 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    public static final MechanismRatio kRotationsPerMeter = new MechanismRatio(0, 0);
+    public static final MechanismRatio kRotationsToMeters = new MechanismRatio(0, 0);
 
+    public static final InvertedValue kLeftMotorInverted = InvertedValue.Clockwise_Positive;
+    public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
+
+    // All gains are in Meters, m/s, m/s/s, or m/s/s/s
     public static final double kP = 0;
     public static final double kI = 0;
     public static final double kD = 0;

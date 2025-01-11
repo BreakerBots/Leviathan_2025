@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
@@ -31,21 +32,20 @@ public class Elevator extends SubsystemBase {
 
     private void configLeft() {
         TalonFXConfiguration leftConfig = new TalonFXConfiguration();
-        leftConfig.Feedback.SensorToMechanismRatio = kRotationsPerMeter.getRatioToOne();
-
+        leftConfig.MotorOutput.Inverted = kLeftMotorInverted;
         leftConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         leftConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-        leftConfig.Slot0.kP = kP;
-        leftConfig.Slot0.kI = kI;
-        leftConfig.Slot0.kD = kD;
-        leftConfig.Slot0.kS = kS;
-        leftConfig.Slot0.kV = kV;
-        leftConfig.Slot0.kA = kA;
-        leftConfig.Slot0.kG = kG;
-        leftConfig.MotionMagic.MotionMagicCruiseVelocity = kMotionMagicCruiseVelocity.in(Units.MetersPerSecond);
-        leftConfig.MotionMagic.MotionMagicAcceleration = kMotionMagicAcceleration.in(Units.MetersPerSecondPerSecond);
-        leftConfig.MotionMagic.MotionMagicJerk = kMotionMagicJerk.in(MetersPerSecondPerSecond.per(Second));
 
+        leftConfig.Slot0.kP = kRotationsToMeters.getInput(kP);
+        leftConfig.Slot0.kI = kRotationsToMeters.getInput(kI);
+        leftConfig.Slot0.kD = kRotationsToMeters.getInput(kD);
+        leftConfig.Slot0.kS = kRotationsToMeters.getInput(kS);
+        leftConfig.Slot0.kG = kRotationsToMeters.getInput(kG);
+        leftConfig.MotionMagic.MotionMagicExpo_kA = kRotationsToMeters.getInput(kA);
+        leftConfig.MotionMagic.MotionMagicExpo_kV = kRotationsToMeters.getInput(kV);
+        leftConfig.MotionMagic.MotionMagicCruiseVelocity =  kRotationsToMeters.getInput(kMotionMagicCruiseVelocity.in(Units.MetersPerSecond));
+        leftConfig.MotionMagic.MotionMagicAcceleration =  kRotationsToMeters.getInput(kMotionMagicAcceleration.in(Units.MetersPerSecondPerSecond));
+        leftConfig.MotionMagic.MotionMagicJerk = kRotationsToMeters.getInput(kMotionMagicJerk.in(MetersPerSecondPerSecond.per(Second)));
 
         leftConfig.CurrentLimits.SupplyCurrentLimit = kSupplyCurrentLimit.in(Units.Amps);
         leftConfig.CurrentLimits.SupplyCurrentLowerLimit = kSupplyLowerCurrentLimit.in(Units.Amps);
@@ -56,6 +56,11 @@ public class Elevator extends SubsystemBase {
         leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
     }
 
+    private void configRight() {
+        
+    }
+
+    
     public Command setHeight(Distance height) {
         return null;
     }
