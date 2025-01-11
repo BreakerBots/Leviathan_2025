@@ -131,7 +131,8 @@ public class BreakerLog extends DogLog implements Subsystem {
         log(key + "/SteerEncoder", value.getEncoder());
     }
 
-    public static void log(String key, SwerveModule<?, ?, ?>... value) {
+    @SafeVarargs
+    public static void log(String key, SwerveModule<TalonFX, TalonFX, CANcoder>... value) {
         for (int i = 0; i < value.length; i++) {
             log(key + "/" + i, value[i]);
         }

@@ -53,7 +53,7 @@ public class RobotContainer {
 
   private void startLog() {
     BreakerLog.setOptions(new DogLogOptions(true, false, true, true, true, 20000));
-    BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
+    // BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
     BreakerLog.addCANBus(DriveConstants.kCANBus);
     BreakerLog.setEnabled(true);
 

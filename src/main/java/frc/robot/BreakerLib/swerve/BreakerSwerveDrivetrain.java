@@ -108,8 +108,8 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
       startSimThread();
     }
     // new BreakerSimSwerveDrivetrain(this, driveTrainConstants, modules);
-    configPathPlanner();
-    configChoreo();
+    // configPathPlanner();
+    // configChoreo();
     localizer = new InternalLocalizer(this);
   }
 
@@ -140,7 +140,10 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
   }
 
   private void lowFrequencyTelemetry() {
-    BreakerLog.log("SwerveDrivetrain/Modules", getModules());
+    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
+    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
+    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
+    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
     BreakerLog.log("SwerveDrivetrain/Pigeon2", getPigeon2());
   }
   
