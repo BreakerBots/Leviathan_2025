@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Units;
@@ -90,6 +91,16 @@ public final class Constants {
 
     public static final Distance kDefaultHeightTolerence = Millimeters.of(5);
     public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
+  }
+
+  public static class EndEffectorConstants {
+    public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
+    public static final double kMaxColorDelta = 0.15;
+    public static final double kHasAlgaeProximityThresh = 0.1;
+
+    public static final Rotation2d kMinWristAngle = Rotation2d.fromDegrees(0.0);
+    public static final Rotation2d kMaxWristAngle = Rotation2d.fromDegrees(270);
+    
   }
 
   public static class KickerConstants {

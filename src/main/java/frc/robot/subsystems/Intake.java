@@ -12,14 +12,13 @@ import frc.robot.BreakerLib.sensors.BreakerBeamBreak;
 /** Add your docs here. */
 public class Intake {
     private TalonFX rollers;
-    private TalonFX piviot;
+    private TalonFX pivot;
     private CANcoder encoder;
     private BreakerBeamBreak coral;
-    private BreakerBeamBreak algae;
 
     public static enum IntakeRollerState {
-        INTAKE_CORAL_EXTAKE_ALGAE,
-        EXTAKE_CORAL_INTAKE_ALGAE,
+        INTAKE,
+        EXTAKE,
         NEUTRAL
     }
 
