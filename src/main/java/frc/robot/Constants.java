@@ -11,8 +11,10 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain.BreakerSwerveDrivetrainConstants;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain.BreakerSwerveDrivetrainConstants.ChoreoConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.HeadingCompensationConfig;
@@ -57,6 +59,8 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
+    public static final int kLeftMotorID = 30;
+    public static final int kRightMotorID = 31;
     public static final MechanismRatio kRotationsToMeters = new MechanismRatio(0, 0);
 
     public static final InvertedValue kLeftMotorInverted = InvertedValue.Clockwise_Positive;
@@ -80,6 +84,18 @@ public final class Constants {
     public static final Current kSupplyLowerCurrentLimit = Amps.of(60);
     public static final Time kSupplyLowerCurrentLimitTime = Seconds.of(0);
     public static final Current kStatorCurrentLimit = Amps.of(80);
+
+    public static final Distance kMaxHeight = Meters.of(0.0);
+    public static final Distance kMinHeight = Meters.of(0.0);
+
+    public static final Distance kDefaultHeightTolerence = Millimeters.of(5);
+    public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
+  }
+
+  public static class KickerConstants {
+    public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
+    public static final double kMaxColorDelta = 0.15;
+    
   }
 
   public static class AutoConstants {
