@@ -21,6 +21,7 @@ import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.ElevatorConstants.*;
@@ -124,6 +125,21 @@ public class Elevator extends SubsystemBase {
 
     public LinearAcceleration getAcceleration() {
         return MetersPerSecondPerSecond.of(kRotationsToMeters.getOutput(left.getAcceleration().getValue().in(RotationsPerSecondPerSecond)));
+    }
+
+    @Override
+    public void periodic() {
+        BreakerLog.log("Elevator/Motors/Left", left);
+        BreakerLog.log("Elevator/Motors/Right", right);
+        BreakerLog.log("Elevator/Setpoint/Value", setpoint.getHeight().in(Meters));
+        BreakerLog.log("Elevator/Setpoint/Error", Math.abs(getHeight().in(Meters)) -  setpoint.getHeight().in(Meters));
+        BreakerLog.log("Elevator/Setpoint/Tolerence", setpoint.getTolerence().in(Units.Meters));
+        BreakerLog.log("Elevator/Setpoint/Satisfied", atSetpoint());
+
+        BreakerLog.log("Elevator/State/NativePosition", getNativePosition());
+        BreakerLog.log("Elevator/State/Height", getHeight().in(Meters));
+        BreakerLog.log("Elevator/State/Velocity", getVelocity().in(MetersPerSecond));
+        BreakerLog.log("Elevator/State/Acceleration", getAcceleration().in(MetersPerSecondPerSecond));
     }
 
     public static class ElevatorSetpoint {

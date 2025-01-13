@@ -14,16 +14,17 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.BreakerLib.sensors.BreakerBeamBreak;
 
-public class EndEffector2 {
+public class EndEffector {
     private TalonSRX kicker;
     private TalonSRX rollers;
     private TalonFX pivot;
     private CANcoder pivotEncoder;
     private BreakerBeamBreak coralSensor;
     private Canandcolor algaeSensor;
-    public EndEffector2() {
+    public EndEffector() {
 
     }
+
 
     public boolean hasCoral() {
         return coralSensor.getAsBoolean();
@@ -65,11 +66,22 @@ public class EndEffector2 {
     }
 
     public static enum KickerState {
-        KICK,
-        INTAKE,
-        EXTAKE,
-        HOLD,
-        NEUTRAL
+        KICK(-1.0),
+        INTAKE(-0.8),
+        EXTAKE(0.8),
+        HOLD(-0.1),
+        NEUTRAL(0.0);
+
+        private double dutyCycleOut;
+        private KickerState(double dutyCycleOut) {
+            this.dutyCycleOut = dutyCycleOut;
+        }
+
+        public double getDutyCycle() {
+            return dutyCycleOut;
+        }
+
+
     }
 
     public static class WristSetpoint {
@@ -77,7 +89,9 @@ public class EndEffector2 {
         private Angle tolerence;
         private AngularVelocity velocityTolerence;
         public WristSetpoint(Rotation2d setpoint, Angle tolerence, AngularVelocity velocityTolerence) {
-
+            this.setpoint = setpoint;
+            this.tolerence = tolerence;
+            this.velocityTolerence = velocityTolerence;
         }
 
         public Rotation2d getSetpoint() {
@@ -91,6 +105,11 @@ public class EndEffector2 {
         public AngularVelocity getVelocityTolerence() {
             return velocityTolerence;
         }
+        
+    }
+
+    public static record EndEffectorSetpoint(WristSetpoint wristSetpoint, RollerState rollerState, KickerState kickerState) {
+    
         
     }
 

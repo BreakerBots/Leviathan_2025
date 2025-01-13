@@ -92,6 +92,11 @@ public final class Constants {
     public static final Distance kDefaultHeightTolerence = Millimeters.of(5);
     public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
   }
+  
+  public static class IntakeConstants {
+    public static final Angle kPivotTolerence = Degrees.of(4);
+    
+  }
 
   public static class EndEffectorConstants {
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
