@@ -114,6 +114,13 @@ public final class Constants {
     
   }
 
+  public static class ClimbConstants {
+    public static final int kForkMotorID = 0;
+    public static final int kWinchMotorID = 0;
+    public static final int kForkCoder = 0;
+    public static final int kForkSensor = 0;
+  }
+
   public static class AutoConstants {
     public static final PIDConstants TRANSLATION_PID = new PIDConstants(7.5, 0, 0.8);
     public static final PIDConstants ROTATION_PID = new PIDConstants(1.5, 0,1);
