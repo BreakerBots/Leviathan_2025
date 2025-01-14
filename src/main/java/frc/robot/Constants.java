@@ -109,6 +109,8 @@ public final class Constants {
 
     public static final SupplyCurrentLimitConfiguration kNormalRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 30, 30, 0.2);
     public static final SupplyCurrentLimitConfiguration kAlgaeHoldRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
+    public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);
+    public static final SupplyCurrentLimitConfiguration kAlgaeHoldKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
   }
 
   public static class KickerConstants {
