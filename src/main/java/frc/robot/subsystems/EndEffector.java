@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.EndEffectorConstants.*;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -24,6 +25,17 @@ public class EndEffector {
     public EndEffector() {
 
     }
+
+    private void setRollerState(RollerState rollerState) {
+        if (rollerState == RollerState.HOLD_ALGAE) {
+            rollers.configSupplyCurrentLimit(kAlgaeHoldRollerCurrentLimitConfig);
+        } else {
+            rollers.configSupplyCurrentLimit(kNormalRollerCurrentLimitConfig);
+        }
+        rollers.set(ControlMode.PercentOutput, rollerState.getDutyCycle());
+    }
+
+    private void setKicker
 
 
     public boolean hasCoral() {

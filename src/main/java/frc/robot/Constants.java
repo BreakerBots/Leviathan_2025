@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 
@@ -105,7 +106,9 @@ public final class Constants {
 
     public static final Rotation2d kMinWristAngle = Rotation2d.fromDegrees(0.0);
     public static final Rotation2d kMaxWristAngle = Rotation2d.fromDegrees(270);
-    
+
+    public static final SupplyCurrentLimitConfiguration kNormalRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 30, 30, 0.2);
+    public static final SupplyCurrentLimitConfiguration kAlgaeHoldRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
   }
 
   public static class KickerConstants {
