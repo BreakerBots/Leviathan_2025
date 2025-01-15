@@ -11,6 +11,7 @@ import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
@@ -97,6 +98,13 @@ public class BreakerLog extends DogLog implements Subsystem {
         log(key + "/ChassisSpeeds", new ChassisSpeeds(value.vx, value.vy, value.omega));
         log(key + "/ChassisAccels", new ChassisAccels(value.ax, value.ay, value.alpha));
         log(key + "/Timestamp", value.t);
+    }
+
+    public static void log(String key, TalonFXS value) {
+        log(key + "/StatorCurrent", value.getStatorCurrent().getValueAsDouble());
+        log(key + "/SupplyCurrent", value.getSupplyCurrent().getValueAsDouble());
+        log(key + "/Position", value.getPosition().getValueAsDouble());
+        log(key + "/Velocity", value.getVelocity().getValueAsDouble());
     }
 
     public static void log(String key, TalonFX value) {

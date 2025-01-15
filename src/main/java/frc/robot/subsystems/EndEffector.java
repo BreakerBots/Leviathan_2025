@@ -4,8 +4,11 @@ import static frc.robot.Constants.EndEffectorConstants.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,14 +16,14 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.BreakerLib.sensors.BreakerBeamBreak;
+import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 
 public class EndEffector {
     private TalonSRX kicker;
     private TalonSRX rollers;
     private TalonFX pivot;
     private CANcoder pivotEncoder;
-    private BreakerBeamBreak coralSensor;
+    private BreakerDigitalSensor coralSensor;
     private Canandcolor algaeSensor;
     public EndEffector() {
 
@@ -35,7 +38,9 @@ public class EndEffector {
         rollers.set(ControlMode.PercentOutput, rollerState.getDutyCycle());
     }
 
-    private void setKicker
+    private void setKicker() {
+        
+    }
 
 
     public boolean hasCoral() {

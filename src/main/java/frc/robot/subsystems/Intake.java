@@ -16,7 +16,7 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.BreakerLib.sensors.BreakerBeamBreak;
+import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 import static frc.robot.Constants.IntakeConstants.*;
@@ -26,7 +26,7 @@ public class Intake extends SubsystemBase{
     private TalonFX rollers;
     private TalonFX pivot;
     private CANcoder encoder;
-    private BreakerBeamBreak coralSensor;
+    private BreakerDigitalSensor coralSensor;
     private MotionMagicExpoVoltage pivotRequest;
     private DutyCycleOut rollerRequest;
 
@@ -36,8 +36,8 @@ public class Intake extends SubsystemBase{
 
     }
 
-    public Command setState(IntakeState state) {
-        return Commands.runOnce(() -> setStateFunc(state), this).andThen(Commands.waitUntil(this::atSetpoint));
+    public Command setState(IntakeState state, boolean waitForSuccess) {
+        return Commands.runOnce(() -> setStateFunc(state), this).andThen(Commands.waitUntil(() -> atSetpoint() || !waitForSuccess));
     }
 
     private void setStateFunc(IntakeState state) {
@@ -64,7 +64,7 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean hasCoral() {
-        return coralSensor.isBroken();
+        return coralSensor.isTriggered();
     }
 
     @Override
@@ -80,8 +80,8 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakeState {
-        INTAKE(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED),
-        EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED),
+        INTAKE(IntakeRollerState.INTAKE_CORAL, IntakePivotState.EXTENDED),
+        EXTAKE(IntakeRollerState.EXTAKE_CORAL, IntakePivotState.EXTENDED),
         EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
         STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED),;
         private IntakeRollerState rollerState;
@@ -117,6 +117,7 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakePivotState {
         EXTENDED(Rotation2d.fromDegrees(0)),
+        PROCESSOR(Rotation2d.fromDegrees(90)),
         RETRACTED(Rotation2d.fromDegrees(90));
 
         private Rotation2d angle;
