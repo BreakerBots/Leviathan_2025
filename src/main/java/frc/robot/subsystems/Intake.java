@@ -80,8 +80,8 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakeState {
-        INTAKE(IntakeRollerState.INTAKE_CORAL, IntakePivotState.EXTENDED),
-        EXTAKE(IntakeRollerState.EXTAKE_CORAL, IntakePivotState.EXTENDED),
+        INTAKE(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED),
+        EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED),
         EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
         STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED),;
         private IntakeRollerState rollerState;
@@ -117,7 +117,6 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakePivotState {
         EXTENDED(Rotation2d.fromDegrees(0)),
-        PROCESSOR(Rotation2d.fromDegrees(90)),
         RETRACTED(Rotation2d.fromDegrees(90));
 
         private Rotation2d angle;

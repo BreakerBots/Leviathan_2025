@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static frc.robot.Constants.EndEffectorConstants.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -25,21 +26,20 @@ public class EndEffector {
     private CANcoder pivotEncoder;
     private BreakerDigitalSensor coralSensor;
     private Canandcolor algaeSensor;
+
+    private EndEffectorSetpoint setpoint;
     public EndEffector() {
 
     }
 
     private void setRollerState(RollerState rollerState) {
-        if (rollerState == RollerState.HOLD_ALGAE) {
-            rollers.configSupplyCurrentLimit(kAlgaeHoldRollerCurrentLimitConfig);
-        } else {
-            rollers.configSupplyCurrentLimit(kNormalRollerCurrentLimitConfig);
-        }
+        rollers.configSupplyCurrentLimit(rollerState.getCurrentLimitConfig());
         rollers.set(ControlMode.PercentOutput, rollerState.getDutyCycle());
     }
 
-    private void setKicker() {
-        
+    private void setKicker(KickerState kickerState) {
+        kicker.configSupplyCurrentLimit(kickerState.getCurrentLimitConfig());
+        kicker.set(ControlMode.PercentOutput, kickerState.getDutyCycle());
     }
 
 
@@ -67,35 +67,47 @@ public class EndEffector {
     }
     
     public static enum RollerState {
-        INTAKE(-0.5),
-        EXTAKE(1.0),
-        INTAKE_ALGAE(-0.75),
-        HOLD_ALGAE(-0.15),
-        NEUTRAL(0.0);
+        INTAKE(-0.5, kNormalRollerCurrentLimitConfig),
+        EXTAKE(1.0, kNormalRollerCurrentLimitConfig),
+        INTAKE_ALGAE(-0.75, kNormalRollerCurrentLimitConfig),
+        HOLD_ALGAE(-0.15, kAlgaeHoldRollerCurrentLimitConfig),
+        NEUTRAL(0.0, kNormalRollerCurrentLimitConfig);
         private double dutyCycleOut;
-        private RollerState(double dutyCycleOut) {
+        private SupplyCurrentLimitConfiguration currentLimitConfig;
+        private RollerState(double dutyCycleOut, SupplyCurrentLimitConfiguration currentLimitConfig) {
             this.dutyCycleOut = dutyCycleOut;
+            this.currentLimitConfig = currentLimitConfig;
         }
 
         public double getDutyCycle() {
             return dutyCycleOut;
+        }
+
+        public SupplyCurrentLimitConfiguration getCurrentLimitConfig() {
+            return currentLimitConfig;
         }
     }
 
     public static enum KickerState {
-        KICK(-1.0),
-        INTAKE(-0.8),
-        EXTAKE(0.8),
-        HOLD(-0.1),
-        NEUTRAL(0.0);
+        KICK(-1.0, kNormalKickerCurrentLimitConfig),
+        INTAKE(-0.8, kNormalKickerCurrentLimitConfig),
+        EXTAKE(0.8, kNormalKickerCurrentLimitConfig),
+        HOLD(-0.1, kAlgaeHoldKickerCurrentLimitConfig),
+        NEUTRAL(0.0, kNormalKickerCurrentLimitConfig);
 
         private double dutyCycleOut;
-        private KickerState(double dutyCycleOut) {
+        private SupplyCurrentLimitConfiguration currentLimitConfig;
+        private KickerState(double dutyCycleOut, SupplyCurrentLimitConfiguration currentLimitConfig) {
             this.dutyCycleOut = dutyCycleOut;
+            this.currentLimitConfig = currentLimitConfig;
         }
 
         public double getDutyCycle() {
             return dutyCycleOut;
+        }
+        
+        public SupplyCurrentLimitConfiguration getCurrentLimitConfig() {
+            return currentLimitConfig;
         }
 
 
@@ -109,6 +121,10 @@ public class EndEffector {
             this.setpoint = setpoint;
             this.tolerence = tolerence;
             this.velocityTolerence = velocityTolerence;
+        }
+
+        public WristSetpoint(Rotation2d setpoint) {
+            this(setpoint, kDefaultWristAngleTolerence, kDefaultWristVelocityTolerence);
         }
 
         public Rotation2d getSetpoint() {
@@ -126,7 +142,7 @@ public class EndEffector {
     }
 
     public static record EndEffectorSetpoint(WristSetpoint wristSetpoint, RollerState rollerState, KickerState kickerState) {
-    
+        public static final EndEffectorSetpoint INTAKE_HP = new EndEffectorSetpoint(new WristSetpoint(kMinWristAngle), RollerState.INTAKE, KickerState.INTAKE);
         
     }
 

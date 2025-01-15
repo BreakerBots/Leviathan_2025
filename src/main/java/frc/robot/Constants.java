@@ -107,6 +107,9 @@ public final class Constants {
     public static final Rotation2d kMinWristAngle = Rotation2d.fromDegrees(0.0);
     public static final Rotation2d kMaxWristAngle = Rotation2d.fromDegrees(270);
 
+    public static final Angle kDefaultWristAngleTolerence = Degrees.of(3.5);
+    public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
+
     public static final SupplyCurrentLimitConfiguration kNormalRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 30, 30, 0.2);
     public static final SupplyCurrentLimitConfiguration kAlgaeHoldRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
     public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);
