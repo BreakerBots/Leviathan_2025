@@ -6,13 +6,13 @@ package frc.robot.BreakerLib.sensors;
 
 import java.util.function.BooleanSupplier;
 
-import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.CANrange;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import com.ctre.phoenix6.hardware.CANdi;
 
 public class BreakerDigitalSensor extends SubsystemBase implements BooleanSupplier, AutoCloseable {
   /** Creates a new BreakerBeamBreak. */
@@ -42,10 +42,14 @@ public class BreakerDigitalSensor extends SubsystemBase implements BooleanSuppli
     return new BreakerDigitalSensor(() -> canrange.getIsDetected().getValue(), () -> canrange.close());
   }
 
-  public static enum CANdiDigitalInput {
-    S1, 
-    S2
+  public static BreakerDigitalSensor fromCANdiS1(CANdi candi) {
+    return new BreakerDigitalSensor((BooleanSupplier)candi.getS1Closed().asSupplier(), () -> candi.close());
   }
+
+  public static BreakerDigitalSensor fromCANdiS2(CANdi candi) {
+    return new BreakerDigitalSensor((BooleanSupplier)candi.getS2Closed().asSupplier(), () -> candi.close());
+  }
+
 
   public boolean isTriggered() {
     return isTriggeredSupplier.getAsBoolean();

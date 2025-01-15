@@ -14,20 +14,20 @@ import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimbConstants;
-import frc.robot.BreakerLib.sensors.BreakerBeamBreak;
+import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 /** Add your docs here. */
 public class Climb extends SubsystemBase {
     private TalonFXS fork;
     private TalonFX winch;
     private CANcoder forkCoder;
-    private BreakerBeamBreak forkSensor;
+    private BreakerDigitalSensor forkSensor;
     private StateState currentStateState = StateState.NEUTRAL;
     
     public Climb() {
         fork = new TalonFXS(ClimbConstants.kForkMotorID);
         winch = new TalonFX(ClimbConstants.kWinchMotorID);
         forkCoder = new CANcoder(ClimbConstants.kForkCoder);
-        forkSensor = BreakerBeamBreak.fromDIO(ClimbConstants.kForkSensor, true);
+        forkSensor = BreakerDigitalSensor.fromDIO(ClimbConstants.kForkSensor, true);
         setupConfigs();
     }
     
