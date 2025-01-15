@@ -14,12 +14,15 @@ import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 
-public class EndEffector {
+public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
     private TalonSRX rollers;
     private TalonFX pivot;
@@ -65,7 +68,38 @@ public class EndEffector {
         var bt = new Translation3d(b.red, b.green, b.blue);
         return at.getDistance(bt);
     }
-    
+
+    @Override
+    public void periodic() {
+        BreakerLog.log("EndEffector/Wrist/Motor", pivot);
+        BreakerLog.log("EndEffector/Wrist/Encoder", pivotEncoder);
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.getDegrees());
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Units.Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(Units.DegreesPerSecond));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Error", );
+
+        BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
+        BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
+        BreakerLog.log("EndEffector/RollerMotor/Output", rollers.getMotorOutputPercent());
+        BreakerLog.log("EndEffector/KickerMotor/SupplyCurrent", rollers.getSupplyCurrent());
+        BreakerLog.log("EndEffector/KickerMotor/StatorCurrent", rollers.getStatorCurrent());
+        BreakerLog.log("EndEffector/KickerMotor/Output", rollers.getMotorOutputPercent());
+
+        BreakerLog.log("EndEffector/HasCoral", hasCoral());
+        BreakerLog.log("EndEffector/AlgaeSensor/HasAlgae", hasAlgae());
+        Color c = algaeSensor.getColor().toWpilibColor();
+        double cd = getColorDelta(c, kAlgaeColor);
+        BreakerLog.log("EndEffector/AlgaeSensor/SeesAlgae", cd <= kMaxColorDelta);
+        BreakerLog.log("EndEffector/AlgaeSensor/Color/Delta", cd);
+        BreakerLog.log("EndEffector/AlgaeSensor/Color/R", c.red);
+        BreakerLog.log("EndEffector/AlgaeSensor/Color/G", c.green);
+        BreakerLog.log("EndEffector/AlgaeSensor/Color/B", c.blue);
+
+
+
+    }
+
+
     public static enum RollerState {
         INTAKE(-0.5, kNormalRollerCurrentLimitConfig),
         EXTAKE(1.0, kNormalRollerCurrentLimitConfig),

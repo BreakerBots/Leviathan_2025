@@ -24,10 +24,12 @@ import static frc.robot.Constants.IntakeConstants.*;
 /** Add your docs here. */
 public class Intake extends SubsystemBase{
     private TalonFX rollers;
-    private TalonFX pivot;
+    private TalonFX pivotLeft;
+    private TalonFX pivotRight;
     private CANcoder encoder;
     private BreakerDigitalSensor coralSensor;
     private MotionMagicExpoVoltage pivotRequest;
+    private Follower followRequest;
     private DutyCycleOut rollerRequest;
 
     private IntakeState setpoint;
@@ -47,12 +49,13 @@ public class Intake extends SubsystemBase{
 
     private void setAngle(Rotation2d angle) {
         pivotRequest.withPosition(angle.getRotations());
-        pivot.setControl(pivotRequest);
+        pivotLeft.setControl(pivotRequest);
+        pivotRight.setControl(followRequest);
     }
 
     private void setRoller(IntakeRollerState rollerState) {
         double dcOut = rollerState.getDutyCycleOut();
-        pivot.setControl(rollerRequest.withOutput(dcOut));
+        rollers.setControl(rollerRequest.withOutput(dcOut));
     }
 
     public boolean atSetpoint() {
