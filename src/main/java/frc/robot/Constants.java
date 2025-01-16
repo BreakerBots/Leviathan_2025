@@ -127,8 +127,10 @@ public final class Constants {
     public static final int kWinchMotorID = 0;
     public static final int kForkCoder = 0;
     public static final int kForkSensor = 0;
-    public static final Rotation2d kReverseLimit = Rotation2d.fromDegrees(0);
+    public static final Rotation2d kForkReverseLimit = Rotation2d.fromDegrees(0);
     public static final MechanismRatio kForkSensorGearRatio = new MechanismRatio(1,1);
+    public static final Rotation2d kWinchReverseLimit = Rotation2d.fromRotations(0);
+    public static final MechanismRatio kWinchRatio = new MechanismRatio(1,1);
   }
 
   public static class AutoConstants {
