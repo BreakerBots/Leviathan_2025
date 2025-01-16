@@ -36,7 +36,7 @@ public class Intake extends SubsystemBase{
     private IntakeState setpoint;
 
     public Intake() {
-
+        
     }
 
     public Command setState(IntakeState state, boolean waitForSuccess) {

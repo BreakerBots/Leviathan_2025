@@ -7,6 +7,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicExpoDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -26,11 +28,11 @@ import frc.robot.BreakerLib.util.logging.BreakerLog;
 public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
     private TalonSRX rollers;
-    private TalonFX pivot;
+    private TalonFX wrist;
     private CANcoder pivotEncoder;
     private BreakerDigitalSensor coralSensor;
     private Canandcolor algaeSensor;
-
+    private MotionMagicExpoVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
     public EndEffector() {
 
@@ -44,6 +46,10 @@ public class EndEffector extends SubsystemBase {
     private void setKicker(KickerState kickerState) {
         kicker.configSupplyCurrentLimit(kickerState.getCurrentLimitConfig());
         kicker.set(ControlMode.PercentOutput, kickerState.getDutyCycle());
+    }
+
+    private void setWrist(Angle setpoint) {
+
     }
 
 
@@ -76,7 +82,7 @@ public class EndEffector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        BreakerLog.log("EndEffector/Wrist/Motor", pivot);
+        BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         BreakerLog.log("EndEffector/Wrist/Encoder", pivotEncoder);
         BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
