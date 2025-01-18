@@ -127,10 +127,15 @@ public final class Constants {
     public static final int kWinchMotorID = 0;
     public static final int kForkCoder = 0;
     public static final int kForkSensor = 0;
+    public static final double kForkExtendedPosition = 0;
+    public static final double kForkRetractedPosition = 0;
     public static final Rotation2d kForkReverseLimit = Rotation2d.fromDegrees(0);
     public static final MechanismRatio kForkSensorGearRatio = new MechanismRatio(1,1);
     public static final Rotation2d kWinchReverseLimit = Rotation2d.fromRotations(0);
-    public static final MechanismRatio kWinchRatio = new MechanismRatio(1,1);
+    public static final MechanismRatio kWinchSpoolRatio = new MechanismRatio(1,1); // rotations to distance (cm)
+    public static final Distance kWinchTolerance = Centimeter.of(2);
+    public static final Distance kWinchWoundLimit = Centimeter.of(0);
+    public static final Distance kWinchUnwound = Centimeter.of(0);
   }
 
   public static class AutoConstants {
