@@ -86,12 +86,34 @@ public final class Constants {
     public static final Current kSupplyLowerCurrentLimit = Amps.of(60);
     public static final Time kSupplyLowerCurrentLimitTime = Seconds.of(0);
     public static final Current kStatorCurrentLimit = Amps.of(80);
+    public static final CurrentLimitsConfigs kNormalCurrentLimits = new CurrentLimitsConfigs()
+      .withSupplyCurrentLimit(kSupplyCurrentLimit)
+      .withSupplyCurrentLowerLimit(kSupplyLowerCurrentLimit)
+      .withSupplyCurrentLowerTime(kSupplyLowerCurrentLimitTime)
+      .withStatorCurrentLimitEnable(true)
+      .withStatorCurrentLimit(kStatorCurrentLimit)
+      .withStatorCurrentLimitEnable(true);
+
+    public static final Current kHomeSupplyCurrentLimit = Amps.of(5);
+    public static final Current kHomeSupplyLowerCurrentLimit = Amps.of(5);
+    public static final Time kHomeSupplyLowerCurrentLimitTime = Seconds.of(0);
+    public static final Current kHomeStatorCurrentLimit = Amps.of(6);
+    public static final CurrentLimitsConfigs kHomeingCurrentLimits = new CurrentLimitsConfigs()
+      .withSupplyCurrentLimit(kHomeSupplyCurrentLimit)
+      .withSupplyCurrentLowerLimit(kHomeSupplyLowerCurrentLimit)
+      .withSupplyCurrentLowerTime(kHomeSupplyLowerCurrentLimitTime)
+      .withStatorCurrentLimitEnable(true)
+      .withStatorCurrentLimit(kHomeStatorCurrentLimit)
+      .withStatorCurrentLimitEnable(true);
 
     public static final Distance kMaxHeight = Meters.of(0.0);
     public static final Distance kMinHeight = Meters.of(0.0);
 
     public static final Distance kDefaultHeightTolerence = Millimeters.of(5);
     public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
+
+    public static final double kHomeingVoltage = kG - 0.1; 
+    public static final Current kHomeDetectCurrentThreshold = Amps.of(3.5);
   }
   
   public static class IntakeConstants {

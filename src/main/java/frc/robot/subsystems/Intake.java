@@ -14,12 +14,16 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static frc.robot.Constants.IntakeConstants.*;
 
 /** Add your docs here. */
@@ -44,12 +48,13 @@ public class Intake extends SubsystemBase{
     }
 
     private void setStateFunc(IntakeState state) {
+        setpoint = state;
         setAngle(state.getPivotState().getAngle());
         setRoller(state.getRollerState());
     }
 
-    private void setAngle(Rotation2d angle) {
-        pivotRequest.withPosition(angle.getRotations());
+    private void setAngle(Angle angle) {
+        pivotRequest.withPosition(angle);
         pivotLeft.setControl(pivotRequest);
         pivotRight.setControl(followRequest);
     }
@@ -60,11 +65,11 @@ public class Intake extends SubsystemBase{
     }
 
     public boolean atSetpoint() {
-        return MathUtil.isNear(setpoint.getPivotState().getAngle().getRadians(), getPivotAngle().getRadians(), kPivotTolerence.in(Units.Radians));
+        return MathUtil.isNear(setpoint.getPivotState().getAngle().in(Radians), getPivotAngle().in(Radians), kPivotTolerence.in(Units.Radians));
     }
 
-    public Rotation2d getPivotAngle() {
-        return null;
+    public Angle getPivotAngle() {
+        return encoder.getAbsolutePosition().getValue();
     }
 
     public boolean hasCoral() {
@@ -73,15 +78,25 @@ public class Intake extends SubsystemBase{
 
     @Override
     public void periodic() {
+        if (RobotState.isDisabled()) {
+            double curAng = getPivotAngle().in(Degrees);
+            double extDelta = Math.abs(IntakePivotState.EXTENDED.getAngle().in(Degrees) - curAng);
+            double retDelta = Math.abs(IntakePivotState.RETRACTED.getAngle().in(Degrees) - curAng);
+            if (extDelta < retDelta) {
+                setStateFunc(IntakeState.STOW);
+            } else {
+                setStateFunc(IntakeState.EXTENDED_NEUTRAL);
+            }
+        }
         BreakerLog.log("Intake/Rollers/Motor", rollers);
         BreakerLog.log("Intake/Rollers/State", setpoint.getRollerState().toString());
         BreakerLog.log("Intake/Pivot/Motors/Left", pivotLeft);
         BreakerLog.log("Intake/Pivot/Motors/Right", pivotRight);
         BreakerLog.log("Intake/Pivot/Encoder", encoder);
         BreakerLog.log("Intake/Pivot/Setpoint/Name", setpoint.getPivotState().toString());
-        BreakerLog.log("Intake/Pivot/Setpoint/Angle", setpoint.getPivotState().getAngle());
+        BreakerLog.log("Intake/Pivot/Setpoint/Angle", setpoint.getPivotState().getAngle().in(Degrees));
         BreakerLog.log("Intake/Pivot/Setpoint/AtSetpoint", atSetpoint());
-        BreakerLog.log("Intake/Pivot/Angle", getPivotAngle());
+        BreakerLog.log("Intake/Pivot/Angle", getPivotAngle().in(Degrees));
     }
 
     public static enum IntakeState {
@@ -121,15 +136,15 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakePivotState {
-        EXTENDED(Rotation2d.fromDegrees(0)),
-        RETRACTED(Rotation2d.fromDegrees(90));
+        EXTENDED(Degrees.of(0)),
+        RETRACTED(Degrees.of(90));
 
-        private Rotation2d angle;
-        private IntakePivotState(Rotation2d angle) {
+        private Angle angle;
+        private IntakePivotState(Angle angle) {
             this.angle = angle;
         }
 
-        public Rotation2d getAngle() {
+        public Angle getAngle() {
             return angle;
         }
     }

@@ -1,8 +1,11 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -18,10 +21,15 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.wpilibj.DutyCycle;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandStadiaController;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.BreakerLib.util.logging.LoggedAlert;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.ElevatorConstants.*;
@@ -30,7 +38,10 @@ public class Elevator extends SubsystemBase {
     private TalonFX left, right;
     private ElevatorSetpoint setpoint;
     private MotionMagicExpoVoltage motionMagicRequest;
+    private VoltageOut voltageRequest;
     private Follower followRequest;
+    private LoggedAlert homeingFailedAlert;
+    private LoggedAlert isHomeingAlert;
     public Elevator() {
         left = new TalonFX(kLeftMotorID);
         right = new TalonFX(kRightMotorID);
@@ -38,6 +49,9 @@ public class Elevator extends SubsystemBase {
         configRight();
         motionMagicRequest = new MotionMagicExpoVoltage(getNativePosition()).withEnableFOC(true);
         followRequest = new Follower(kLeftMotorID, kLeftMotorInverted != kRightMotorInverted);
+
+        homeingFailedAlert = new LoggedAlert("Elevator/Errors/HomeingFailed", "Failed to home elevator, setpoints will be inacurate", AlertType.kError);
+        isHomeingAlert = new LoggedAlert("Elevator/Errors/IsHomeing", "Elevator Is Homeing, Please Wait", AlertType.kInfo);
     }
 
     private void configLeft() {
@@ -49,21 +63,15 @@ public class Elevator extends SubsystemBase {
         leftConfig.Slot0.kP = kRotationsToMeters.getInput(kP);
         leftConfig.Slot0.kI = kRotationsToMeters.getInput(kI);
         leftConfig.Slot0.kD = kRotationsToMeters.getInput(kD);
-        leftConfig.Slot0.kS = kRotationsToMeters.getInput(kS);
-        leftConfig.Slot0.kG = kRotationsToMeters.getInput(kG);
+        leftConfig.Slot0.kS = kS;
+        leftConfig.Slot0.kG = kG;
         leftConfig.MotionMagic.MotionMagicExpo_kA = kRotationsToMeters.getInput(kA);
         leftConfig.MotionMagic.MotionMagicExpo_kV = kRotationsToMeters.getInput(kV);
         leftConfig.MotionMagic.MotionMagicCruiseVelocity =  kRotationsToMeters.getInput(kMotionMagicCruiseVelocity.in(MetersPerSecond));
         leftConfig.MotionMagic.MotionMagicAcceleration =  kRotationsToMeters.getInput(kMotionMagicAcceleration.in(MetersPerSecondPerSecond));
         leftConfig.MotionMagic.MotionMagicJerk = kRotationsToMeters.getInput(kMotionMagicJerk.in(MetersPerSecondPerSecond.per(Second)));
 
-        leftConfig.CurrentLimits.SupplyCurrentLimit = kSupplyCurrentLimit.in(Amps);
-        leftConfig.CurrentLimits.SupplyCurrentLowerLimit = kSupplyLowerCurrentLimit.in(Amps);
-        leftConfig.CurrentLimits.SupplyCurrentLowerTime = kSupplyLowerCurrentLimitTime.in(Seconds);
-        leftConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-        leftConfig.CurrentLimits.StatorCurrentLimit = kStatorCurrentLimit.in(Amps);
-        leftConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        leftConfig.CurrentLimits = kNormalCurrentLimits;
 
         leftConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         left.getConfigurator().apply(leftConfig);
@@ -73,28 +81,62 @@ public class Elevator extends SubsystemBase {
         TalonFXConfiguration rightConfig = new TalonFXConfiguration();
         rightConfig.MotorOutput.Inverted = kRightMotorInverted;
 
-        rightConfig.CurrentLimits.SupplyCurrentLimit = kSupplyCurrentLimit.in(Amps);
-        rightConfig.CurrentLimits.SupplyCurrentLowerLimit = kSupplyLowerCurrentLimit.in(Amps);
-        rightConfig.CurrentLimits.SupplyCurrentLowerTime = kSupplyLowerCurrentLimitTime.in(Second);
-        rightConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-
-        rightConfig.CurrentLimits.StatorCurrentLimit = kStatorCurrentLimit.in(Amps);
-        rightConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        rightConfig.CurrentLimits = kNormalCurrentLimits;
 
         rightConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         right.getConfigurator().apply(rightConfig);
 
     }
 
-    public Command set(ElevatorSetpoint setpoint) {
+    public Command home() {
+        return Commands.sequence(
+            Commands.runOnce(() -> isHomeingAlert.set(true)),
+            Commands.runOnce(() -> setHomeingCurrents(true)),
+            set(ElevatorSetpoint.HOMEING, true).withTimeout(3),
+            Commands.runOnce(() -> setVoltageOut(kHomeingVoltage)),
+            Commands.waitUntil(this::detectHome)
+                .andThen(() -> homeingFailedAlert.set(true))
+                .raceWith(Commands.waitSeconds(8)
+                    .andThen(() -> homeingFailedAlert.set(true))),
+            Commands.runOnce(() -> setVoltageOut(0.0)),
+            Commands.runOnce(this::homePosition),
+            set(ElevatorSetpoint.STOW, false),
+            Commands.runOnce(() -> isHomeingAlert.set(false))
+        );
+    }
+
+    private void setHomeingCurrents(boolean isHomeing) {
+        left.getConfigurator().apply(isHomeing ? kHomeingCurrentLimits : kNormalCurrentLimits);
+        right.getConfigurator().apply(isHomeing ? kHomeingCurrentLimits : kNormalCurrentLimits);
+    }
+
+    private void homePosition() {
+        left.setPosition(0);
+        right.setPosition(0);
+    }
+
+    private boolean detectHome() {
+        return Math.abs(left.getStatorCurrent().getValue().in(Amps)) >= kHomeDetectCurrentThreshold.in(Units.Amps);
+    }
+
+    public Command set(ElevatorSetpoint setpoint, boolean waitForSuccess) { 
+        return Commands.runOnce(() -> setFunc(setpoint), this)
+        .andThen(Commands.waitUntil(() -> atSetpoint() || !waitForSuccess));
+    }
+
+    private void setFunc(ElevatorSetpoint setpoint) {
         this.setpoint = setpoint;
-        return Commands.runOnce(() -> setControl(setpoint.getNativeSetpoint()), this)
-        .andThen(Commands.waitUntil(this::atSetpoint));
+        setControl(setpoint.getNativeSetpoint());
     }
 
     private void setControl(Angle nativeSetpoint) {
         motionMagicRequest.withPosition(nativeSetpoint);
         left.setControl(motionMagicRequest);
+        right.setControl(followRequest);
+    }
+
+    private void setVoltageOut(double voltageOut) {
+        left.setControl(voltageRequest.withOutput(voltageOut));
         right.setControl(followRequest);
     }
 
@@ -129,6 +171,10 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (RobotState.isDisabled()) {
+            setFunc(new ElevatorSetpoint(getHeight()));
+        }
+
         BreakerLog.log("Elevator/Motors/Left", left);
         BreakerLog.log("Elevator/Motors/Right", right);
         BreakerLog.log("Elevator/Setpoint/Value", setpoint.getHeight().in(Meters));
@@ -140,6 +186,7 @@ public class Elevator extends SubsystemBase {
         BreakerLog.log("Elevator/State/Height", getHeight().in(Meters));
         BreakerLog.log("Elevator/State/Velocity", getVelocity().in(MetersPerSecond));
         BreakerLog.log("Elevator/State/Acceleration", getAcceleration().in(MetersPerSecondPerSecond));
+        homeingFailedAlert.log();
     }
 
     public static class ElevatorSetpoint {
@@ -178,6 +225,7 @@ public class Elevator extends SubsystemBase {
         public static final ElevatorSetpoint L4 = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0));
+        private static final ElevatorSetpoint HOMEING = new ElevatorSetpoint(Meters.of(0.04));
     }
 
     

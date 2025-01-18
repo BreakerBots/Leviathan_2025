@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static frc.robot.Constants.EndEffectorConstants.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -15,15 +14,20 @@ import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.subsystems.Elevator.ElevatorSetpoint;
 
 public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
@@ -38,6 +42,17 @@ public class EndEffector extends SubsystemBase {
 
     }
 
+    public Command set(EndEffectorSetpoint setpoint, boolean waitForSuccess) {
+        return Commands.runOnce(() -> setControl(setpoint)).andThen(Commands.waitUntil(() -> isAtSetpoint() || !waitForSuccess));
+    }
+
+    private void setControl(EndEffectorSetpoint setpoint) {
+        this.setpoint = setpoint;
+        setRollerState(setpoint.rollerState());
+        setKicker(setpoint.kickerState());
+        setWrist(setpoint.wristSetpoint().getSetpoint());
+    }
+ 
     private void setRollerState(RollerState rollerState) {
         rollers.configSupplyCurrentLimit(rollerState.getCurrentLimitConfig());
         rollers.set(ControlMode.PercentOutput, rollerState.getDutyCycle());
@@ -49,7 +64,7 @@ public class EndEffector extends SubsystemBase {
     }
 
     private void setWrist(Angle setpoint) {
-
+        wrist.setControl(wristRequest.withPosition(setpoint));
     }
 
 
@@ -73,6 +88,26 @@ public class EndEffector extends SubsystemBase {
         return pivotEncoder.getAbsolutePosition().getValue();
     }
 
+    public AngularVelocity getWristVelocity() {
+        return pivotEncoder.getVelocity().getValue();
+    }
+
+    public boolean isAtSetpoint() {
+        return isAtAngleSetpoint() && isAtWristVelocitySetpoint();
+    }
+
+    public EndEffectorSetpoint getSetpoint() {
+        return setpoint;
+    }
+
+    private boolean isAtAngleSetpoint() {
+        return MathUtil.isNear(setpoint.wristSetpoint().getSetpoint().in(Rotations), pivotEncoder.getAbsolutePosition().getValue().in(Rotations), setpoint.wristSetpoint().getTolerence().in(Rotations), -0.5, 0.5);
+    }
+
+    private boolean isAtWristVelocitySetpoint() {
+        return MathUtil.isNear(0.0, getWristVelocity().in(RadiansPerSecond), setpoint.wristSetpoint().getVelocityTolerence().in(RadiansPerSecond));
+    }
+
 
     public static double getColorDelta(Color a, Color b) {
         var at = new Translation3d(a.red, a.green, a.blue);
@@ -82,6 +117,10 @@ public class EndEffector extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (RobotState.isDisabled()) {
+            setControl(new EndEffectorSetpoint(new WristSetpoint(getWristAngle()), RollerState.NEUTRAL, KickerState.NEUTRAL));
+        }
+
         BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         BreakerLog.log("EndEffector/Wrist/Encoder", pivotEncoder);
         BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
