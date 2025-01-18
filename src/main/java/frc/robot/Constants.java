@@ -104,8 +104,8 @@ public final class Constants {
     public static final double kMaxColorDelta = 0.15;
     public static final double kHasAlgaeProximityThresh = 0.1;
 
-    public static final Rotation2d kMinWristAngle = Rotation2d.fromDegrees(0.0);
-    public static final Rotation2d kMaxWristAngle = Rotation2d.fromDegrees(270);
+    public static final Angle kMinWristAngle = Degrees.of(0);
+    public static final Angle kMaxWristAngle = Degrees.of(270);
 
     public static final Angle kDefaultWristAngleTolerence = Degrees.of(3.5);
     public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);

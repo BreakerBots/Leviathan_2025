@@ -1,11 +1,14 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static frc.robot.Constants.EndEffectorConstants.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicExpoDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
@@ -14,7 +17,7 @@ import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.Units;
+import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.util.Color;
@@ -25,11 +28,11 @@ import frc.robot.BreakerLib.util.logging.BreakerLog;
 public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
     private TalonSRX rollers;
-    private TalonFX pivot;
+    private TalonFX wrist;
     private CANcoder pivotEncoder;
     private BreakerDigitalSensor coralSensor;
     private Canandcolor algaeSensor;
-
+    private MotionMagicExpoVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
     public EndEffector() {
 
@@ -43,6 +46,10 @@ public class EndEffector extends SubsystemBase {
     private void setKicker(KickerState kickerState) {
         kicker.configSupplyCurrentLimit(kickerState.getCurrentLimitConfig());
         kicker.set(ControlMode.PercentOutput, kickerState.getDutyCycle());
+    }
+
+    private void setWrist(Angle setpoint) {
+
     }
 
 
@@ -62,6 +69,10 @@ public class EndEffector extends SubsystemBase {
         return isAlgaeVisable() && isAlgaeProximityBelowThresh();
     }
 
+    public Angle getWristAngle() {
+        return pivotEncoder.getAbsolutePosition().getValue();
+    }
+
 
     public static double getColorDelta(Color a, Color b) {
         var at = new Translation3d(a.red, a.green, a.blue);
@@ -71,12 +82,12 @@ public class EndEffector extends SubsystemBase {
 
     @Override
     public void periodic() {
-        BreakerLog.log("EndEffector/Wrist/Motor", pivot);
+        BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         BreakerLog.log("EndEffector/Wrist/Encoder", pivotEncoder);
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.getDegrees());
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Units.Degrees));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(Units.DegreesPerSecond));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Error", );
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle().in(Degrees)) - setpoint.wristSetpoint.setpoint.in(Degrees));
 
         BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
         BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
@@ -94,9 +105,6 @@ public class EndEffector extends SubsystemBase {
         BreakerLog.log("EndEffector/AlgaeSensor/Color/R", c.red);
         BreakerLog.log("EndEffector/AlgaeSensor/Color/G", c.green);
         BreakerLog.log("EndEffector/AlgaeSensor/Color/B", c.blue);
-
-
-
     }
 
 
@@ -148,20 +156,20 @@ public class EndEffector extends SubsystemBase {
     }
 
     public static class WristSetpoint {
-        private Rotation2d setpoint;
+        private Angle setpoint;
         private Angle tolerence;
         private AngularVelocity velocityTolerence;
-        public WristSetpoint(Rotation2d setpoint, Angle tolerence, AngularVelocity velocityTolerence) {
+        public WristSetpoint(Angle setpoint, Angle tolerence, AngularVelocity velocityTolerence) {
             this.setpoint = setpoint;
             this.tolerence = tolerence;
             this.velocityTolerence = velocityTolerence;
         }
 
-        public WristSetpoint(Rotation2d setpoint) {
+        public WristSetpoint(Angle setpoint) {
             this(setpoint, kDefaultWristAngleTolerence, kDefaultWristVelocityTolerence);
         }
 
-        public Rotation2d getSetpoint() {
+        public Angle getSetpoint() {
             return setpoint;
         }
 

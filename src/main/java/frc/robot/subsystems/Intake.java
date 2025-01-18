@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -35,7 +36,7 @@ public class Intake extends SubsystemBase{
     private IntakeState setpoint;
 
     public Intake() {
-
+        
     }
 
     public Command setState(IntakeState state, boolean waitForSuccess) {
@@ -74,7 +75,8 @@ public class Intake extends SubsystemBase{
     public void periodic() {
         BreakerLog.log("Intake/Rollers/Motor", rollers);
         BreakerLog.log("Intake/Rollers/State", setpoint.getRollerState().toString());
-        BreakerLog.log("Intake/Pivot/Motor", pivot);
+        BreakerLog.log("Intake/Pivot/Motors/Left", pivotLeft);
+        BreakerLog.log("Intake/Pivot/Motors/Right", pivotRight);
         BreakerLog.log("Intake/Pivot/Encoder", encoder);
         BreakerLog.log("Intake/Pivot/Setpoint/Name", setpoint.getPivotState().toString());
         BreakerLog.log("Intake/Pivot/Setpoint/Angle", setpoint.getPivotState().getAngle());
