@@ -155,6 +155,26 @@ public class Climb extends SubsystemBase {
         };
     }
 
+    public boolean isWinchAtTargetState() {
+        return switch (currentStateState.getWinchState()) {
+            case ROLLED -> isWinchAtPoint(ClimbConstants.kWinchWoundLimit);
+            case UNROLLED -> isWinchAtPoint(ClimbConstants.kWinchUnwound);
+            default -> true;
+        };
+    }
+
+    public boolean isForkAtTargetState() {
+        return switch (currentStateState.getForkState()) {
+            case EXTENDED -> getForkPosition() == ClimbConstants.kForkExtendedPosition;
+            case RETRACTED -> getForkPosition() == ClimbConstants.kForkRetractedPosition;
+            default -> true;
+        };
+    }
+
+    private double getForkPosition() {
+        return forkCoder.getPosition().getValueAsDouble();
+    }
+
     public boolean isInRolledBackState() {
         return currentStateState == ClimbState.ROLLED_BACK;
     }
@@ -176,11 +196,11 @@ public class Climb extends SubsystemBase {
         return isWinchAtPoint(0);
     }
 
-    public boolean isWinchAtPoint(double cm) {
+    private boolean isWinchAtPoint(double cm) {
         return MathUtil.isNear(cm, getSpoolDistanceCentimeter(), ClimbConstants.kWinchTolerance.magnitude());
     }
 
-    public boolean isWinchAtPoint(Distance point) {
+    private boolean isWinchAtPoint(Distance point) {
         return isWinchAtPoint(point.in(Units.Centimeters));
     }
 
