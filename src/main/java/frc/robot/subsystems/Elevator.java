@@ -47,6 +47,9 @@ public class Elevator extends SubsystemBase {
         right = new TalonFX(kRightMotorID);
         configLeft();
         configRight();
+        var sp = new ElevatorSetpoint(getHeight());
+        setFunc(sp);
+        voltageRequest = new VoltageOut(0);
         motionMagicRequest = new MotionMagicExpoVoltage(getNativePosition()).withEnableFOC(true);
         followRequest = new Follower(kLeftMotorID, kLeftMotorInverted != kRightMotorInverted);
 
@@ -59,7 +62,6 @@ public class Elevator extends SubsystemBase {
         leftConfig.MotorOutput.Inverted = kLeftMotorInverted;
         leftConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         leftConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-
         leftConfig.Slot0.kP = kRotationsToMeters.getInput(kP);
         leftConfig.Slot0.kI = kRotationsToMeters.getInput(kI);
         leftConfig.Slot0.kD = kRotationsToMeters.getInput(kD);

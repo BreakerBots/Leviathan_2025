@@ -5,6 +5,9 @@ import static frc.robot.Constants.EndEffectorConstants.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
@@ -18,6 +21,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotState;
@@ -28,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
+import frc.robot.subsystems.EndEffector.WristAngle.WristAngleType;
 
 public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
@@ -38,19 +44,34 @@ public class EndEffector extends SubsystemBase {
     private Canandcolor algaeSensor;
     private MotionMagicExpoVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
+    private EndEffectorRotationAllowence rotationAllowence;
     public EndEffector() {
+        CANcoderConfiguration conf = new CANcoderConfiguration();
+        setRotationAllowenceFunc(EndEffectorRotationAllowence.BOTTOM_LIMITED);
+    }
 
+    public Command setRotationAllowence(EndEffectorRotationAllowence rotationAllowence) {
+        return Commands.runOnce(() -> setRotationAllowenceFunc(rotationAllowence), this);
+    }
+
+    private void setRotationAllowenceFunc(EndEffectorRotationAllowence rotationAllowence) {
+        this.rotationAllowence = rotationAllowence;
+        MagnetSensorConfigs magConfigs = new MagnetSensorConfigs();
+        pivotEncoder.getConfigurator().refresh(magConfigs);
+        magConfigs.AbsoluteSensorDiscontinuityPoint = rotationAllowence.getAngleType().discontinuity().getDiscontinuityEnd();
+        pivotEncoder.getConfigurator().apply(magConfigs);
+        wrist.getConfigurator().apply(rotationAllowence.getSoftLimits());
     }
 
     public Command set(EndEffectorSetpoint setpoint, boolean waitForSuccess) {
-        return Commands.runOnce(() -> setControl(setpoint)).andThen(Commands.waitUntil(() -> isAtSetpoint() || !waitForSuccess));
+        return Commands.runOnce(() -> setControl(setpoint), this).andThen(Commands.waitUntil(() -> isAtSetpoint() || !waitForSuccess));
     }
 
     private void setControl(EndEffectorSetpoint setpoint) {
         this.setpoint = setpoint;
         setRollerState(setpoint.rollerState());
         setKicker(setpoint.kickerState());
-        setWrist(setpoint.wristSetpoint().getSetpoint());
+        setWrist(setpoint.wristSetpoint().getSetpoint().convert(rotationAllowence.getAngleType()).getAngle());
     }
  
     private void setRollerState(RollerState rollerState) {
@@ -101,7 +122,7 @@ public class EndEffector extends SubsystemBase {
     }
 
     private boolean isAtAngleSetpoint() {
-        return MathUtil.isNear(setpoint.wristSetpoint().getSetpoint().in(Rotations), pivotEncoder.getAbsolutePosition().getValue().in(Rotations), setpoint.wristSetpoint().getTolerence().in(Rotations), -0.5, 0.5);
+        return MathUtil.isNear(setpoint.wristSetpoint().getSetpoint().getNormal().getAngle().in(Rotations), getWristAngle().getNormal().getAngle().in(Rotations), setpoint.wristSetpoint().getTolerence().in(Rotations), -0.5, 0.5);
     }
 
     private boolean isAtWristVelocitySetpoint() {
@@ -123,10 +144,11 @@ public class EndEffector extends SubsystemBase {
 
         BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         BreakerLog.log("EndEffector/Wrist/Encoder", pivotEncoder);
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.getNormal().getAngle().in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle().in(Degrees)) - setpoint.wristSetpoint.setpoint.in(Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle()
+        .getNormal().getAngle().in(Degrees)) - setpoint.wristSetpoint.setpoint.getNormal().getAngle().in(Degrees));
 
         BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
         BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
@@ -166,6 +188,19 @@ public class EndEffector extends SubsystemBase {
 
         public SupplyCurrentLimitConfiguration getCurrentLimitConfig() {
             return currentLimitConfig;
+        }
+    }
+
+    public static enum EndEffectorRotationAllowence {
+        RESTRICTED(kRestrictedSoftLimits),
+        FLIPABLE(kFlippableSoftLimits);
+        private SoftwareLimitSwitchConfigs softLimits;
+        private EndEffectorRotationAllowence(SoftwareLimitSwitchConfigs softLimits) {
+            this.softLimits = softLimits;
+        }
+
+        public SoftwareLimitSwitchConfigs getSoftLimits() {
+            return softLimits;
         }
     }
 
@@ -224,7 +259,8 @@ public class EndEffector extends SubsystemBase {
 
     public static record EndEffectorSetpoint(WristSetpoint wristSetpoint, RollerState rollerState, KickerState kickerState) {
         public static final EndEffectorSetpoint INTAKE_HP = new EndEffectorSetpoint(new WristSetpoint(kMinWristAngle), RollerState.INTAKE, KickerState.INTAKE);
-        
+        public static final EndEffectorSetpoint NEUTRAL_L4 = new EndEffectorSetpoint(new WristSetpoint(Degrees.of(0)), RollerState.NEUTRAL, KickerState.NEUTRAL);
+        public static final EndEffectorSetpoint EXTAKE_L4 = new EndEffectorSetpoint(new WristSetpoint(Degrees.of(0)), RollerState.EXTAKE, KickerState.EXTAKE);
     }
 
 

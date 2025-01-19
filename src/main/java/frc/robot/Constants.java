@@ -28,6 +28,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
@@ -58,6 +59,10 @@ public final class Constants {
 
     public static final double TRANSLATIONAL_DEADBAND = 0.1;
     public static final double ROTATIONAL_DEADBAND = 0.1;
+  }
+
+  public static class SuperstructureConstants {
+    public static final Distance kMaxSafeElevatorHeightForEndEffectorTopFlip = Centimeters.of(4);
   }
 
   public static class ElevatorConstants {
@@ -136,6 +141,22 @@ public final class Constants {
     public static final SupplyCurrentLimitConfiguration kAlgaeHoldRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
     public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);
     public static final SupplyCurrentLimitConfiguration kAlgaeHoldKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
+
+    public static final SoftwareLimitSwitchConfigs kFlippableSoftLimits = new SoftwareLimitSwitchConfigs()
+      .withForwardSoftLimitThreshold(Rotations.of(0))
+      .withForwardSoftLimitEnable(true)
+      .withReverseSoftLimitThreshold(Rotations.of(0))
+      .withReverseSoftLimitEnable(true);
+    public static final SoftwareLimitSwitchConfigs kRestrictedSoftLimits = new SoftwareLimitSwitchConfigs()
+      .withForwardSoftLimitThreshold(Rotations.of(0))
+      .withForwardSoftLimitEnable(true)
+      .withReverseSoftLimitThreshold(Rotations.of(0))
+      .withReverseSoftLimitEnable(true);
+    public static final SoftwareLimitSwitchConfigs kBottomRestrictedSoftLimits = new SoftwareLimitSwitchConfigs()
+      .withForwardSoftLimitThreshold(Rotations.of(0))
+      .withForwardSoftLimitEnable(true)
+      .withReverseSoftLimitThreshold(Rotations.of(0))
+      .withReverseSoftLimitEnable(true);
   }
 
   public static class KickerConstants {
