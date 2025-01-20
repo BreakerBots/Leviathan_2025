@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.Constants.IndexerConstants;
@@ -21,7 +22,7 @@ public class Indexer extends SubsystemBase {
     }
 
     public Command setState(IndexerState state) {
-        return runOnce(() -> set(state), this);
+        return Commands.runOnce(() -> set(state), this);
     }
 
     public static enum IndexerState {
