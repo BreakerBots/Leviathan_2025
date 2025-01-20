@@ -4,21 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Centimeter;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Millimeters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.CANBus;
@@ -85,7 +71,8 @@ public final class Constants {
   }
 
   public static class SuperstructureConstants {
-    public static final Distance kMaxSafeElevatorHeightForEndEffectorTopFlip = Centimeters.of(4);
+    public static final Distance kMaxHeightForEndEffectorFloorLimit = Centimeters.of(4);
+    public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(30);
   }
 
   public static class ElevatorConstants {
@@ -150,6 +137,9 @@ public final class Constants {
   }
 
   public static class EndEffectorConstants {
+    public static final double kWristDiscontinuityPoint = 0.75;
+    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(45);
+
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
     public static final double kMaxColorDelta = 0.15;
     public static final double kHasAlgaeProximityThresh = 0.1;
@@ -164,22 +154,6 @@ public final class Constants {
     public static final SupplyCurrentLimitConfiguration kAlgaeHoldRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
     public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);
     public static final SupplyCurrentLimitConfiguration kAlgaeHoldKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
-
-    public static final SoftwareLimitSwitchConfigs kFlippableSoftLimits = new SoftwareLimitSwitchConfigs()
-      .withForwardSoftLimitThreshold(Rotations.of(0))
-      .withForwardSoftLimitEnable(true)
-      .withReverseSoftLimitThreshold(Rotations.of(0))
-      .withReverseSoftLimitEnable(true);
-    public static final SoftwareLimitSwitchConfigs kRestrictedSoftLimits = new SoftwareLimitSwitchConfigs()
-      .withForwardSoftLimitThreshold(Rotations.of(0))
-      .withForwardSoftLimitEnable(true)
-      .withReverseSoftLimitThreshold(Rotations.of(0))
-      .withReverseSoftLimitEnable(true);
-    public static final SoftwareLimitSwitchConfigs kBottomRestrictedSoftLimits = new SoftwareLimitSwitchConfigs()
-      .withForwardSoftLimitThreshold(Rotations.of(0))
-      .withForwardSoftLimitEnable(true)
-      .withReverseSoftLimitThreshold(Rotations.of(0))
-      .withReverseSoftLimitEnable(true);
   }
 
   public static class KickerConstants {

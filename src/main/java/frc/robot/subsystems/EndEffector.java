@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
-import frc.robot.subsystems.EndEffector.WristAngle.WristAngleType;
 
 public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
@@ -44,24 +43,24 @@ public class EndEffector extends SubsystemBase {
     private Canandcolor algaeSensor;
     private MotionMagicExpoVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
-    private EndEffectorRotationAllowence rotationAllowence;
+    // private EndEffectorRotationAllowence rotationAllowence;
     public EndEffector() {
         CANcoderConfiguration conf = new CANcoderConfiguration();
-        setRotationAllowenceFunc(EndEffectorRotationAllowence.BOTTOM_LIMITED);
+        // setRotationAllowenceFunc(EndEffectorRotationAllowence.FLOOR_LIMITED);
     }
 
-    public Command setRotationAllowence(EndEffectorRotationAllowence rotationAllowence) {
-        return Commands.runOnce(() -> setRotationAllowenceFunc(rotationAllowence), this);
-    }
+    // public Command setRotationAllowence(EndEffectorRotationAllowence rotationAllowence) {
+    //     return Commands.runOnce(() -> setRotationAllowenceFunc(rotationAllowence), this);
+    // }
 
-    private void setRotationAllowenceFunc(EndEffectorRotationAllowence rotationAllowence) {
-        this.rotationAllowence = rotationAllowence;
-        MagnetSensorConfigs magConfigs = new MagnetSensorConfigs();
-        pivotEncoder.getConfigurator().refresh(magConfigs);
-        magConfigs.AbsoluteSensorDiscontinuityPoint = rotationAllowence.getAngleType().discontinuity().getDiscontinuityEnd();
-        pivotEncoder.getConfigurator().apply(magConfigs);
-        wrist.getConfigurator().apply(rotationAllowence.getSoftLimits());
-    }
+    // private void setRotationAllowenceFunc(EndEffectorRotationAllowence rotationAllowence) {
+    //     this.rotationAllowence = rotationAllowence;
+    //     MagnetSensorConfigs magConfigs = new MagnetSensorConfigs();
+    //     pivotEncoder.getConfigurator().refresh(magConfigs);
+    //     magConfigs.AbsoluteSensorDiscontinuityPoint = kWristDiscontinuityPoint;
+    //     pivotEncoder.getConfigurator().apply(magConfigs);
+    //     wrist.getConfigurator().apply(rotationAllowence.getSoftLimits());
+    // }
 
     public Command set(EndEffectorSetpoint setpoint, boolean waitForSuccess) {
         return Commands.runOnce(() -> setControl(setpoint), this).andThen(Commands.waitUntil(() -> isAtSetpoint() || !waitForSuccess));
@@ -71,7 +70,7 @@ public class EndEffector extends SubsystemBase {
         this.setpoint = setpoint;
         setRollerState(setpoint.rollerState());
         setKicker(setpoint.kickerState());
-        setWrist(setpoint.wristSetpoint().getSetpoint().convert(rotationAllowence.getAngleType()).getAngle());
+        setWrist(setpoint.wristSetpoint().getSetpoint());
     }
  
     private void setRollerState(RollerState rollerState) {
@@ -122,7 +121,7 @@ public class EndEffector extends SubsystemBase {
     }
 
     private boolean isAtAngleSetpoint() {
-        return MathUtil.isNear(setpoint.wristSetpoint().getSetpoint().getNormal().getAngle().in(Rotations), getWristAngle().getNormal().getAngle().in(Rotations), setpoint.wristSetpoint().getTolerence().in(Rotations), -0.5, 0.5);
+        return MathUtil.isNear(setpoint.wristSetpoint().getSetpoint().in(Rotations), getWristAngle().in(Rotations), setpoint.wristSetpoint().getTolerence().in(Rotations), -0.5, 0.5);
     }
 
     private boolean isAtWristVelocitySetpoint() {
@@ -144,11 +143,11 @@ public class EndEffector extends SubsystemBase {
 
         BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         BreakerLog.log("EndEffector/Wrist/Encoder", pivotEncoder);
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.getNormal().getAngle().in(Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle()
-        .getNormal().getAngle().in(Degrees)) - setpoint.wristSetpoint.setpoint.getNormal().getAngle().in(Degrees));
+       .in(Degrees)) - setpoint.wristSetpoint.setpoint.in(Degrees));
 
         BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
         BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
@@ -191,18 +190,19 @@ public class EndEffector extends SubsystemBase {
         }
     }
 
-    public static enum EndEffectorRotationAllowence {
-        RESTRICTED(kRestrictedSoftLimits),
-        FLIPABLE(kFlippableSoftLimits);
-        private SoftwareLimitSwitchConfigs softLimits;
-        private EndEffectorRotationAllowence(SoftwareLimitSwitchConfigs softLimits) {
-            this.softLimits = softLimits;
-        }
+    // public static enum EndEffectorRotationAllowence {
+    //     FULL(kFullSoftLimits),
+    //     FLOOR_LIMITED(kFloorLimitedSoftLimits),
+    //     RESTRICTED(kRestrictedSoftLimits);
+    //     private SoftwareLimitSwitchConfigs softLimits;
+    //     private EndEffectorRotationAllowence(SoftwareLimitSwitchConfigs softLimits) {
+    //         this.softLimits = softLimits;
+    //     }
 
-        public SoftwareLimitSwitchConfigs getSoftLimits() {
-            return softLimits;
-        }
-    }
+    //     public SoftwareLimitSwitchConfigs getSoftLimits() {
+    //         return softLimits;
+    //     }
+    // }
 
     public static enum KickerState {
         KICK(-1.0, kNormalKickerCurrentLimitConfig),
@@ -254,13 +254,50 @@ public class EndEffector extends SubsystemBase {
         public AngularVelocity getVelocityTolerence() {
             return velocityTolerence;
         }
+
+        public boolean requiresFlip() {
+            return setpoint.in(Degrees) >= kMaxElevatorRestrictedSafeAngle.in(Degrees);
+        }
         
     }
 
     public static record EndEffectorSetpoint(WristSetpoint wristSetpoint, RollerState rollerState, KickerState kickerState) {
-        public static final EndEffectorSetpoint INTAKE_HP = new EndEffectorSetpoint(new WristSetpoint(kMinWristAngle), RollerState.INTAKE, KickerState.INTAKE);
-        public static final EndEffectorSetpoint NEUTRAL_L4 = new EndEffectorSetpoint(new WristSetpoint(Degrees.of(0)), RollerState.NEUTRAL, KickerState.NEUTRAL);
-        public static final EndEffectorSetpoint EXTAKE_L4 = new EndEffectorSetpoint(new WristSetpoint(Degrees.of(0)), RollerState.EXTAKE, KickerState.EXTAKE);
+
+        public static final EndEffectorSetpoint STOW = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(180)), 
+                RollerState.NEUTRAL, 
+                KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint CORAL_GROUND_INTAKE_HANDOFF = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(180)), 
+                RollerState.INTAKE, 
+                KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE_NEUTRAL = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(-15)), 
+                RollerState.INTAKE, 
+                KickerState.INTAKE
+        );
+
+        public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(-15)), 
+                RollerState.INTAKE, 
+                KickerState.INTAKE
+        );
+
+        public static final EndEffectorSetpoint ALGAE_HOLD_GROUND = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(-15)), 
+                RollerState.HOLD_ALGAE, 
+                KickerState.HOLD
+        );
+        
     }
 
 

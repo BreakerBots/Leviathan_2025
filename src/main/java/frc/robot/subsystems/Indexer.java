@@ -16,12 +16,12 @@ public class Indexer extends SubsystemBase {
         indexer = new TalonSRX(IndexerConstants.kIndexerMotorID);
     }
 
-    public void set(IndexerState state) {
+    private void set(IndexerState state) {
         currentState = state;
     }
 
     public Command setState(IndexerState state) {
-        return runOnce(() -> set(state));
+        return runOnce(() -> set(state), this);
     }
 
     public static enum IndexerState {
