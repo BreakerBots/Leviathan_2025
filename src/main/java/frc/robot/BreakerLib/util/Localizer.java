@@ -14,8 +14,8 @@ public interface Localizer {
         return ChassisSpeeds.fromRobotRelativeSpeeds(getSpeeds(), getPose().getRotation());
     }
     public ChassisAccels getAccels();
-    public default ChassisSpeeds getFieldRelitiveAccels() {
-        return ChassisSpeeds.fromRobotRelativeSpeeds(getSpeeds(), getPose().getRotation());
+    public default ChassisAccels getFieldRelitiveAccels() {
+        return ChassisAccels.fromRobotRelativeAccels(getAccels(), getPose().getRotation());
     }
     public void resetPose(Pose2d newPose);
     public default void resetRotation(Rotation2d newRotation) {
