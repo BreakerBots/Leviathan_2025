@@ -4,91 +4,148 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.CoastOut;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
 import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ClimbConstants;
+
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.Constants.ClimbConstants.*;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
+import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 /** The Climb subsystem consisting of a winch and a fork. 🍴**/
 public class Climb extends SubsystemBase {
     private TalonFXS fork;
     private TalonFX winch;
-    private CANcoder forkCoder;
+    private CANcoder forkEncoder;
     private BreakerDigitalSensor forkSensor;
 
     private ClimbState currentStateState = ClimbState.NEUTRAL;
 
     private PositionVoltage forkPositionVolt = new PositionVoltage(0);
     private PositionVoltage winchPositionVolt = new PositionVoltage(0);
-    
+    private DutyCycleOut forkDutyCycleRequest = new DutyCycleOut(0.0);
+    private CoastOut coastOutRequest = new CoastOut();
+   
     
     public Climb() {
-        fork = new TalonFXS(ClimbConstants.kForkMotorID);
-        winch = new TalonFX(ClimbConstants.kWinchMotorID);
-        forkCoder = new CANcoder(ClimbConstants.kForkCoder);
-        forkSensor = BreakerDigitalSensor.fromDIO(ClimbConstants.kForkSensor, true);
+        fork = new TalonFXS(kForkMotorID);
+        winch = new TalonFX(kWinchMotorID);
+        forkEncoder = BreakerCANCoderFactory.createCANCoder(kForkCoder, new CANBus(), 0.5, Rotations.of(0), SensorDirectionValue.CounterClockwise_Positive);
+        forkSensor = BreakerDigitalSensor.fromDIO(kForkSensor, true);
         setupConfigs();
     }
     
     private void setupConfigs() {
         var forkConfig = new TalonFXSConfiguration();
         forkConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        forkConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ClimbConstants.kForkReverseLimit.getRotations();
+        forkConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kForkReverseLimit.getRotations();
+        forkConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        forkConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kForkForwardLimit.getRotations();
+        forkConfig.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled;
+        forkConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
         forkConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.FusedCANcoder;
-        forkConfig.ExternalFeedback.FeedbackRemoteSensorID = ClimbConstants.kForkCoder;
-        forkConfig.ExternalFeedback.RotorToSensorRatio = ClimbConstants.kForkSensorGearRatio.getRatioToOne();
+        forkConfig.ExternalFeedback.FeedbackRemoteSensorID = kForkCoder;
+        forkConfig.ExternalFeedback.RotorToSensorRatio = kForkSensorGearRatio.getRatioToOne();
+        forkConfig.CurrentLimits = kForkCurrentLimits;
+        forkConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        forkConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         
         fork.getConfigurator().apply(forkConfig);
 
         var winchConfig = new TalonFXConfiguration();
-        winchConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        winchConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = ClimbConstants.kWinchReverseLimit.getRotations();
-        winchConfig.Feedback.RotorToSensorRatio = ClimbConstants.kWinchSpoolRatio.getRatioToOne();
-        
+        winchConfig.Feedback.RotorToSensorRatio = kWinchSpoolRatio.getRatioToOne();
+        winchConfig.CurrentLimits = kWinchCurrentLimits;
+        winchConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        winchConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         winch.getConfigurator().apply(winchConfig);
     }
     
-    private void setState(ClimbState changeState) {
+    private void setStateFunc(ClimbState changeState) {
         currentStateState = changeState;
+        setWinchState(currentStateState.getWinchState());
+        setForkState(currentStateState.getForkState());
+        
+    }
+
+    private void setWinchState(WinchState winchState) {
+        if (!winchState.isNeutral()) {
+            winchPositionVolt.withPosition(winchState.getPosition());
+            winch.setControl(winchPositionVolt);
+        } else {
+            winch.setControl(coastOutRequest);
+        }
+    }
+
+    private void setForkState(ForkState forkState) {
+        if (!forkState.isNeutral()) {
+            if (forkState == ForkState.EXTENDED) {
+                fork.setControl(forkDutyCycleRequest.withOutput(0.9));
+            } else {
+                forkPositionVolt.withPosition(forkState.getPosition());
+                fork.setControl(forkPositionVolt);
+            }
+        } else {
+            fork.setControl(forkDutyCycleRequest.withOutput(0.0));
+        }
+        
     }
 
     public Command setState(ClimbState state, boolean waitForSuccess) {
-        return new FunctionalCommand(
-            () -> setState(state), 
-            () -> {}, 
-            (i) -> {}, 
-            () -> !waitForSuccess || isAtTargetState(), 
-            this
-        );
+        return Commands.runOnce(() -> setStateFunc(state)).andThen(Commands.waitUntil(() -> isAtTargetState() || !waitForSuccess));
     }
 
     public enum ForkState {
-        NEUTRAL(0),
-        RETRACTED(ClimbConstants.kForkRetractedPosition),
-        EXTENDED(ClimbConstants.kForkExtendedPosition);
+        NEUTRAL(Rotations.of(0), Rotations.of(0), RotationsPerSecond.of(0)),
+        RETRACTED(Rotations.of(0), Rotations.of(0), RotationsPerSecond.of(0)),
+        EXTENDED(Rotations.of(0), Rotations.of(0), RotationsPerSecond.of(0));
 
-        private double positionVoltage;
+        private Angle forkPosition;
+        private Angle tolerence;
+        private AngularVelocity velocityTolerence;
 
-        private ForkState(double positionVoltage) {
-            this.positionVoltage = positionVoltage;
+        private ForkState(Angle forkPosition, Angle tolerence, AngularVelocity velocityTolerence) {
+            this.forkPosition = forkPosition;
+            this.tolerence = tolerence;
+            this.velocityTolerence = velocityTolerence;
         }
         
-        public double getPositionVoltage() {
-            return positionVoltage;
+        public Angle getPosition() {
+            return forkPosition;
+        }
+
+        public Angle getTolerence() {
+            return tolerence;
+        }
+
+        public AngularVelocity getVelocityTolerence() {
+            return velocityTolerence;
         }
 
         public boolean isNeutral() {
@@ -97,18 +154,30 @@ public class Climb extends SubsystemBase {
     }
     
     public enum WinchState {
-        NEUTRAL(0),
-        ROLLED(ClimbConstants.kWinchWoundLimit.magnitude()),
-        UNROLLED(ClimbConstants.kWinchUnwound.magnitude());
+        NEUTRAL(Rotations.of(0), Rotations.of(0), RotationsPerSecond.of(0)),
+        ROLLED(Rotations.of(0), Rotations.of(0), RotationsPerSecond.of(0)),
+        UNROLLED(Rotations.of(0), Rotations.of(0), RotationsPerSecond.of(0));
 
-        private double motorDutyCycle;
+        private Angle motorPosition;
+        private Angle tolerence;
+        private AngularVelocity velocityTolerence;
 
-        private WinchState(double motorDutyCycle) {
-            this.motorDutyCycle = motorDutyCycle;
+        private WinchState(Angle motorPosition, Angle tolerence, AngularVelocity velocityTolerence) {
+            this.motorPosition = motorPosition;
+            this.tolerence = tolerence;
+            this.velocityTolerence = velocityTolerence;
         }
 
-        public double getPositionVoltage() {
-            return motorDutyCycle;
+        public Angle getPosition() {
+            return motorPosition;
+        }
+
+        public Angle getTolerence() {
+            return tolerence;
+        }
+
+        public AngularVelocity getVelocityTolerence() {
+            return velocityTolerence;
         }
 
         public boolean isNeutral() {
@@ -148,60 +217,58 @@ public class Climb extends SubsystemBase {
     }
 
     public boolean isAtTargetState() {
-        return switch (currentStateState) {
-            case ROLLED_BACK -> isWinchWound() && isForkContacting();
-            case EXTENDED -> !isWinchWound() && isForkContacting();
-            default -> true;
-        };
+        return isForkAtTargetState() && isWinchAtTargetState();
     }
 
     public boolean isWinchAtTargetState() {
-        return switch (currentStateState.getWinchState()) {
-            case ROLLED -> isWinchAtPoint(ClimbConstants.kWinchWoundLimit);
-            case UNROLLED -> isWinchAtPoint(ClimbConstants.kWinchUnwound);
-            default -> true;
-        };
+        if (currentStateState.getWinchState() == WinchState.NEUTRAL) {
+            return true;
+        }
+        boolean atPos = MathUtil.isNear(
+            currentStateState.getWinchState().getPosition().in(Rotations),
+            getWinchAngle().in(Rotations), 
+            currentStateState.getWinchState().getTolerence().in(Rotations));
+
+        boolean atVel = MathUtil.isNear(
+            0.0,
+            getWinchVelocity().in(RotationsPerSecond), 
+            currentStateState.getWinchState().getVelocityTolerence().in(RotationsPerSecond));
+
+        return atPos && atVel;
     }
 
     public boolean isForkAtTargetState() {
-        return switch (currentStateState.getForkState()) {
-            case EXTENDED -> getForkPosition() == ClimbConstants.kForkExtendedPosition;
-            case RETRACTED -> getForkPosition() == ClimbConstants.kForkRetractedPosition;
-            default -> true;
-        };
+        if (currentStateState.getWinchState() == WinchState.NEUTRAL) {
+            return true;
+        }
+        boolean atPos = MathUtil.isNear(
+            currentStateState.getForkState().getPosition().in(Rotations),
+            getForkAngle().in(Rotations), 
+            currentStateState.getWinchState().getTolerence().in(Rotations));
+
+        boolean atVel = MathUtil.isNear(
+            0.0,
+            getForkVelocity().in(RotationsPerSecond), 
+            currentStateState.getForkState().getVelocityTolerence().in(RotationsPerSecond));
+
+        return atPos && atVel;
     }
 
-    private double getForkPosition() {
-        return forkCoder.getPosition().getValueAsDouble();
+ 
+    public Angle getForkAngle() {
+        return forkEncoder.getAbsolutePosition().getValue();
     }
 
-    public boolean isInRolledBackState() {
-        return currentStateState == ClimbState.ROLLED_BACK;
+    public AngularVelocity getForkVelocity() {
+        return forkEncoder.getVelocity().getValue();
     }
 
-    public double getSpoolDistanceCentimeter() {
-        double winchPosition = winch.getPosition().getValue().in(Units.Rotations);
-        return winchPosition / ClimbConstants.kWinchSpoolRatio.getRatioToOne();
+    public Angle getWinchAngle() {
+        return winch.getPosition().getValue();
     }
 
-    public Distance getSpoolDistance() {
-        return Units.Centimeters.of(getSpoolDistanceCentimeter());
-    }
-
-    public boolean isWinchWound() {
-        return isWinchAtPoint(ClimbConstants.kWinchWoundLimit);
-    }
-
-    public boolean isWinchUnwound() {
-        return isWinchAtPoint(0);
-    }
-
-    private boolean isWinchAtPoint(double cm) {
-        return MathUtil.isNear(cm, getSpoolDistanceCentimeter(), ClimbConstants.kWinchTolerance.magnitude());
-    }
-
-    private boolean isWinchAtPoint(Distance point) {
-        return isWinchAtPoint(point.in(Units.Centimeters));
+    public AngularVelocity getWinchVelocity() {
+        return winch.getVelocity().getValue();
     }
 
     public boolean isForkContacting() {
@@ -218,25 +285,17 @@ public class Climb extends SubsystemBase {
         ForkState forkState = currentStateState.getForkState();
 
         BreakerLog.log("Climb/Fork/Motor", fork);
-        BreakerLog.log("Climb/Fork/Angle", forkCoder.getAbsolutePosition().getValueAsDouble());
+        BreakerLog.log("Climb/Fork/Angle", forkEncoder.getAbsolutePosition().getValueAsDouble());
         BreakerLog.log("Climb/Fork/Sensor", forkSensor.getAsBoolean());
         BreakerLog.log("Climb/Fork/Extended", isForkContacting());
         BreakerLog.log("Climb/Fork/PositionVoltage", forkPositionVolt.Position);
 
         BreakerLog.log("Climb/Winch/Motor", winch);
-        BreakerLog.log("Climb/Winch/Wound", isWinchWound());
-        BreakerLog.log("Climb/Winch/Distance", getSpoolDistance());
         BreakerLog.log("Climb/Winch/Position", winchPositionVolt.Position);
         BreakerLog.log("Climb/State", currentStateState);
 
         if (RobotState.isDisabled()) {
-            setState(ClimbState.NEUTRAL);
+            setStateFunc(ClimbState.NEUTRAL);
         }
-        
-        if (!forkState.isNeutral()) forkPositionVolt.withPosition(forkState.getPositionVoltage());
-        if (!forkState.isNeutral()) winchPositionVolt.withPosition(winchState.getPositionVoltage());
-
-        fork.setControl(forkPositionVolt);
-        winch.setControl(winchPositionVolt);
     }
 }

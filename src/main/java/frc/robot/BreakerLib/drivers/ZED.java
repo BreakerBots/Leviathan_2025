@@ -53,14 +53,16 @@ public class ZED extends SubsystemBase {
   private Timer timeSinceLastUpdate;
 
   private RefrenceFrame cameraRefrenceFrameInRobotSpace;
+  private RefrenceFrame cameraGlobalRefrenceFrameInCameraSpace;
   private TimeInterpolatableBuffer<Pose3d> robotPoseHistory;
   private Supplier<Pair<Double, Pose3d>> robotPoseAtTimeSupplier;
 
   private DetectionResults latestResult;
 
 
-  public ZED(String cameraName, Supplier<Pair<Double, Pose3d>> robotPoseAtTimeSupplier, Transform3d robotToZedLeftEye) {
+  public ZED(String cameraName, Supplier<Pair<Double, Pose3d>> robotPoseAtTimeSupplier, Transform3d robotToZedLeftEye, Transform3d zedLeftEyeRobotSpaceToZedGlobal) {
     cameraRefrenceFrameInRobotSpace = new RefrenceFrame(robotToZedLeftEye);
+    cameraGlobalRefrenceFrameInCameraSpace = new RefrenceFrame(zedLeftEyeRobotSpaceToZedGlobal);
     this.robotPoseAtTimeSupplier = robotPoseAtTimeSupplier;
     latestResult = new DetectionResults(new TreeMap<>(), Timer.getTimestamp());
     timeSinceLastUpdate = new Timer();
@@ -345,12 +347,25 @@ public class ZED extends SubsystemBase {
     private Pose3d cameraPose;
     private double timestamp;
     private double confidance;
-    private Transform3d robotToCam;
-    private LocalizationResults(Pose3d cameraPose, double timestamp, double confidance, Transform3d robotToCam) {
+    private RefrenceFrame cameraFrameInRobotSpace;
+    private RefrenceFrame cameraGlobalRefrenceFrameInCameraSpace;
+    private LocalizationResults(Pose3d cameraPose, double timestamp, double confidance, RefrenceFrame cameraFrameInRobotSpace, RefrenceFrame cameraGlobalRefrenceFrameInCameraSpace) {
       this.cameraPose = cameraPose;
       this.timestamp = timestamp;
       this.confidance = confidance;
-      this.robotToCam = robotToCam;
     }
+
+    public Pose3d getPoseFieldSpace(boolean compensateForLatency) {
+      return null;
+    }
+
+    public double getConfidance() {
+      return 0;
+    }
+
+    public double getTimestamp() {
+      return 0;
+    }
+
   }
 }

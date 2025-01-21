@@ -170,12 +170,25 @@ public final class Constants {
     public static final double kForkExtendedPosition = 0;
     public static final double kForkRetractedPosition = 0;
     public static final Rotation2d kForkReverseLimit = Rotation2d.fromDegrees(0);
+    public static final Rotation2d kForkForwardLimit = Rotation2d.fromDegrees(0);
     public static final MechanismRatio kForkSensorGearRatio = new MechanismRatio(1,1);
     public static final Rotation2d kWinchReverseLimit = Rotation2d.fromRotations(0);
     public static final MechanismRatio kWinchSpoolRatio = new MechanismRatio(1,1); // rotations to distance (cm)
     public static final Distance kWinchTolerance = Centimeter.of(2);
     public static final Distance kWinchWoundLimit = Centimeter.of(0);
     public static final Distance kWinchUnwound = Centimeter.of(0);
+    public static final Rotation2d kWinchForwardLimit = Rotation2d.fromDegrees(0);
+    public static final CurrentLimitsConfigs kWinchCurrentLimits = new CurrentLimitsConfigs()
+                                              .withStatorCurrentLimit(30)
+                                              .withStatorCurrentLimitEnable(true)
+                                              .withSupplyCurrentLimit(25)
+                                              .withSupplyCurrentLimitEnable(true);
+    public static final CurrentLimitsConfigs kForkCurrentLimits = new CurrentLimitsConfigs()
+                                              .withStatorCurrentLimit(20)
+                                              .withStatorCurrentLimitEnable(true)
+                                              .withSupplyCurrentLimit(15)
+                                              .withSupplyCurrentLimitEnable(true);
+
   }
 
   public static class IndexerConstants {

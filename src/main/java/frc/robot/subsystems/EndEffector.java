@@ -277,6 +277,13 @@ public class EndEffector extends SubsystemBase {
                 KickerState.NEUTRAL
         );
 
+        public static final EndEffectorSetpoint CORAL_GROUND_INTAKE_HANDOFF_REVERSE = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(180)), 
+                RollerState.INTAKE, 
+                KickerState.NEUTRAL
+        );
+
         public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE_NEUTRAL = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Degrees.of(-15)), 
@@ -296,6 +303,20 @@ public class EndEffector extends SubsystemBase {
                 new WristSetpoint(Degrees.of(-15)), 
                 RollerState.HOLD_ALGAE, 
                 KickerState.HOLD
+        );
+
+        public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER_NEUTRAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(55)), 
+            RollerState.NEUTRAL, 
+            KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(55)), 
+            RollerState.INTAKE, 
+            KickerState.INTAKE
         );
         
     }

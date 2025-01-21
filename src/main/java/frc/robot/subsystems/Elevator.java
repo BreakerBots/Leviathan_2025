@@ -225,6 +225,7 @@ public class Elevator extends SubsystemBase {
         public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint L4 = new ElevatorSetpoint(Meters.of(0.0));
+        public static final ElevatorSetpoint HUMAN_PLAYER = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint GROUND_ALGAE = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0));
