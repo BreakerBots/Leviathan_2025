@@ -12,6 +12,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain;
 import frc.robot.BreakerLib.util.Localizer;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 public class AutoPilot {
   private BreakerSwerveDrivetrain drivetrain;
@@ -107,8 +108,6 @@ public class AutoPilot {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-      // TODO: logging
-
       // Read current pose from the localizer.
       final var currentPose = localizer.getPose();
       final var x = currentPose.getX();
@@ -116,9 +115,9 @@ public class AutoPilot {
       final var theta = currentPose.getRotation().getRadians();
 
       // Calculate feedback velocities (based on position error).
-      double xFeedback = xController.calculate(x, goal.getX());
-      double yFeedback = yController.calculate(y, goal.getY());
-      double thetaFeedback = thetaController.calculate(theta, goal.getRotation().getRadians());
+      double xFB = xController.calculate(x, goal.getX());
+      double yFB = yController.calculate(y, goal.getY());
+      double thetaFB = thetaController.calculate(theta, goal.getRotation().getRadians());
 
       // Get feedforward velocities.
       double xFF = xController.getSetpoint().velocity;
@@ -126,10 +125,23 @@ public class AutoPilot {
       double thetaFF = thetaController.getSetpoint().velocity;
 
       // Return next output.
-      request.VelocityX = xFeedback + xFF;
-      request.VelocityY = yFeedback + yFF;
-      request.RotationalRate = thetaFeedback + thetaFF;
+      request.VelocityX = xFB + xFF;
+      request.VelocityY = yFB + yFF;
+      request.RotationalRate = thetaFB + thetaFF;
       drivetrain.setControl(request);
+
+      BreakerLog.log("NavToPose/xFB", xFB);
+      BreakerLog.log("NavToPose/yFB", yFB);
+      BreakerLog.log("NavToPose/θFB", thetaFB);
+      BreakerLog.log("NavToPose/xFF", xFF);
+      BreakerLog.log("NavToPose/yFF", yFF);
+      BreakerLog.log("NavToPose/θFF", thetaFF);
+      BreakerLog.log("NavToPose/xRequest", request.VelocityX);
+      BreakerLog.log("NavToPose/yRequest", request.VelocityY);
+      BreakerLog.log("NavToPose/θRequest", request.RotationalRate);
+      BreakerLog.log("NavToPose/xProfiledPID", xController);
+      BreakerLog.log("NavToPose/yProfiledPID", yController);
+      BreakerLog.log("NavToPose/θProfiledPID", thetaController);
     }
 
     // Called once the command ends or is interrupted.

@@ -21,6 +21,7 @@ import choreo.trajectory.TrajectorySample;
 import dev.doglog.DogLog;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -161,6 +162,13 @@ public class BreakerLog extends DogLog implements Subsystem {
         log(key + "/IsActive", value.get());
         log(key + "/Text", value.getText());
         log(key + "/Type", value.getType());
+    }
+
+    public static void log(String key, ProfiledPIDController value) {
+        log(key + "/PositionError", value.getPositionError());
+        log(key + "/VelocityError", value.getVelocityError());
+        log(key + "/SetPosition", value.getSetpoint().position);
+        log(key + "/SetVelocity", value.getSetpoint().velocity);
     }
 
     public static void addCANBus(CANBus value) {
