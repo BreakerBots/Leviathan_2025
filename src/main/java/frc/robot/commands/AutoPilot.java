@@ -1,14 +1,15 @@
 package frc.robot.commands;
 
 import static com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue.BlueAlliance;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain;
 import frc.robot.BreakerLib.util.Localizer;
@@ -23,12 +24,8 @@ public class AutoPilot {
     this.localizer = localizer;
   }
 
-  public class ProfiledPIDControllerConfig {
-    public double kP;
-    public double kI;
-    public double kD;
-    public double maxVelocity;
-    public double maxAccel;
+  public record ProfiledPIDControllerConfig(double kP, double kI, double kD, LinearVelocity maxVelocity, LinearAcceleration maxAccel) {
+
   }
 
   public class NavToPoseConfig {
@@ -37,6 +34,10 @@ public class AutoPilot {
     public ProfiledPIDControllerConfig xConfig;
     public ProfiledPIDControllerConfig yConfig;
     public ProfiledPIDControllerConfig thetaConfig;
+  }
+
+  public Command navigateToPose(Pose2d goal, NavToPoseConfig config) {
+    return new NavToPose(goal, config);
   }
 
   private class NavToPose extends Command {
@@ -52,7 +53,7 @@ public class AutoPilot {
     private ProfiledPIDController thetaController;
 
     private ProfiledPIDController fromConfig(ProfiledPIDControllerConfig config) {
-      return new ProfiledPIDController(config.kP, config.kI, config.kD, new Constraints(config.maxVelocity, config.maxAccel));
+      return new ProfiledPIDController(config.kP, config.kI, config.kD, new Constraints(config.maxVelocity.in(MetersPerSecond), config.maxAccel.in(MetersPerSecondPerSecond)));
     }
 
     public NavToPose(Pose2d goal, NavToPoseConfig config) {
@@ -156,7 +157,7 @@ public class AutoPilot {
     // Returns true when the command should end.
     @Override
     public boolean isFinished() {
-      return false;
+      return atGoal();
     }
   }
 }
