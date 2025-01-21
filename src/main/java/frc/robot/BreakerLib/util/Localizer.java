@@ -10,11 +10,11 @@ public interface Localizer {
     public TimestampedValue<Pose2d> getAtomicPose();
     public Pose2d getPose();
     public ChassisSpeeds getSpeeds();
-    public default ChassisSpeeds getFieldRelitiveSpeeds() {
+    public default ChassisSpeeds getFieldRelativeSpeeds() {
         return ChassisSpeeds.fromRobotRelativeSpeeds(getSpeeds(), getPose().getRotation());
     }
     public ChassisAccels getAccels();
-    public default ChassisAccels getFieldRelitiveAccels() {
+    public default ChassisAccels getFieldRelativeAccels() {
         return ChassisAccels.fromRobotRelativeAccels(getAccels(), getPose().getRotation());
     }
     public void resetPose(Pose2d newPose);

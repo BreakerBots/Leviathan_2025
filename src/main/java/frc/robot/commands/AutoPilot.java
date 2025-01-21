@@ -2,73 +2,68 @@ package frc.robot.commands;
 
 import static com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue.BlueAlliance;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static java.lang.Math.PI;
-
-import java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain;
 import frc.robot.BreakerLib.util.Localizer;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 public class AutoPilot {
-  public static class AutoPilotConfig {
-  }
-
-  private AutoPilotConfig autoPilotConfig;
   private BreakerSwerveDrivetrain drivetrain;
   private Localizer localizer;
 
-  // TODO: change max accelerations to something realistic
-  private static final Constraints translationalConstraints = new Constraints(
-      DriveConstants.MAXIMUM_TRANSLATIONAL_VELOCITY.in(MetersPerSecond), 10.0);
-  private static final Constraints rotationalConstraints = new Constraints(
-      DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(RadiansPerSecond), PI);
-
-  // TODO: use a single translational controller?
-  private ProfiledPIDController xController;
-  private ProfiledPIDController yController;
-  private ProfiledPIDController thetaController;
-
-  public AutoPilot(AutoPilotConfig autoPilotConfig, BreakerSwerveDrivetrain drivetrain, Localizer localizer) {
-    this(autoPilotConfig, drivetrain, localizer,
-        new ProfiledPIDController(1, 0, 0, translationalConstraints),
-        new ProfiledPIDController(1, 0, 0, translationalConstraints),
-        new ProfiledPIDController(1, 0, 0, rotationalConstraints));
-  }
-
-  public AutoPilot(AutoPilotConfig autoPilotConfig, BreakerSwerveDrivetrain drivetrain, Localizer localizer,
-      ProfiledPIDController xController, ProfiledPIDController yController, ProfiledPIDController thetaController) {
-    this.autoPilotConfig = autoPilotConfig;
+  public AutoPilot(BreakerSwerveDrivetrain drivetrain, Localizer localizer) {
     this.drivetrain = drivetrain;
     this.localizer = localizer;
-    this.xController = xController;
-    this.yController = yController;
-    this.thetaController = thetaController;
-    this.thetaController.enableContinuousInput(0, Degrees.of(360.0).in(Radians));
+  }
+
+  public class ProfiledPIDControllerConfig {
+    public double kP;
+    public double kI;
+    public double kD;
+    public double maxVelocity;
+    public double maxAccel;
+  }
+
+  public class NavToPoseConfig {
+    public Pose2d positionTolerance;
+    public ChassisSpeeds velocityTolerance;
+    public ProfiledPIDControllerConfig xConfig;
+    public ProfiledPIDControllerConfig yConfig;
+    public ProfiledPIDControllerConfig thetaConfig;
   }
 
   private class NavToPose extends Command {
     private final Pose2d goal;
-
-    // TODO: position and velocity tolerance
-    private final Pose2d tolerance;
+    private final Pose2d positionTolerance;
+    private final ChassisSpeeds velocityTolerance;
 
     private Pose2d error = Pose2d.kZero;
     private SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric();
 
-    // TODO: take: xy goal, v/a * xyt constraints, xyt * p/v tolerance
-    public NavToPose(Pose2d goal, Pose2d tolerance) {
+    private ProfiledPIDController xController;
+    private ProfiledPIDController yController;
+    private ProfiledPIDController thetaController;
+
+    private ProfiledPIDController fromConfig(ProfiledPIDControllerConfig config) {
+      return new ProfiledPIDController(config.kP, config.kI, config.kD, new Constraints(config.maxVelocity, config.maxAccel));
+    }
+
+    public NavToPose(Pose2d goal, NavToPoseConfig config) {
       this.goal = goal;
-      this.tolerance = tolerance;
+      this.positionTolerance = config.positionTolerance;
+      this.velocityTolerance = config.velocityTolerance;
       request.ForwardPerspective = BlueAlliance;
+      xController = fromConfig(config.xConfig);
+      yController = fromConfig(config.yConfig);
+      thetaController = fromConfig(config.thetaConfig);
+      thetaController.enableContinuousInput(0, Degrees.of(360.0).in(Radians));
       addRequirements(drivetrain);
     }
 
@@ -80,11 +75,17 @@ public class AutoPilot {
     private boolean atGoal() {
       final var eTranslate = error.getTranslation();
       final var eRotate = error.getRotation();
-      final var tolTranslate = tolerance.getTranslation();
-      final var tolRotate = tolerance.getRotation();
-      return Math.abs(eTranslate.getX()) < tolTranslate.getX()
-          && Math.abs(eTranslate.getY()) < tolTranslate.getY()
-          && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
+      final var ptolTranslate = positionTolerance.getTranslation();
+      final var ptolRotate = positionTolerance.getRotation();
+      final var speeds = localizer.getSpeeds();
+
+      // Check if position and velocity are within tolerances. Goal velocity is 0.
+      return Math.abs(eTranslate.getX()) < ptolTranslate.getX()
+          && Math.abs(eTranslate.getY()) < ptolTranslate.getY()
+          && Math.abs(eRotate.getRadians()) < ptolRotate.getRadians()
+          && Math.abs(speeds.vxMetersPerSecond) < velocityTolerance.vxMetersPerSecond
+          && Math.abs(speeds.vyMetersPerSecond) < velocityTolerance.vyMetersPerSecond
+          && Math.abs(speeds.omegaRadiansPerSecond) < velocityTolerance.omegaRadiansPerSecond;
     }
 
     // Called when the command is initially scheduled.
@@ -107,8 +108,6 @@ public class AutoPilot {
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
-      // TODO: logging
-
       // Read current pose from the localizer.
       final var currentPose = localizer.getPose();
       final var x = currentPose.getX();
@@ -116,9 +115,9 @@ public class AutoPilot {
       final var theta = currentPose.getRotation().getRadians();
 
       // Calculate feedback velocities (based on position error).
-      double xFeedback = xController.calculate(x, goal.getX());
-      double yFeedback = yController.calculate(y, goal.getY());
-      double thetaFeedback = thetaController.calculate(theta, goal.getRotation().getRadians());
+      double xFB = xController.calculate(x, goal.getX());
+      double yFB = yController.calculate(y, goal.getY());
+      double thetaFB = thetaController.calculate(theta, goal.getRotation().getRadians());
 
       // Get feedforward velocities.
       double xFF = xController.getSetpoint().velocity;
@@ -126,10 +125,23 @@ public class AutoPilot {
       double thetaFF = thetaController.getSetpoint().velocity;
 
       // Return next output.
-      request.VelocityX = xFeedback + xFF;
-      request.VelocityY = yFeedback + yFF;
-      request.RotationalRate = thetaFeedback + thetaFF;
+      request.VelocityX = xFB + xFF;
+      request.VelocityY = yFB + yFF;
+      request.RotationalRate = thetaFB + thetaFF;
       drivetrain.setControl(request);
+
+      BreakerLog.log("NavToPose/xFB", xFB);
+      BreakerLog.log("NavToPose/yFB", yFB);
+      BreakerLog.log("NavToPose/θFB", thetaFB);
+      BreakerLog.log("NavToPose/xFF", xFF);
+      BreakerLog.log("NavToPose/yFF", yFF);
+      BreakerLog.log("NavToPose/θFF", thetaFF);
+      BreakerLog.log("NavToPose/xRequest", request.VelocityX);
+      BreakerLog.log("NavToPose/yRequest", request.VelocityY);
+      BreakerLog.log("NavToPose/θRequest", request.RotationalRate);
+      BreakerLog.log("NavToPose/xProfiledPID", xController);
+      BreakerLog.log("NavToPose/yProfiledPID", yController);
+      BreakerLog.log("NavToPose/θProfiledPID", thetaController);
     }
 
     // Called once the command ends or is interrupted.
