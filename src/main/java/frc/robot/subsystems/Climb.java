@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static frc.robot.Constants.ClimbConstants.kForkCoder;
@@ -24,6 +25,7 @@ import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
@@ -40,6 +42,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ClimbConstants;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
@@ -50,6 +53,7 @@ public class Climb extends SubsystemBase {
     private TalonFX winch;
     private CANcoder forkEncoder;
     private BreakerDigitalSensor forkSensor;
+    private Pigeon2 imu;
 
     private ClimbState currentClimbState = ClimbState.NEUTRAL;
 
@@ -59,11 +63,13 @@ public class Climb extends SubsystemBase {
     private CoastOut coastOutRequest = new CoastOut();
    
     
-    public Climb() {
+    public Climb(Pigeon2 imu) {
         fork = new TalonFXS(kForkMotorID);
         winch = new TalonFX(kWinchMotorID);
         forkEncoder = BreakerCANCoderFactory.createCANCoder(kForkCoder, new CANBus(), 0.5, Rotations.of(0), SensorDirectionValue.CounterClockwise_Positive);
         forkSensor = BreakerDigitalSensor.fromDIO(kForkSensor, true);
+        this.imu = imu;
+        
         setupConfigs();
     }
     
@@ -286,6 +292,8 @@ public class Climb extends SubsystemBase {
     
     @Override
     public void periodic() {
+        pullWinch();
+        
         BreakerLog.log("Climb/Fork/Motor", fork);
         BreakerLog.log("Climb/Fork/Angle", forkEncoder.getAbsolutePosition().getValueAsDouble());
         BreakerLog.log("Climb/Fork/Sensor", forkSensor.getAsBoolean());
@@ -299,5 +307,12 @@ public class Climb extends SubsystemBase {
         if (RobotState.isDisabled()) {
             setStateFunc(ClimbState.NEUTRAL);
         }
+    }
+
+    private void pullWinch() {
+        if (currentClimbState.getWinchState() != WinchState.ROLLED) return;
+
+        Angle roll = imu.getRoll().getValue();
+        winchPositionVolt.FeedForward = ClimbConstants.kG * Math.cos(roll.in(Radians));
     }
 }
