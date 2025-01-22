@@ -4,12 +4,24 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.Constants.ClimbConstants.kForkCoder;
+import static frc.robot.Constants.ClimbConstants.kForkCurrentLimits;
+import static frc.robot.Constants.ClimbConstants.kForkForwardLimit;
+import static frc.robot.Constants.ClimbConstants.kForkMotorID;
+import static frc.robot.Constants.ClimbConstants.kForkReverseLimit;
+import static frc.robot.Constants.ClimbConstants.kForkSensor;
+import static frc.robot.Constants.ClimbConstants.kForkSensorGearRatio;
+import static frc.robot.Constants.ClimbConstants.kWinchCurrentLimits;
+import static frc.robot.Constants.ClimbConstants.kWinchMotorID;
+import static frc.robot.Constants.ClimbConstants.kWinchSpoolRatio;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.CoastOut;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -22,19 +34,12 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static frc.robot.Constants.ClimbConstants.*;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
@@ -46,7 +51,7 @@ public class Climb extends SubsystemBase {
     private CANcoder forkEncoder;
     private BreakerDigitalSensor forkSensor;
 
-    private ClimbState currentStateState = ClimbState.NEUTRAL;
+    private ClimbState currentClimbState = ClimbState.NEUTRAL;
 
     private PositionVoltage forkPositionVolt = new PositionVoltage(0);
     private PositionVoltage winchPositionVolt = new PositionVoltage(0);
@@ -88,9 +93,9 @@ public class Climb extends SubsystemBase {
     }
     
     private void setStateFunc(ClimbState changeState) {
-        currentStateState = changeState;
-        setWinchState(currentStateState.getWinchState());
-        setForkState(currentStateState.getForkState());
+        currentClimbState = changeState;
+        setWinchState(currentClimbState.getWinchState());
+        setForkState(currentClimbState.getForkState());
         
     }
 
@@ -221,35 +226,35 @@ public class Climb extends SubsystemBase {
     }
 
     public boolean isWinchAtTargetState() {
-        if (currentStateState.getWinchState() == WinchState.NEUTRAL) {
+        if (currentClimbState.getWinchState() == WinchState.NEUTRAL) {
             return true;
         }
         boolean atPos = MathUtil.isNear(
-            currentStateState.getWinchState().getPosition().in(Rotations),
+            currentClimbState.getWinchState().getPosition().in(Rotations),
             getWinchAngle().in(Rotations), 
-            currentStateState.getWinchState().getTolerence().in(Rotations));
+            currentClimbState.getWinchState().getTolerence().in(Rotations));
 
         boolean atVel = MathUtil.isNear(
             0.0,
             getWinchVelocity().in(RotationsPerSecond), 
-            currentStateState.getWinchState().getVelocityTolerence().in(RotationsPerSecond));
+            currentClimbState.getWinchState().getVelocityTolerence().in(RotationsPerSecond));
 
         return atPos && atVel;
     }
 
     public boolean isForkAtTargetState() {
-        if (currentStateState.getWinchState() == WinchState.NEUTRAL) {
+        if (currentClimbState.getWinchState() == WinchState.NEUTRAL) {
             return true;
         }
         boolean atPos = MathUtil.isNear(
-            currentStateState.getForkState().getPosition().in(Rotations),
+            currentClimbState.getForkState().getPosition().in(Rotations),
             getForkAngle().in(Rotations), 
-            currentStateState.getWinchState().getTolerence().in(Rotations));
+            currentClimbState.getWinchState().getTolerence().in(Rotations));
 
         boolean atVel = MathUtil.isNear(
             0.0,
             getForkVelocity().in(RotationsPerSecond), 
-            currentStateState.getForkState().getVelocityTolerence().in(RotationsPerSecond));
+            currentClimbState.getForkState().getVelocityTolerence().in(RotationsPerSecond));
 
         return atPos && atVel;
     }
@@ -276,14 +281,11 @@ public class Climb extends SubsystemBase {
     }
 
     public ClimbState getState() {
-        return currentStateState;
+        return currentClimbState;
     }
     
     @Override
     public void periodic() {
-        WinchState winchState = currentStateState.getWinchState();
-        ForkState forkState = currentStateState.getForkState();
-
         BreakerLog.log("Climb/Fork/Motor", fork);
         BreakerLog.log("Climb/Fork/Angle", forkEncoder.getAbsolutePosition().getValueAsDouble());
         BreakerLog.log("Climb/Fork/Sensor", forkSensor.getAsBoolean());
@@ -292,7 +294,7 @@ public class Climb extends SubsystemBase {
 
         BreakerLog.log("Climb/Winch/Motor", winch);
         BreakerLog.log("Climb/Winch/Position", winchPositionVolt.Position);
-        BreakerLog.log("Climb/State", currentStateState);
+        BreakerLog.log("Climb/State", currentClimbState);
 
         if (RobotState.isDisabled()) {
             setStateFunc(ClimbState.NEUTRAL);
