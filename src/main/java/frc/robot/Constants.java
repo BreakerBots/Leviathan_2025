@@ -189,6 +189,7 @@ public final class Constants {
                                               .withSupplyCurrentLimit(15)
                                               .withSupplyCurrentLimitEnable(true);
 
+    public static final double kG = 0;
   }
 
   public static class IndexerConstants {
