@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import frc.robot.BreakerLib.drivers.ZED.LocalizationResults;
 import frc.robot.BreakerLib.drivers.gtsam.GTSAM;
 import frc.robot.BreakerLib.physics.ChassisAccels;
 import frc.robot.BreakerLib.util.Localizer;
@@ -31,8 +32,9 @@ public class Localization implements Localizer {
     }
 
     private void fuseOdomety() {
-        
-        Twist2d fz_twist = 
+    
+
+
     }
 
 
