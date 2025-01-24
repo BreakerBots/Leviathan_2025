@@ -4,25 +4,20 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.RobotState;
+import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
+import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFullMotion;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.subsystems.Climb.ClimbState;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake.IntakeState;
-
-import static frc.robot.Constants.SuperstructureConstants.*;
-import static java.lang.Math.E;
-
-import java.util.function.BooleanSupplier;
-
-import javax.net.ssl.TrustManagerFactory;
-
-import static edu.wpi.first.units.Units.*;
 
 /** Add your docs here. */
 public class Superstructure extends SubsystemBase {
@@ -35,6 +30,15 @@ public class Superstructure extends SubsystemBase {
 
     public Superstructure() {
         
+    }
+
+    public Command climb() {
+        return Commands.sequence(
+            stowAll()
+                .alongWith(climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false)),
+            Commands.waitUntil(climb::isForkContacting),
+            climb.setState(ClimbState.ROLLED_BACK, true)
+        );
     }
 
     public Command stowAll() {

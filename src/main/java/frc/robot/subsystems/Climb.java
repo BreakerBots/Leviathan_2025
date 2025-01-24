@@ -199,7 +199,8 @@ public class Climb extends SubsystemBase {
     public enum ClimbState {
         EXTENDED(WinchState.UNROLLED, ForkState.EXTENDED),
         ROLLED_BACK(WinchState.ROLLED, ForkState.EXTENDED),
-        NEUTRAL(WinchState.NEUTRAL, ForkState.NEUTRAL);
+        NEUTRAL(WinchState.NEUTRAL, ForkState.NEUTRAL),
+        NEUTRAL_WINCH_EXTENDED_FORK(WinchState.NEUTRAL, ForkState.EXTENDED);
 
         private ForkState currentForkState = ForkState.RETRACTED;
         private WinchState currentWinchState = WinchState.UNROLLED;
