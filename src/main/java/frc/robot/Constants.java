@@ -211,10 +211,10 @@ public final class Constants {
                     new PIDConstants(1.5, 0, 0));// 1.5
     public static final SetpointGenerationConfig SETPOINT_GENERATION_CONFIG = new SetpointGenerationConfig(MAXIMUM_MODULE_AZIMUTH_SPEED);
     public static final TeleopControlConfig TELEOP_CONTROL_CONFIG = new TeleopControlConfig()
-            .withHeadingCompensation(HEADING_COMPENSATION_CONFIG)
-            .withSetpointGeneration(SETPOINT_GENERATION_CONFIG);
+            .withHeadingCompensation(HEADING_COMPENSATION_CONFIG);
+            // .withSetpointGeneration(SETPOINT_GENERATION_CONFIG);
     public static final LinearVelocity MAXIMUM_TRANSLATIONAL_VELOCITY = MetersPerSecond.of(4.5);
-    public static final AngularVelocity MAXIMUM_ROTATIONAL_VELOCITY = RadiansPerSecond.of(9.5);
+    public static final AngularVelocity MAXIMUM_ROTATIONAL_VELOCITY = RadiansPerSecond.of(12);
 
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
@@ -285,7 +285,7 @@ public final class Constants {
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio_MK4i = 0.0;
     private static final double kCoupleRatio_MK4n = 0.0;
-    private static final double kDriveGearRatio = 8.14;
+    private static final double kDriveGearRatio = 7.13;
     private static final double kSteerGearRatio_MK4i = 150.0/7.0;
     private static final double kSteerGearRatio_MK4n = 18.75;
     private static final Distance kWheelRadius = Inches.of(2.0);
