@@ -1,19 +1,16 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint;
 
 public class ReefPosition {
     public static enum ReefLevel {
-        L1(),
+        L1,
         L2,
         L3,
         L4;
-
-        private ReefLevel(ElevatorSetpoint elevatorSetpoint, EndEffectorSetpoint endEffectorSetpoint) {
-            
-        }
     }
 
     public static enum ReefBranch {
@@ -34,6 +31,8 @@ public class ReefPosition {
 
         }
     }
+
+    
 
     
 }
