@@ -43,7 +43,7 @@ public class EndEffector extends SubsystemBase {
     private Canandcolor algaeSensor;
     private MotionMagicExpoVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
-    // private EndEffectorRotationAllowence rotationAllowence;
+    private EndEffectorWristLimits wristLimits;
     public EndEffector() {
         CANcoderConfiguration conf = new CANcoderConfiguration();
         // setRotationAllowenceFunc(EndEffectorRotationAllowence.FLOOR_LIMITED);
@@ -61,6 +61,11 @@ public class EndEffector extends SubsystemBase {
     //     pivotEncoder.getConfigurator().apply(magConfigs);
     //     wrist.getConfigurator().apply(rotationAllowence.getSoftLimits());
     // }
+
+    public void setWristLimits(EndEffectorWristLimits limits) {
+        wristLimits = limits;
+        wrist.getConfigurator().apply(wristLimits.getSoftLimits());
+    }
 
     public Command set(EndEffectorSetpoint setpoint, boolean waitForSuccess) {
         return Commands.runOnce(() -> setControl(setpoint), this).andThen(Commands.waitUntil(() -> isAtSetpoint() || !waitForSuccess));
@@ -190,19 +195,19 @@ public class EndEffector extends SubsystemBase {
         }
     }
 
-    // public static enum EndEffectorRotationAllowence {
-    //     FULL(kFullSoftLimits),
-    //     FLOOR_LIMITED(kFloorLimitedSoftLimits),
-    //     RESTRICTED(kRestrictedSoftLimits);
-    //     private SoftwareLimitSwitchConfigs softLimits;
-    //     private EndEffectorRotationAllowence(SoftwareLimitSwitchConfigs softLimits) {
-    //         this.softLimits = softLimits;
-    //     }
+    public static enum EndEffectorWristLimits {
+        ELEVATOR_EXTENDED(kElevatorExtendedLimits),
+        FLOOR_RESTRICTED(kFloorRestrictedLimits),
+        NORMAL(kNormalLimits);
+        private SoftwareLimitSwitchConfigs softLimits;
+        private EndEffectorWristLimits(SoftwareLimitSwitchConfigs softLimits) {
+            this.softLimits = softLimits;
+        }
 
-    //     public SoftwareLimitSwitchConfigs getSoftLimits() {
-    //         return softLimits;
-    //     }
-    // }
+        public SoftwareLimitSwitchConfigs getSoftLimits() {
+            return softLimits;
+        }
+    }
 
     public static enum KickerState {
         KICK(-1.0, kNormalKickerCurrentLimitConfig),

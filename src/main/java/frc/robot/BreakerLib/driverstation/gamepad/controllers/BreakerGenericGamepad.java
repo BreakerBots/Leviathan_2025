@@ -37,7 +37,8 @@ public class BreakerGenericGamepad {
             int leftTriggerAxisPort,
             int rightTriggerAxisPort,
             int leftBumperPort,
-            int rightBumperPort) {
+            int rightBumperPort
+            ) {
 
         this.hid = hid;
         faceButtons = new BreakerFaceButtons(hid, upFaceButtonPort, leftFaceButtonPort,

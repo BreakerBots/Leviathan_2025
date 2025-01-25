@@ -20,7 +20,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
+import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.subsystems.EndEffector.RollerState;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
@@ -29,18 +31,23 @@ import static frc.robot.Constants.IntakeConstants.*;
 /** Add your docs here. */
 public class Intake extends SubsystemBase{
     private TalonFX rollers;
-    private TalonFX pivotLeft;
-    private TalonFX pivotRight;
+    private TalonFX pivot;
     private CANcoder encoder;
     private BreakerDigitalSensor coralSensor;
     private MotionMagicExpoVoltage pivotRequest;
-    private Follower followRequest;
     private DutyCycleOut rollerRequest;
 
     private IntakeState setpoint;
 
     public Intake() {
-        
+        rollers = new TalonFX(0);
+        pivot = new TalonFX(0);
+        encoder = BreakerCANCoderFactory.createCANCoder(0, 0, kPivotTolerence, null);
+        coralSensor = BreakerDigitalSensor.fromDIO(0, true);
+        setpoint = IntakeState.STOW;
+        pivotRequest = new MotionMagicExpoVoltage(IntakePivotState.RETRACTED.getAngle());
+        rollerRequest = new DutyCycleOut(RollerState.NEUTRAL.getDutyCycle());
+        setClosestNeutral();
     }
 
     public Command setState(IntakeState state, boolean waitForSuccess) {
@@ -55,8 +62,7 @@ public class Intake extends SubsystemBase{
 
     private void setAngle(Angle angle) {
         pivotRequest.withPosition(angle);
-        pivotLeft.setControl(pivotRequest);
-        pivotRight.setControl(followRequest);
+        pivot.setControl(pivotRequest);
     }
 
     private void setRoller(IntakeRollerState rollerState) {
@@ -76,22 +82,25 @@ public class Intake extends SubsystemBase{
         return coralSensor.isTriggered();
     }
 
+    private void setClosestNeutral() {
+        double curAng = getPivotAngle().in(Degrees);
+        double extDelta = Math.abs(IntakePivotState.EXTENDED.getAngle().in(Degrees) - curAng);
+        double retDelta = Math.abs(IntakePivotState.RETRACTED.getAngle().in(Degrees) - curAng);
+        if (extDelta < retDelta) {
+            setStateFunc(IntakeState.STOW);
+        } else {
+            setStateFunc(IntakeState.EXTENDED_NEUTRAL);
+        }
+    }
+
     @Override
     public void periodic() {
         if (RobotState.isDisabled()) {
-            double curAng = getPivotAngle().in(Degrees);
-            double extDelta = Math.abs(IntakePivotState.EXTENDED.getAngle().in(Degrees) - curAng);
-            double retDelta = Math.abs(IntakePivotState.RETRACTED.getAngle().in(Degrees) - curAng);
-            if (extDelta < retDelta) {
-                setStateFunc(IntakeState.STOW);
-            } else {
-                setStateFunc(IntakeState.EXTENDED_NEUTRAL);
-            }
+            setClosestNeutral();
         }
         BreakerLog.log("Intake/Rollers/Motor", rollers);
         BreakerLog.log("Intake/Rollers/State", setpoint.getRollerState().toString());
-        BreakerLog.log("Intake/Pivot/Motors/Left", pivotLeft);
-        BreakerLog.log("Intake/Pivot/Motors/Right", pivotRight);
+        BreakerLog.log("Intake/Pivot/Motor", pivot);
         BreakerLog.log("Intake/Pivot/Encoder", encoder);
         BreakerLog.log("Intake/Pivot/Setpoint/Name", setpoint.getPivotState().toString());
         BreakerLog.log("Intake/Pivot/Setpoint/Angle", setpoint.getPivotState().getAngle().in(Degrees));

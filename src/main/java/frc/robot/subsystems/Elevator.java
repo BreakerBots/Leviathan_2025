@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -40,8 +41,10 @@ public class Elevator extends SubsystemBase {
     private MotionMagicExpoVoltage motionMagicRequest;
     private VoltageOut voltageRequest;
     private Follower followRequest;
+    private NeutralOut neutralRequest;
     private LoggedAlert homeingFailedAlert;
     private LoggedAlert isHomeingAlert;
+    private boolean forceStoped;
     public Elevator() {
         left = new TalonFX(kLeftMotorID);
         right = new TalonFX(kRightMotorID);
@@ -55,6 +58,20 @@ public class Elevator extends SubsystemBase {
 
         homeingFailedAlert = new LoggedAlert("Elevator/Errors/HomeingFailed", "Failed to home elevator, setpoints will be inacurate", AlertType.kError);
         isHomeingAlert = new LoggedAlert("Elevator/Errors/IsHomeing", "Elevator Is Homeing, Please Wait", AlertType.kInfo);
+    }
+
+    public void forceStop(boolean forceStop) {
+        if (forceStop) {
+            left.setControl(neutralRequest);
+            right.setControl(neutralRequest);
+        } else if (forceStoped && !forceStop) {
+            setControl(setpoint.getNativeSetpoint());
+        }
+
+        if (forceStop && !forceStoped) {
+
+        }
+        forceStoped = forceStop;
     }
 
     private void configLeft() {

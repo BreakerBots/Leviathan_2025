@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
+import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFloorLimit;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFullMotion;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,6 +17,7 @@ import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.subsystems.Climb.ClimbState;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint;
+import frc.robot.subsystems.EndEffector.EndEffectorWristLimits;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake.IntakeState;
 
@@ -120,8 +122,6 @@ public class Superstructure extends SubsystemBase {
         );
     }
 
-    
-
     public boolean doesElevatorSetpointAllowEndEffectorFliping(ElevatorSetpoint setpoint) {
         return setpoint.getHeight().in(Meters) < kMaxHeightForEndEffectorFullMotion.in(Meter);
     }
@@ -130,10 +130,35 @@ public class Superstructure extends SubsystemBase {
         return elevator.getHeight().in(Meter) < kMaxHeightForEndEffectorFullMotion.in(Meter);
     }
 
+    private boolean isEndEffectorFloorLimited() {
+        return elevator.getHeight().in(Meter) < kMaxHeightForEndEffectorFloorLimit.in(Meter);
+    }
+
     public boolean isEndEffectorSafe() {
         return endEffector.getWristAngle().in(Degree) < EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.in(Degree);
     }
 
+    private void endEffectorSaftyCheck() {
+        boolean flip = canEndEffectorFlip();
+        boolean floor = isEndEffectorFloorLimited();
+        boolean safe = isEndEffectorSafe();
+        if (flip) {
+            if (floor) {
+                endEffector.setWristLimits(EndEffectorWristLimits.FLOOR_RESTRICTED);
+            } else {
+                endEffector.setWristLimits(EndEffectorWristLimits.NORMAL);
+            }
+        } else {
+            endEffector.setWristLimits(EndEffectorWristLimits.ELEVATOR_EXTENDED);
+        }
+
+        if ((elevator.getHeight().in(Meter) >= kMaxHeightForEndEffectorFullMotion.in(Meter) - 0.05) && !safe) {
+            elevator.forceStop(true);
+        } else {
+            elevator.forceStop(false);
+        }
+    }
+ 
 
     // public class SuperstructureState {
 
@@ -175,6 +200,6 @@ public class Superstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
-
+        endEffectorSaftyCheck();
     }
 }
