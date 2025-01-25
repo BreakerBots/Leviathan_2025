@@ -323,6 +323,60 @@ public class EndEffector extends SubsystemBase {
             RollerState.INTAKE, 
             KickerState.INTAKE
         );
+
+        public static final EndEffectorSetpoint L1_NEUTRAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-65)), 
+            RollerState.NEUTRAL, 
+            KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint L2_NEUTRAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-45)), 
+            RollerState.NEUTRAL, 
+            KickerState.NEUTRAL
+        );
+        public static final EndEffectorSetpoint L3_NEUTRAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-45)), 
+            RollerState.NEUTRAL, 
+            KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint L4_NEUTRAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-65)), 
+            RollerState.NEUTRAL, 
+            KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint L1_EXTAKE_CORAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-65)), 
+            RollerState.EXTAKE, 
+            KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint L2_EXTAKE_CORAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-45)), 
+            RollerState.EXTAKE, 
+            KickerState.NEUTRAL
+        );
+        public static final EndEffectorSetpoint L3_NEXTAKE_CORAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-45)), 
+            RollerState.EXTAKE, 
+            KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint L4_EXTAKE_CORAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(-65)), 
+            RollerState.EXTAKE, 
+            KickerState.NEUTRAL
+        );
         
     }
 
