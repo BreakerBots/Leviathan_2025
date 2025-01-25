@@ -4,7 +4,22 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.Centimeters;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.CANBus;
@@ -12,7 +27,6 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
@@ -134,6 +148,26 @@ public final class Constants {
   public static class IntakeConstants {
     public static final Angle kPivotTolerence = Degrees.of(4);
     
+  }
+
+  public static class ButtonBoardConstants {
+    public static final int L1_BUTTON = 1;
+    public static final int L2_BUTTON = 2;
+    public static final int L3_BUTTON = 3;
+    public static final int L4_BUTTON = 4;
+
+    public static final int REEF_A_BUTTON = 5;
+    public static final int REEF_B_BUTTON = 6;
+    public static final int REEF_C_BUTTON = 7;
+    public static final int REEF_D_BUTTON = 8;
+    public static final int REEF_E_BUTTON = 9;
+    public static final int REEF_F_BUTTON = 10;
+    public static final int REEF_G_BUTTON = 11;
+    public static final int REEF_H_BUTTON = 12;
+    public static final int REEF_I_BUTTON = 13;
+    public static final int REEF_J_BUTTON = 14;
+    public static final int REEF_K_BUTTON = 15;
+    public static final int REEF_L_BUTTON = 16;
   }
 
   public static class EndEffectorConstants {

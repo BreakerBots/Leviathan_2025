@@ -79,7 +79,6 @@ public class RobotContainer {
             .scale(Constants.DriveConstants.MAXIMUM_TRANSLATIONAL_VELOCITY.in(Units.MetersPerSecond));
     driverX = driverTranslation.getY();
     driverY = driverTranslation.getX();
-
     driverOmega = controller.getRightThumbstick().getX()
             .clamp(1.0)
             .deadband(Constants.OperatorConstants.ROTATIONAL_DEADBAND, 1.0)
@@ -88,7 +87,7 @@ public class RobotContainer {
 
 
     drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
-
+    
 
   }
 
