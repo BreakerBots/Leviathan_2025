@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.ButtonBoardConstants;
+import frc.robot.BreakerLib.util.ReefPosition.ReefBranch;
 
 public class ButtonBoardReefButtons {
     private JoystickButton reefAButton;
@@ -80,5 +81,22 @@ public class ButtonBoardReefButtons {
     
     public JoystickButton getReefButtonL() {
         return reefLButton;
+    }
+
+    public JoystickButton getButtonByBranch(ReefBranch branch) {
+        return switch (branch) {
+            case A -> getReefButtonA();
+            case B -> getReefButtonB();
+            case C -> getReefButtonC();
+            case D -> getReefButtonD();
+            case E -> getReefButtonE();
+            case F -> getReefButtonF();
+            case G -> getReefButtonG();
+            case H -> getReefButtonH();
+            case I -> getReefButtonI();
+            case J -> getReefButtonJ();
+            case K -> getReefButtonK();
+            case L -> getReefButtonL();
+        };
     }
 }
