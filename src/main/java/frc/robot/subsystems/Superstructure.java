@@ -36,17 +36,9 @@ public class Superstructure extends SubsystemBase {
 
     public Command climb() {
         return Commands.sequence(
-            stowAll()
-                .alongWith(climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false)),
+            climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false)),
             Commands.waitUntil(climb::isForkContacting),
             climb.setState(ClimbState.ROLLED_BACK, true)
-        );
-    }
-
-    public Command stowAll() {
-        return Commands.parallel(
-            setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, true),
-            intake.setState(IntakeState.STOW, true)
         );
     }
 
