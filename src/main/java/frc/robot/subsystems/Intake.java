@@ -112,6 +112,7 @@ public class Intake extends SubsystemBase{
         INTAKE(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED),
         EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED),
         EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
+        CLIMB(IntakeRollerState.NEUTRAL, IntakePivotState.CLIMB),
         STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED),;
         private IntakeRollerState rollerState;
         private IntakePivotState pivotState;
@@ -146,6 +147,7 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakePivotState {
         EXTENDED(Degrees.of(0)),
+        CLIMB(Degrees.of(45)),
         RETRACTED(Degrees.of(90));
 
         private Angle angle;

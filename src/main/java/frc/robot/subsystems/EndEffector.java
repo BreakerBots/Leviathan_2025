@@ -312,6 +312,13 @@ public class EndEffector extends SubsystemBase {
             KickerState.INTAKE
         );
 
+        public static final EndEffectorSetpoint CLIMB = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(15)), 
+            RollerState.NEUTRAL, 
+            KickerState.NEUTRAL
+        );
+
         public static final EndEffectorSetpoint L1_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-65)), 
