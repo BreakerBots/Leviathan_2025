@@ -28,12 +28,16 @@ public class AutoPilot {
 
   }
 
-  public class NavToPoseConfig {
-    public Pose2d positionTolerance;
-    public ChassisSpeeds velocityTolerance;
-    public ProfiledPIDControllerConfig xConfig;
-    public ProfiledPIDControllerConfig yConfig;
-    public ProfiledPIDControllerConfig thetaConfig;
+  public record NavToPoseConfig(
+    Pose2d positionTolerance,
+    ChassisSpeeds velocityTolerance,
+    ProfiledPIDControllerConfig xConfig,
+    ProfiledPIDControllerConfig yConfig,
+    ProfiledPIDControllerConfig thetaConfig
+  ) {
+    
+
+    public NavToPoseConfig(P)
   }
 
   public Command navigateToPose(Pose2d goal, NavToPoseConfig config) {
