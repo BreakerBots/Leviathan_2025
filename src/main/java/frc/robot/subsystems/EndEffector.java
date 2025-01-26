@@ -45,22 +45,10 @@ public class EndEffector extends SubsystemBase {
     private EndEffectorSetpoint setpoint;
     private EndEffectorWristLimits wristLimits;
     public EndEffector() {
-        CANcoderConfiguration conf = new CANcoderConfiguration();
-        // setRotationAllowenceFunc(EndEffectorRotationAllowence.FLOOR_LIMITED);
+        
+        
     }
 
-    // public Command setRotationAllowence(EndEffectorRotationAllowence rotationAllowence) {
-    //     return Commands.runOnce(() -> setRotationAllowenceFunc(rotationAllowence), this);
-    // }
-
-    // private void setRotationAllowenceFunc(EndEffectorRotationAllowence rotationAllowence) {
-    //     this.rotationAllowence = rotationAllowence;
-    //     MagnetSensorConfigs magConfigs = new MagnetSensorConfigs();
-    //     pivotEncoder.getConfigurator().refresh(magConfigs);
-    //     magConfigs.AbsoluteSensorDiscontinuityPoint = kWristDiscontinuityPoint;
-    //     pivotEncoder.getConfigurator().apply(magConfigs);
-    //     wrist.getConfigurator().apply(rotationAllowence.getSoftLimits());
-    // }
 
     public void setWristLimits(EndEffectorWristLimits limits) {
         wristLimits = limits;
