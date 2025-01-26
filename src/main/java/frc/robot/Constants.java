@@ -73,6 +73,11 @@ public final class Constants {
     public static class MiscConstants {
         public static final int PDH_ID = 0;
     }
+
+    public static class AutoPilotConstants {
+      kDef
+      
+    }
   /** 
    * Constants related to operator controls and human interface devices.
    * USB ports are numbered 0-5 on the Driver Station
