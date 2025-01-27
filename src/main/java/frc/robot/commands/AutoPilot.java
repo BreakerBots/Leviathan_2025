@@ -7,6 +7,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -24,8 +25,10 @@ public class AutoPilot {
     this.localizer = localizer;
   }
 
-  public record ProfiledPIDControllerConfig(double kP, double kI, double kD, LinearVelocity maxVelocity, LinearAcceleration maxAccel) {
-
+  public record ProfiledPIDControllerConfig(double kP, double kI, double kD, TrapezoidProfile.Constraints constraints) {
+    public ProfiledPIDControllerConfig withConstraints(TrapezoidProfile.Constraints newConstraints) {
+      return new ProfiledPIDControllerConfig(kP, kI, kD, newConstraints);
+    } 
   }
 
   public record NavToPoseConfig(
@@ -35,9 +38,9 @@ public class AutoPilot {
     ProfiledPIDControllerConfig yConfig,
     ProfiledPIDControllerConfig thetaConfig
   ) {
-    
+    public NavToPoseConfig withTolerence(Pose2d positionTolerence)
 
-    public NavToPoseConfig(P)
+    
   }
 
   public Command navigateToPose(Pose2d goal, NavToPoseConfig config) {
@@ -57,7 +60,7 @@ public class AutoPilot {
     private ProfiledPIDController thetaController;
 
     private ProfiledPIDController fromConfig(ProfiledPIDControllerConfig config) {
-      return new ProfiledPIDController(config.kP, config.kI, config.kD, new Constraints(config.maxVelocity.in(MetersPerSecond), config.maxAccel.in(MetersPerSecondPerSecond)));
+      return new ProfiledPIDController(config.kP, config.kI, config.kD, config.constraints);
     }
 
     public NavToPose(Pose2d goal, NavToPoseConfig config) {
