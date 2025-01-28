@@ -36,7 +36,7 @@ public class Superstructure extends SubsystemBase {
 
     public Command climb() {
         return Commands.sequence(
-            climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false)),
+            climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false),
             Commands.waitUntil(climb::isForkContacting),
             climb.setState(ClimbState.ROLLED_BACK, true)
         );

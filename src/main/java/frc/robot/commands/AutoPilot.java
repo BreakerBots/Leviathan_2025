@@ -38,8 +38,7 @@ public class AutoPilot {
     ProfiledPIDControllerConfig yConfig,
     ProfiledPIDControllerConfig thetaConfig
   ) {
-    public NavToPoseConfig withTolerence(Pose2d positionTolerence)
-
+  
     
   }
 
