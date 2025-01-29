@@ -158,11 +158,7 @@ public class Superstructure extends SubsystemBase {
         }
     }
 
-    public DrivetrainKinimaticLimits getSafeDrivetrainKinimaticLimits() {
-        
-    }
-
-    private void 
+    
  
 
     // public class SuperstructureState {

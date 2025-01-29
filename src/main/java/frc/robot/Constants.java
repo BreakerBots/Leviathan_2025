@@ -40,6 +40,7 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.VelocityUnit;
@@ -80,7 +81,7 @@ public final class Constants {
     }
 
     public static class TipProtectionSystemConstants {
-      public static final InterPola
+      // public static final InterpolatingTreeMap<DrivetrianKinimaticLimits> kElevatorExtendedDriveKinimaticLimitsTable = new InterpolatingTreeMap<>(new KinimaticLimitInverseInterpolator(), new KinimaticLimitInterpolator())
       
     }
   /** 
