@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.EndEffector.RollerState;
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -40,9 +41,9 @@ public class Intake extends SubsystemBase{
     private IntakeState setpoint;
 
     public Intake() {
-        rollers = new TalonFX(0);
-        pivot = new TalonFX(0);
-        encoder = BreakerCANCoderFactory.createCANCoder(0, 0, kPivotTolerence, null);
+        rollers = new TalonFX(IntakeConstants.kIntakeRollersMotorID);
+        pivot = new TalonFX(IntakeConstants.kIntakePivotMotorID);
+        encoder = BreakerCANCoderFactory.createCANCoder(IntakeConstants.kIntakeCANCoderID, 0, kPivotTolerence, null);
         coralSensor = BreakerDigitalSensor.fromDIO(0, true);
         setpoint = IntakeState.STOW;
         pivotRequest = new MotionMagicExpoVoltage(IntakePivotState.RETRACTED.getAngle());
