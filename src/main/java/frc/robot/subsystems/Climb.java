@@ -195,7 +195,7 @@ public class Climb extends SubsystemBase {
             return this == WinchState.NEUTRAL;
         }
     } 
-    
+        /*Sets of states for the climbing system*/
     public enum ClimbState {
         EXTENDED(WinchState.UNROLLED, ForkState.EXTENDED),
         ROLLED_BACK(WinchState.ROLLED, ForkState.EXTENDED),
