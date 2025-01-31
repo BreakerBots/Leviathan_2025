@@ -34,6 +34,7 @@ import frc.robot.BreakerLib.util.logging.LoggedAlert;
 
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.SuperstructureConstants.kSuperstructureCANBus;
 
 public class Elevator extends SubsystemBase {
     private TalonFX left, right;
@@ -46,15 +47,16 @@ public class Elevator extends SubsystemBase {
     private LoggedAlert isHomeingAlert;
     private boolean forceStoped;
     public Elevator() {
-        left = new TalonFX(kLeftMotorID);
-        right = new TalonFX(kRightMotorID);
+        left = new TalonFX(kLeftMotorID, kSuperstructureCANBus);
+        right = new TalonFX(kRightMotorID, kSuperstructureCANBus);
         configLeft();
         configRight();
-        var sp = new ElevatorSetpoint(getHeight());
-        setFunc(sp);
         voltageRequest = new VoltageOut(0);
         motionMagicRequest = new MotionMagicExpoVoltage(getNativePosition()).withEnableFOC(true);
         followRequest = new Follower(kLeftMotorID, kLeftMotorInverted != kRightMotorInverted);
+        
+        var sp = new ElevatorSetpoint(getHeight());
+        setFunc(sp);
 
         homeingFailedAlert = new LoggedAlert("Elevator/Errors/HomeingFailed", "Failed to home elevator, setpoints will be inacurate", AlertType.kError);
         isHomeingAlert = new LoggedAlert("Elevator/Errors/IsHomeing", "Elevator Is Homeing, Please Wait", AlertType.kInfo);

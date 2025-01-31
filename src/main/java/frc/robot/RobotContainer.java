@@ -15,6 +15,8 @@ import frc.robot.BreakerLib.util.logging.BreakerLog.GitInfo;
 import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
 import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExponential;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -35,6 +37,8 @@ public class RobotContainer {
   // Subsystems are robot components like drivebase, arm, shooter, etc.
   // They contain the methods to control physical hardware
   private final Drivetrain drivetrain = new Drivetrain();
+  private final Intake intake = new Intake();
+  //private final Elevator elevator = new Elevator();
 
   // === CONTROLLERS ===
   // Xbox controller used for main driver

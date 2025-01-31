@@ -4,12 +4,14 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -23,10 +25,12 @@ import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.EndEffector.RollerState;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.IntakeConstants.*;
 
 /** Add your docs here. */
@@ -41,14 +45,19 @@ public class Intake extends SubsystemBase{
     private IntakeState setpoint;
 
     public Intake() {
-        rollers = new TalonFX(IntakeConstants.kIntakeRollersMotorID);
-        pivot = new TalonFX(IntakeConstants.kIntakePivotMotorID);
-        encoder = BreakerCANCoderFactory.createCANCoder(IntakeConstants.kIntakeCANCoderID, 0, kPivotTolerence, null);
+        rollers = new TalonFX(IntakeConstants.kIntakeRollersMotorID, SuperstructureConstants.kSuperstructureCANBus);
+        pivot = new TalonFX(IntakeConstants.kIntakePivotMotorID, SuperstructureConstants.kSuperstructureCANBus);
+        encoder = BreakerCANCoderFactory.createCANCoder(IntakeConstants.kIntakeCANCoderID, SuperstructureConstants.kSuperstructureCANBus, 0.5, kPivotEncoderOffset, SensorDirectionValue.CounterClockwise_Positive);
         coralSensor = BreakerDigitalSensor.fromDIO(0, true);
         setpoint = IntakeState.STOW;
         pivotRequest = new MotionMagicExpoVoltage(IntakePivotState.RETRACTED.getAngle());
         rollerRequest = new DutyCycleOut(RollerState.NEUTRAL.getDutyCycle());
         setClosestNeutral();
+    }
+
+    private void configPivot() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+        
     }
 
     public Command setState(IntakeState state, boolean waitForSuccess) {
@@ -147,9 +156,9 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakePivotState {
-        EXTENDED(Degrees.of(0)),
+        EXTENDED(Rotations.of(-0.04)),
         CLIMB(Degrees.of(45)),
-        RETRACTED(Degrees.of(90));
+        RETRACTED(Rotations.of(0.26));
 
         private Angle angle;
         private IntakePivotState(Angle angle) {

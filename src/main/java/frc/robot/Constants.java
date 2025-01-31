@@ -17,6 +17,8 @@ import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -45,6 +47,7 @@ import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.VelocityUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
@@ -133,7 +136,7 @@ public final class Constants {
       .withSupplyCurrentLowerLimit(kSupplyLowerCurrentLimit)
       .withSupplyCurrentLowerTime(kSupplyLowerCurrentLimitTime)
       .withStatorCurrentLimitEnable(true)
-      .withStatorCurrentLimit(kStatorCurrentLimit)
+      .withStatorCurrentLimit(80)
       .withStatorCurrentLimitEnable(true);
 
     public static final Current kHomeSupplyCurrentLimit = Amps.of(5);
@@ -160,9 +163,21 @@ public final class Constants {
   
   public static class IntakeConstants {
     public static final Angle kPivotTolerence = Degrees.of(4);
+    public static final Angle kPivotEncoderOffset = Rotations.of(0.197509765625);
     public static final int kIntakePivotMotorID = 40;
     public static final int kIntakeRollersMotorID = 41;
     public static final int kIntakeCANCoderID = 42;
+
+    public static final double kP = 0.55;
+    public static final double kI = 0.0;
+    public static final double kD = 0.05;
+    public static final double kS = 0.0;
+    public static final double kV = 13.0;
+    public static final double kA = 3.0;
+    public static final double kG = 0.22;
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(3);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(0.6);
+
     
   }
 

@@ -54,7 +54,7 @@ public class EndEffector extends SubsystemBase {
     private EndEffectorWristLimits wristLimits;
     
     public EndEffector() {
-        pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0, null, null);
+        pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0.5, -0.075439453125, null);
         pivot = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
     }
 
