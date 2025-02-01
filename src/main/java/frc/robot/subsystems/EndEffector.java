@@ -1,9 +1,32 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.reduxrobotics.sensors.canandcolor.Canandcolor;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation3d;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
+import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.Constants.EndEffectorConstants;
 import static frc.robot.Constants.EndEffectorConstants.kAlgaeColor;
 import static frc.robot.Constants.EndEffectorConstants.kAlgaeHoldKickerCurrentLimitConfig;
 import static frc.robot.Constants.EndEffectorConstants.kAlgaeHoldRollerCurrentLimitConfig;
@@ -18,29 +41,6 @@ import static frc.robot.Constants.EndEffectorConstants.kNormalKickerCurrentLimit
 import static frc.robot.Constants.EndEffectorConstants.kNormalLimits;
 import static frc.robot.Constants.EndEffectorConstants.kNormalRollerCurrentLimitConfig;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.reduxrobotics.sensors.canandcolor.Canandcolor;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
-import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
-import frc.robot.BreakerLib.util.logging.BreakerLog;
-import frc.robot.Constants.EndEffectorConstants;
-
 public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
     private TalonSRX rollers;
@@ -54,7 +54,7 @@ public class EndEffector extends SubsystemBase {
     private EndEffectorWristLimits wristLimits;
     
     public EndEffector() {
-        pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0.5, -0.075439453125, null);
+        pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0.5, Angle.ofBaseUnits(-0.075439453125, Radians), null);
         pivot = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
     }
 
