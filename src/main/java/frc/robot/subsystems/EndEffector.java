@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.EndEffectorConstants.kAlgaeColor;
 import static frc.robot.Constants.EndEffectorConstants.kAlgaeHoldKickerCurrentLimitConfig;
@@ -25,6 +26,7 @@ import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 
 import edu.wpi.first.math.MathUtil;
@@ -54,7 +56,7 @@ public class EndEffector extends SubsystemBase {
     private EndEffectorWristLimits wristLimits;
     
     public EndEffector() {
-        pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0.5, -0.075439453125, null);
+        pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0.5, Rotation.of(-0.075439453125), SensorDirectionValue.CounterClockwise_Positive);
         pivot = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
     }
 
