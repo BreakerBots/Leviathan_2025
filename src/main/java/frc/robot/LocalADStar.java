@@ -1,21 +1,34 @@
 package frc.robot;
 
-import com.pathplanner.lib.path.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.pathfinding.Pathfinder;
+
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.*;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 /**
  * Implementation of AD* running locally in a background thread
@@ -75,7 +88,7 @@ public class LocalADStar implements Pathfinder {
     staticObstacles.clear();
     dynamicObstacles.clear();
 
-    File navGridFile = new File(Filesystem.getDeployDirectory(), "pathplanner/navgrid.json");
+    File navGridFile = new File(Filesystem.getDeployDirectory(), "pathplanner-symmetrical/navgrid.json");
     if (navGridFile.exists()) {
       try (BufferedReader br = new BufferedReader(new FileReader(navGridFile))) {
         StringBuilder fileContentBuilder = new StringBuilder();
