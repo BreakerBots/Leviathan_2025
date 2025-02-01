@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
@@ -11,10 +12,16 @@ import com.ctre.phoenix6.controls.MotionMagicExpoDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotState;
@@ -31,6 +38,8 @@ import frc.robot.subsystems.EndEffector.RollerState;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static frc.robot.Constants.IntakeConstants.*;
 
 /** Add your docs here. */
@@ -53,11 +62,39 @@ public class Intake extends SubsystemBase{
         pivotRequest = new MotionMagicExpoVoltage(IntakePivotState.RETRACTED.getAngle());
         rollerRequest = new DutyCycleOut(RollerState.NEUTRAL.getDutyCycle());
         setClosestNeutral();
+        configPivot();
     }
 
     private void configPivot() {
         TalonFXConfiguration config = new TalonFXConfiguration();
+
+        config.Slot0.kP = IntakeConstants.kP;
+        config.Slot0.kI = IntakeConstants.kI;
+        config.Slot0.kD = IntakeConstants.kD;
+        config.Slot0.kS = IntakeConstants.kS;
+        config.Slot0.kA = IntakeConstants.kA;
+        config.Slot0.kG = IntakeConstants.kG;
+        config.Slot0.kV = IntakeConstants.kV;
+        config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
+
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         
+
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        config.Feedback.FeedbackRemoteSensorID = IntakeConstants.kIntakeCANCoderID;
+        config.Feedback.FeedbackRotorOffset = IntakeConstants.kPivotEncoderOffset.in(Rotations);
+        config.CurrentLimits = new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(50)
+            .withSupplyCurrentLimit(40)
+            .withSupplyCurrentLowerLimit(40)
+            .withSupplyCurrentLowerTime(0.1);
+        
+        config.MotionMagic.MotionMagicCruiseVelocity = IntakeConstants.kMotionMagicCruiseVelocity.in(RotationsPerSecond);
+        config.MotionMagic.MotionMagicAcceleration = IntakeConstants.kMotionMagicAcceleration.in(RotationsPerSecondPerSecond);
+
+        pivot.getConfigurator().apply(config);
     }
 
     public Command setState(IntakeState state, boolean waitForSuccess) {
