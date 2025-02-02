@@ -10,6 +10,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -48,7 +49,7 @@ public class Intake extends SubsystemBase{
     private TalonFX pivot;
     private CANcoder encoder;
     private BreakerDigitalSensor coralSensor;
-    private MotionMagicExpoVoltage pivotRequest;
+    private MotionMagicVoltage pivotRequest;
     private DutyCycleOut rollerRequest;
 
     private IntakeState setpoint;
@@ -59,10 +60,10 @@ public class Intake extends SubsystemBase{
         encoder = BreakerCANCoderFactory.createCANCoder(IntakeConstants.kIntakeCANCoderID, SuperstructureConstants.kSuperstructureCANBus, 0.5, kPivotEncoderOffset, SensorDirectionValue.CounterClockwise_Positive);
         coralSensor = BreakerDigitalSensor.fromDIO(0, true);
         setpoint = IntakeState.STOW;
-        pivotRequest = new MotionMagicExpoVoltage(IntakePivotState.RETRACTED.getAngle());
+        pivotRequest = new MotionMagicVoltage(IntakePivotState.RETRACTED.getAngle());
         rollerRequest = new DutyCycleOut(RollerState.NEUTRAL.getDutyCycle());
-        setClosestNeutral();
         configPivot();
+        setClosestNeutral();
     }
 
     private void configPivot() {
@@ -84,12 +85,15 @@ public class Intake extends SubsystemBase{
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         config.Feedback.FeedbackRemoteSensorID = IntakeConstants.kIntakeCANCoderID;
-        config.Feedback.FeedbackRotorOffset = IntakeConstants.kPivotEncoderOffset.in(Rotations);
+        config.Feedback.RotorToSensorRatio = IntakeConstants.kPivotGearRatio.getRatioToOne();
         config.CurrentLimits = new CurrentLimitsConfigs()
             .withStatorCurrentLimit(50)
+            .withStatorCurrentLimitEnable(true)
             .withSupplyCurrentLimit(40)
             .withSupplyCurrentLowerLimit(40)
-            .withSupplyCurrentLowerTime(0.1);
+            .withSupplyCurrentLowerTime(0.1)
+            .withSupplyCurrentLimitEnable(true);
+
         
         config.MotionMagic.MotionMagicCruiseVelocity = IntakeConstants.kMotionMagicCruiseVelocity.in(RotationsPerSecond);
         config.MotionMagic.MotionMagicAcceleration = IntakeConstants.kMotionMagicAcceleration.in(RotationsPerSecondPerSecond);
@@ -133,7 +137,7 @@ public class Intake extends SubsystemBase{
         double curAng = getPivotAngle().in(Degrees);
         double extDelta = Math.abs(IntakePivotState.EXTENDED.getAngle().in(Degrees) - curAng);
         double retDelta = Math.abs(IntakePivotState.RETRACTED.getAngle().in(Degrees) - curAng);
-        if (extDelta < retDelta) {
+        if (extDelta > retDelta) {
             setStateFunc(IntakeState.STOW);
         } else {
             setStateFunc(IntakeState.EXTENDED_NEUTRAL);
