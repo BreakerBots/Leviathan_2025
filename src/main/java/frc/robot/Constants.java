@@ -208,6 +208,13 @@ public final class Constants {
     public static final int REEF_J_BUTTON = 14;
     public static final int REEF_K_BUTTON = 15;
     public static final int REEF_L_BUTTON = 16;
+
+    public static final int LOW_RIGHT_BUTTON = 17;
+    public static final int LOW_RIGHT_SWITCH = 18;
+    public static final int HIGH_RIGHT_SWITCH = 19;
+    public static final int HIGH_RIGHT_BUTTON = 20;
+
+
   }
 
   public static class EndEffectorConstants {

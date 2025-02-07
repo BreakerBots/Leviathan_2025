@@ -6,10 +6,10 @@ import frc.robot.Constants.ButtonBoardConstants;
 import frc.robot.ReefPosition.ReefLevel;
 
 public class ButtonBoardLevelButtons {
-    private JoystickButton l1Button;
-    private JoystickButton l2Button;
-    private JoystickButton l3Button;
-    private JoystickButton l4Button;
+    private final JoystickButton l1Button;
+    private final JoystickButton l2Button;
+    private final JoystickButton l3Button;
+    private final JoystickButton l4Button;
 
     public ButtonBoardLevelButtons(GenericHID hid) {
         l1Button = new JoystickButton(hid, ButtonBoardConstants.L1_BUTTON);

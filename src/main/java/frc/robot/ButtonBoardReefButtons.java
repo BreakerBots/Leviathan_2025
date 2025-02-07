@@ -6,18 +6,18 @@ import frc.robot.Constants.ButtonBoardConstants;
 import frc.robot.ReefPosition.ReefBranch;
 
 public class ButtonBoardReefButtons {
-    private JoystickButton reefAButton;
-    private JoystickButton reefBButton;
-    private JoystickButton reefCButton;
-    private JoystickButton reefDButton;
-    private JoystickButton reefEButton;
-    private JoystickButton reefFButton;
-    private JoystickButton reefGButton;
-    private JoystickButton reefHButton;
-    private JoystickButton reefIButton;
-    private JoystickButton reefJButton;
-    private JoystickButton reefKButton;
-    private JoystickButton reefLButton;
+    private final JoystickButton reefAButton;
+    private final JoystickButton reefBButton;
+    private final JoystickButton reefCButton;
+    private final JoystickButton reefDButton;
+    private final JoystickButton reefEButton;
+    private final JoystickButton reefFButton;
+    private final JoystickButton reefGButton;
+    private final JoystickButton reefHButton;
+    private final JoystickButton reefIButton;
+    private final JoystickButton reefJButton;
+    private final JoystickButton reefKButton;
+    private final JoystickButton reefLButton;
 
     
     public ButtonBoardReefButtons(GenericHID hid) {

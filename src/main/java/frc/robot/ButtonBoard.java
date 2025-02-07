@@ -3,15 +3,17 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 
 public class ButtonBoard {
-    private GenericHID hid;
+    private final GenericHID hid;
 
-    private ButtonBoardLevelButtons levelButtons;
-    private ButtonBoardReefButtons reefButtons;
+    private final ButtonBoardLevelButtons levelButtons;
+    private final ButtonBoardReefButtons reefButtons;
+    private final ButtonBoardRightButtons rightButtons;
 
     public ButtonBoard(GenericHID hid) {
         this.hid = hid;
         levelButtons = new ButtonBoardLevelButtons(hid);
         reefButtons = new ButtonBoardReefButtons(hid);
+        rightButtons = new ButtonBoardRightButtons(hid);
     }
     
     public ButtonBoardLevelButtons getLevelButtons() {
@@ -20,6 +22,10 @@ public class ButtonBoard {
 
     public ButtonBoardReefButtons getReefButtons() {
         return reefButtons;
+    }
+
+    public ButtonBoardRightButtons getRightButtons() {
+        return rightButtons;
     }
 
     public GenericHID getBaseHID() {
