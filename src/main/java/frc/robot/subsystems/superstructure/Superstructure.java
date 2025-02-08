@@ -10,17 +10,16 @@ import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFloorLimit;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFullMotion;
 
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.HolonomicSlewRateLimiter;
-import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.Constants.EndEffectorConstants;
-import frc.robot.Constants.TipProtectionSystemConstants;
+import frc.robot.HolonomicSlewRateLimiter;
+import frc.robot.BreakerLib.driverstation.BreakerInputStream;
+import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
+import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Climb.ClimbState;
-import frc.robot.subsystems.Drivetrain.DrivetrainKinimaticLimits;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
@@ -40,13 +39,16 @@ public class Superstructure extends SubsystemBase {
     private Intake intake;
     private Climb climb;
     private Drivetrain drivetrain;
-    private TipProtectionSystem tipProtectionSystem;
+
+    private final TipProtectionSystem tipProtectionSystem;
+
 
     private SuperstructureState setpoint;
 
     private HolonomicSlewRateLimiter limiter;
 
-    public Superstructure() {
+    public Superstructure(Drivetrain drivetrain) {
+        tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
 
     public Command climb() {
@@ -211,9 +213,14 @@ public class Superstructure extends SubsystemBase {
         }
     }
 
+    public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {
+        tipProtectionSystem.setStreams(linear, rotational);
+        return drivetrain.getTeleopControlCommand(linear.getX(), linear.getY(), rotational, config);
+    }
+
     @Override
     public void periodic() {
         endEffectorSaftyCheck();
-        tipProtectionSystem.update(elevator.getHeight());
+        tipProtectionSystem.update();
     }
 }

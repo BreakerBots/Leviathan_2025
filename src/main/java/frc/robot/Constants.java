@@ -93,7 +93,14 @@ public final class Constants {
     
       public static final InterpolatingTreeMap<Distance, DrivetrainKinimaticLimits> kinematicLimitMap = new InterpolatingTreeMap<>(null, null);
 
+      public static final Angle tippingThreshold = Degrees.of(0);
 
+      static {
+        kinematicLimitMap.put(Centimeter.of(10), kTenCentimeterLimit);
+        kinematicLimitMap.put(Centimeter.of(20), kTwentyCentimeterLimit);
+        kinematicLimitMap.put(Centimeter.of(30), kThirtyCentimeterLimit);
+        kinematicLimitMap.put(Centimeter.of(40), kFullyExtendedLimit);
+      }
     }
   /** 
    * Constants related to operator controls and human interface devices.

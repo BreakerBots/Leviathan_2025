@@ -10,6 +10,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
+import frc.robot.BreakerLib.physics.BreakerVector2;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.logging.BreakerLog.GitInfo;
 import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
@@ -17,6 +18,7 @@ import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExpo
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.TipProtectionSystem;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.units.Units;
@@ -38,7 +40,7 @@ public class RobotContainer {
   // Subsystems are robot components like drivebase, arm, shooter, etc.
   // They contain the methods to control physical hardware
   private final Drivetrain drivetrain = new Drivetrain();
-  private final TipProtectionSystem tipProtectionSystem = new TipProtectionSystem();
+  private final Superstructure superstructure = new Superstructure();
   // private final Intake intake = new Intake();
   //private final Elevator elevator = new Elevator();
 
@@ -56,7 +58,6 @@ public class RobotContainer {
     startLog();
     // Configure the trigger bindings
     configureControls();
-    tipProtectionSystem.setStreams(controller.getLeftThumbstick(), controller.getRightThumbstick().getX());
   }
 
   private void startLog() {
@@ -93,15 +94,8 @@ public class RobotContainer {
             .map(new BreakerLinearizedConstrainedExponential(0.0, 3.0, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
-    var limits = tipProtectionSystem.setStreams(driverTranslation, driverOmega);
-    driverX = limits.getFirst().getY();
-    driverY = limits.getFirst().getX();
-
-    driverOmega = limits.getSecond();
-
-    drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
-    
-
+    // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
+    drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(() -> new BreakerVector2(driverX.get(), driverY.get()), driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
   }
 
   /**

@@ -1,40 +1,61 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static frc.robot.Constants.ElevatorConstants.kA;
+import static frc.robot.Constants.ElevatorConstants.kD;
+import static frc.robot.Constants.ElevatorConstants.kDefaultHeightTolerence;
+import static frc.robot.Constants.ElevatorConstants.kDefaultVelocityTolerence;
+import static frc.robot.Constants.ElevatorConstants.kG;
+import static frc.robot.Constants.ElevatorConstants.kHomeDetectCurrentThreshold;
+import static frc.robot.Constants.ElevatorConstants.kHomeingCurrentLimits;
+import static frc.robot.Constants.ElevatorConstants.kHomeingVoltage;
+import static frc.robot.Constants.ElevatorConstants.kI;
+import static frc.robot.Constants.ElevatorConstants.kLeftMotorID;
+import static frc.robot.Constants.ElevatorConstants.kLeftMotorInverted;
+import static frc.robot.Constants.ElevatorConstants.kMaxHeight;
+import static frc.robot.Constants.ElevatorConstants.kMinHeight;
+import static frc.robot.Constants.ElevatorConstants.kMotionMagicAcceleration;
+import static frc.robot.Constants.ElevatorConstants.kMotionMagicCruiseVelocity;
+import static frc.robot.Constants.ElevatorConstants.kMotionMagicJerk;
+import static frc.robot.Constants.ElevatorConstants.kNormalCurrentLimits;
+import static frc.robot.Constants.ElevatorConstants.kP;
+import static frc.robot.Constants.ElevatorConstants.kRightMotorID;
+import static frc.robot.Constants.ElevatorConstants.kRightMotorInverted;
+import static frc.robot.Constants.ElevatorConstants.kRotationsToMeters;
+import static frc.robot.Constants.ElevatorConstants.kS;
+import static frc.robot.Constants.ElevatorConstants.kV;
+import static frc.robot.Constants.SuperstructureConstants.kSuperstructureCANBus;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.CurrentUnit;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.wpilibj.DutyCycle;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.CommandStadiaController;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.logging.LoggedAlert;
-
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.Constants.ElevatorConstants.*;
-import static frc.robot.Constants.SuperstructureConstants.kSuperstructureCANBus;
 
 public class Elevator extends SubsystemBase {
     private TalonFX left, right;
