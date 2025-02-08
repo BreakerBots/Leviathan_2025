@@ -10,22 +10,26 @@ import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFloorLimit;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFullMotion;
 
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.HolonomicSlewRateLimiter;
+import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.TipProtectionSystemConstants;
 import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.EndEffector;
-import frc.robot.subsystems.Indexer;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Climb.ClimbState;
 import frc.robot.subsystems.Drivetrain.DrivetrainKinimaticLimits;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
+import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint;
 import frc.robot.subsystems.EndEffector.EndEffectorWristLimits;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerState;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
 
 /** Add your docs here. */
@@ -36,11 +40,13 @@ public class Superstructure extends SubsystemBase {
     private Intake intake;
     private Climb climb;
     private Drivetrain drivetrain;
+    private TipProtectionSystem tipProtectionSystem;
 
     private SuperstructureState setpoint;
 
+    private HolonomicSlewRateLimiter limiter;
+
     public Superstructure() {
-        
     }
 
     public Command climb() {
@@ -200,7 +206,7 @@ public class Superstructure extends SubsystemBase {
             return intakeState;
         }
 
-        public  doesEndEffectorFlipThrough() {
+        public boolean doesEndEffectorFlipThrough() {
 
         }
     }
@@ -208,5 +214,6 @@ public class Superstructure extends SubsystemBase {
     @Override
     public void periodic() {
         endEffectorSaftyCheck();
+        tipProtectionSystem.update(elevator.getHeight());
     }
 }

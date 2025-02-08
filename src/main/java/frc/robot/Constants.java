@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Centimeter;
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Meters;
@@ -85,8 +86,14 @@ public final class Constants {
     }
 
     public static class TipProtectionSystemConstants {
+      public static final DrivetrainKinimaticLimits kFullyExtendedLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(1), MetersPerSecondPerSecond.of(1), DegreesPerSecond.of(45), DegreesPerSecondPerSecond.of(45));
+      public static final DrivetrainKinimaticLimits kTenCentimeterLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
+      public static final DrivetrainKinimaticLimits kTwentyCentimeterLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
+      public static final DrivetrainKinimaticLimits kThirtyCentimeterLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
     
-      
+      public static final InterpolatingTreeMap<Distance, DrivetrainKinimaticLimits> kinematicLimitMap = new InterpolatingTreeMap<>(null, null);
+
+
     }
   /** 
    * Constants related to operator controls and human interface devices.

@@ -17,6 +17,7 @@ import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExpo
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.superstructure.TipProtectionSystem;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -37,6 +38,7 @@ public class RobotContainer {
   // Subsystems are robot components like drivebase, arm, shooter, etc.
   // They contain the methods to control physical hardware
   private final Drivetrain drivetrain = new Drivetrain();
+  private final TipProtectionSystem tipProtectionSystem = new TipProtectionSystem();
   // private final Intake intake = new Intake();
   //private final Elevator elevator = new Elevator();
 
@@ -47,12 +49,14 @@ public class RobotContainer {
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
 
   private BreakerInputStream driverX, driverY, driverOmega;
+  
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     startLog();
     // Configure the trigger bindings
     configureControls();
+    tipProtectionSystem.setStreams(controller.getLeftThumbstick(), controller.getRightThumbstick().getX());
   }
 
   private void startLog() {
@@ -89,6 +93,11 @@ public class RobotContainer {
             .map(new BreakerLinearizedConstrainedExponential(0.0, 3.0, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
+    var limits = tipProtectionSystem.setStreams(driverTranslation, driverOmega);
+    driverX = limits.getFirst().getY();
+    driverY = limits.getFirst().getX();
+
+    driverOmega = limits.getSecond();
 
     drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
     

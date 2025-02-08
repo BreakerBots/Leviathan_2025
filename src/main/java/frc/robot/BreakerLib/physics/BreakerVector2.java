@@ -14,21 +14,21 @@ import edu.wpi.first.math.numbers.N2;
 import frc.robot.BreakerLib.util.math.interpolation.BreakerInterpolable;
 
 /**
- * represents a 2 dimentional vector, a uantity with bolth magnatude and direction. Here representd as a total magnatude, angular direction, 
+ * represents a 2 dimentional vector, a uantity with bolth magnatude and
+ * direction. Here representd as a total magnatude, angular direction,
  * x manatude component, and y magnatude component
  */
 public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
     private final Rotation2d vectorRotation;
     private final double magnitude, x, y;
 
-
-     /** creates an empty BreakerVector2 with 0's for all values */
-     public BreakerVector2() {
+    /** creates an empty BreakerVector2 with 0's for all values */
+    public BreakerVector2() {
         x = 0;
-           y = 0;
-           vectorRotation = Rotation2d.fromDegrees(0);
-           magnitude = 0;
-       }
+        y = 0;
+        vectorRotation = Rotation2d.fromDegrees(0);
+        magnitude = 0;
+    }
 
     /**
      * creates a new BreakerVector2 from the magnatudes of the vector's X and Y
@@ -50,10 +50,14 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
                 magnatude * vectorRotation.getSin(), magnatude, vectorRotation);
     }
 
-    /** converts an instance of WPILib's Translation2d class into a vector.
-     *  This exists because of the Tranlation2d classes suppport of various vector opperations */
+    /**
+     * converts an instance of WPILib's Translation2d class into a vector.
+     * This exists because of the Tranlation2d classes suppport of various vector
+     * opperations
+     */
     public BreakerVector2(Translation2d translationToVectorize) {
-       this(translationToVectorize.getX(), translationToVectorize.getY(), translationToVectorize.getNorm(), translationToVectorize.getAngle());
+        this(translationToVectorize.getX(), translationToVectorize.getY(), translationToVectorize.getNorm(),
+                translationToVectorize.getAngle());
     }
 
     private BreakerVector2(double x, double y, double magnitude, Rotation2d vectorRotation) {
@@ -66,36 +70,33 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
     public BreakerVector2(Vector<N2> vector) {
         this(vector.get(0), vector.get(1));
     }
+
     public static BreakerVector2 fromChassisSpeeds(ChassisSpeeds chassisSpeeds) {
         return new BreakerVector2(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
     }
 
-    
-    /** 
+    /**
      * @return double
      */
     public double getMagnitude() {
         return magnitude;
     }
 
-    
-    /** 
+    /**
      * @return Rotation2d
      */
     public Rotation2d getAngle() {
         return vectorRotation;
     }
 
-    
-    /** 
+    /**
      * @return double
      */
     public double getX() {
         return x;
     }
 
-    
-    /** 
+    /**
      * @return double
      */
     public double getY() {
@@ -111,8 +112,7 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
         return new BreakerVector2(Math.abs(x), Math.abs(y));
     }
 
-    
-    /** 
+    /**
      * @param outher
      * @return BreakerVector2
      */
@@ -120,8 +120,7 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
         return new BreakerVector2(x + outher.x, y + outher.y);
     }
 
-    
-    /** 
+    /**
      * @param outher
      * @return BreakerVector2
      */
@@ -129,16 +128,14 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
         return new BreakerVector2(x - outher.x, y - outher.y);
     }
 
-    
-    /** 
+    /**
      * @return BreakerVector2
      */
-    public BreakerVector2 unaryMinus()  {
+    public BreakerVector2 unaryMinus() {
         return new BreakerVector2(-x, -y);
     }
 
-    
-    /** 
+    /**
      * @param scalar
      * @return BreakerVector2
      */
@@ -146,21 +143,19 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
         return new BreakerVector2(x * scalar, y * scalar);
     }
 
-    
-    /** 
+    /**
      * @param scalar
      * @return BreakerVector2
      */
     public BreakerVector2 div(double scalar) {
-        return new BreakerVector2(x / scalar,  y / scalar);
+        return new BreakerVector2(x / scalar, y / scalar);
     }
 
-    public BreakerVector2 pow(double exponent)  {
+    public BreakerVector2 pow(double exponent) {
         return new BreakerVector2(vectorRotation, Math.pow(magnitude, exponent));
     }
-    
-    
-    /** 
+
+    /**
      * @return Translation2d
      */
     public Translation2d getAsTranslation() {
@@ -170,8 +165,8 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
     public Vector<N2> getVectorWPI() {
         return VecBuilder.fill(x, y);
     }
-    
-    /** 
+
+    /**
      * @param rotation
      * @return BreakerVector2
      */
@@ -181,16 +176,14 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
         return new BreakerVector2((this.x * cos) - (this.y * sin), (this.x * sin) + (this.y * cos));
     }
 
-    
-    /** 
+    /**
      * @return BreakerVector2
      */
     public BreakerVector2 getUnitVector() {
         return new BreakerVector2(vectorRotation, 1.0);
     }
 
-    
-    /** 
+    /**
      * @param obj
      * @return boolean
      */
@@ -200,8 +193,7 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
                 && (Math.abs(((BreakerVector2) obj).y - y) < 1E-9);
     }
 
-    
-    /** 
+    /**
      * @param endValue
      * @param t
      * @return BreakerVector2
@@ -219,8 +211,7 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
         return new double[] { x, y };
     }
 
-    
-    /** 
+    /**
      * @param interpolatableData
      * @return BreakerVector2
      */
@@ -229,13 +220,13 @@ public class BreakerVector2 implements BreakerInterpolable<BreakerVector2> {
         return new BreakerVector2(interpolatableData[0], interpolatableData[1]);
     }
 
-    
-    /** 
+    /**
      * @return String
      */
     @Override
     public String toString() {
-       return String.format("BreakerVector2(Magnatude: %.2f, X: %.2f, Y: %.2f, Angle: %s)", magnitude, x, y, vectorRotation.toString());
+        return String.format("BreakerVector2(Magnatude: %.2f, X: %.2f, Y: %.2f, Angle: %s)", magnitude, x, y,
+                vectorRotation.toString());
     }
 
 }
