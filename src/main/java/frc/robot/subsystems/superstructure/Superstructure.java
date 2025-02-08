@@ -37,6 +37,8 @@ public class Superstructure extends SubsystemBase {
     private Climb climb;
     private Drivetrain drivetrain;
 
+    private SuperstructureState setpoint;
+
     public Superstructure() {
         
     }
@@ -161,43 +163,47 @@ public class Superstructure extends SubsystemBase {
     
  
 
-    // public class SuperstructureState {
+    public static class SuperstructureState {
 
-    //     public static final SuperstructureState STOW = new SuperstructureState(ElevatorSetpoint.STOW, EndEffectorSetpoint.STOW, IntakeState.STOW, IndexerState.NEUTRAL, null)
+        public static final SuperstructureState STOW = new SuperstructureState(ElevatorSetpoint.STOW, EndEffectorSetpoint.STOW, IntakeState.STOW, IndexerState.NEUTRAL);
 
-    //     private ElevatorSetpoint elevatorSetpoint;
-    //     private EndEffectorSetpoint endEffectorSetpoint;
-    //     private IntakeState intakeState;
-    //     private IndexerState indexerState;
-    //     private SuperstructureState(
-    //         ElevatorSetpoint elevatorSetpoint, 
-    //         EndEffectorSetpoint endEffectorSetpoint, 
-    //         IntakeState intakeState, 
-    //         IndexerState indexerState,
-    //         BooleanSupplier isSuccessfull
-    //         ) {
-    //         this.elevatorSetpoint = elevatorSetpoint;
-    //         this.endEffectorSetpoint = endEffectorSetpoint;
-    //         this.intakeState = intakeState;
-    //         this.indexerState = indexerState;
-    //     }
 
-    //     public ElevatorSetpoint getElevatorSetpoint() {
-    //         return elevatorSetpoint;
-    //     }
+        private ElevatorSetpoint elevatorSetpoint;
+        private EndEffectorSetpoint endEffectorSetpoint;
+        private IntakeState intakeState;
+        private IndexerState indexerState;
+        private SuperstructureState(
+            ElevatorSetpoint elevatorSetpoint, 
+            EndEffectorSetpoint endEffectorSetpoint, 
+            IntakeState intakeState, 
+            IndexerState indexerState
+            ) {
+            this.elevatorSetpoint = elevatorSetpoint;
+            this.endEffectorSetpoint = endEffectorSetpoint;
+            this.intakeState = intakeState;
+            this.indexerState = indexerState;
+        }
 
-    //     public EndEffectorSetpoint getEndEffectorSetpoint() {
-    //         return endEffectorSetpoint;
-    //     }
+        public ElevatorSetpoint getElevatorSetpoint() {
+            return elevatorSetpoint;
+        }
 
-    //     public IndexerState getIndexerState() {
-    //         return indexerState;
-    //     }
+        public EndEffectorSetpoint getEndEffectorSetpoint() {
+            return endEffectorSetpoint;
+        }
 
-    //     public IntakeState getIntakeState() {
-    //         return intakeState;
-    //     }
-    // }
+        public IndexerState getIndexerState() {
+            return indexerState;
+        }
+
+        public IntakeState getIntakeState() {
+            return intakeState;
+        }
+
+        public  doesEndEffectorFlipThrough() {
+
+        }
+    }
 
     @Override
     public void periodic() {

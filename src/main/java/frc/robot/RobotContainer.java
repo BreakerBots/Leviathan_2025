@@ -37,7 +37,7 @@ public class RobotContainer {
   // Subsystems are robot components like drivebase, arm, shooter, etc.
   // They contain the methods to control physical hardware
   private final Drivetrain drivetrain = new Drivetrain();
-  private final Intake intake = new Intake();
+  // private final Intake intake = new Intake();
   //private final Elevator elevator = new Elevator();
 
   // === CONTROLLERS ===
@@ -56,7 +56,7 @@ public class RobotContainer {
   }
 
   private void startLog() {
-    BreakerLog.setOptions(new DogLogOptions(true, false, true, true, true, 20000));
+    BreakerLog.setOptions(new DogLogOptions(() -> !DriverStation.isFMSAttached(), false, true, true, true, 20000));
     // BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
     BreakerLog.addCANBus(DriveConstants.kCANBus);
     BreakerLog.setEnabled(true);
