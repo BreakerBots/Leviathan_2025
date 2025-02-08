@@ -18,6 +18,7 @@ import frc.robot.BreakerLib.physics.BreakerVector2;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 /** Add your docs here. */
+@FunctionalInterface
 public interface BreakerInputStream2d extends Supplier<BreakerVector2> {
 
   public static BreakerInputStream2d of(BreakerInputStream  x, BreakerInputStream  y) {

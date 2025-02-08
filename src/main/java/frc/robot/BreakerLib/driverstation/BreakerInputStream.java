@@ -12,6 +12,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 /** Add your docs here. */
+@FunctionalInterface
 public interface BreakerInputStream extends DoubleSupplier {
     
   /**
