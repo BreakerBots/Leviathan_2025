@@ -64,7 +64,7 @@ import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.HeadingCompensatio
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.SetpointGenerationConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.MechanismRatio;
-import frc.robot.subsystems.Drivetrain.DrivetrainKinimaticLimits;
+import frc.robot.subsystems.Drivetrain.DrivetrainKinematicLimits;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -86,12 +86,12 @@ public final class Constants {
     }
 
     public static class TipProtectionSystemConstants {
-      public static final DrivetrainKinimaticLimits kFullyExtendedLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(1), MetersPerSecondPerSecond.of(1), DegreesPerSecond.of(45), DegreesPerSecondPerSecond.of(45));
-      public static final DrivetrainKinimaticLimits kTenCentimeterLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
-      public static final DrivetrainKinimaticLimits kTwentyCentimeterLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
-      public static final DrivetrainKinimaticLimits kThirtyCentimeterLimit = new DrivetrainKinimaticLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
+      public static final DrivetrainKinematicLimits kFullyExtendedLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(1), MetersPerSecondPerSecond.of(1), DegreesPerSecond.of(45), DegreesPerSecondPerSecond.of(45));
+      public static final DrivetrainKinematicLimits kTenCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
+      public static final DrivetrainKinematicLimits kTwentyCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
+      public static final DrivetrainKinematicLimits kThirtyCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
     
-      public static final InterpolatingTreeMap<Distance, DrivetrainKinimaticLimits> kinematicLimitMap = new InterpolatingTreeMap<>(null, null);
+      public static final InterpolatingTreeMap<Distance, DrivetrainKinematicLimits> kinematicLimitMap = new InterpolatingTreeMap<>(null, null);
 
       public static final Angle tippingThreshold = Degrees.of(0);
 

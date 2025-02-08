@@ -12,7 +12,7 @@ import frc.robot.HolonomicSlewRateLimiter;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.physics.BreakerVector2;
-import frc.robot.subsystems.Drivetrain.DrivetrainKinimaticLimits;
+import frc.robot.subsystems.Drivetrain.DrivetrainKinematicLimits;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.ElevatorSetpoint;
 
@@ -34,7 +34,7 @@ public class TipProtectionSystem {
 
     public void update() {
         var height = elevator.getHeight();
-        DrivetrainKinimaticLimits limit = TipProtectionSystemConstants.kinematicLimitMap.get(height);
+        DrivetrainKinematicLimits limit = TipProtectionSystemConstants.kinematicLimitMap.get(height);
         limiter.setLimits(limit.linearAcceleration(), limit.angularAcceleration());
 
         if (height.magnitude() > 0) {
