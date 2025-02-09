@@ -184,22 +184,24 @@ public final class Constants {
   
   public static class IntakeConstants {
     public static final Angle kPivotTolerence = Degrees.of(4);
-    public static final Angle kPivotEncoderOffset = Rotations.of(0.197509765625);
+    private static final Angle kPivotEncoderMagnetOffset = Rotations.of(0.1455078125);
+    private static final Angle kPivotEncoderZeroPointOffsetFromAbsolute = Rotations.of(0.029053);
+    public static final Angle kPivotEncoderOffset = kPivotEncoderMagnetOffset.plus(kPivotEncoderZeroPointOffsetFromAbsolute);
     public static final int kIntakePivotMotorID = 40;
     public static final int kIntakeRollersMotorID = 41;
     public static final int kIntakeCANCoderID = 42;
 
     public static final MechanismRatio kPivotGearRatio = new MechanismRatio(92.25);
 
-    public static final double kP = 0.55;
+    public static final double kP = 0.5;
     public static final double kI = 0.0;
-    public static final double kD = 0.05;
+    public static final double kD = 2.5;
     public static final double kS = 0.0;
-    public static final double kV = 13.0;
-    public static final double kA = 3.0;
-    public static final double kG = 0.22;
+    public static final double kV = 12.0;
+    public static final double kA = 2.5;
+    public static final double kG = 0.25;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(3);
-    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(0.6);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
 
     
   }
