@@ -208,9 +208,9 @@ public class Superstructure extends SubsystemBase {
             return intakeState;
         }
 
-        public boolean doesEndEffectorFlipThrough() {
+        // public boolean doesEndEffectorFlipThrough() {
 
-        }
+        // }
     }
 
     public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {

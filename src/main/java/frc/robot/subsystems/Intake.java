@@ -197,9 +197,9 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakePivotState {
-        EXTENDED(Rotations.of(-0.04)),
+        EXTENDED(Rotations.of(0.035)),
         CLIMB(Degrees.of(45)),
-        RETRACTED(Rotations.of(0.26));
+        RETRACTED(Rotations.of(0.28));
 
         private Angle angle;
         private IntakePivotState(Angle angle) {
