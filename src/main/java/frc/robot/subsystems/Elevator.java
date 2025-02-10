@@ -1,37 +1,8 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
-import static frc.robot.Constants.ElevatorConstants.kA;
-import static frc.robot.Constants.ElevatorConstants.kD;
-import static frc.robot.Constants.ElevatorConstants.kDefaultHeightTolerence;
-import static frc.robot.Constants.ElevatorConstants.kDefaultVelocityTolerence;
-import static frc.robot.Constants.ElevatorConstants.kG;
-import static frc.robot.Constants.ElevatorConstants.kHomeDetectCurrentThreshold;
-import static frc.robot.Constants.ElevatorConstants.kHomeingCurrentLimits;
-import static frc.robot.Constants.ElevatorConstants.kHomeingVoltage;
-import static frc.robot.Constants.ElevatorConstants.kI;
-import static frc.robot.Constants.ElevatorConstants.kLeftMotorID;
-import static frc.robot.Constants.ElevatorConstants.kLeftMotorInverted;
-import static frc.robot.Constants.ElevatorConstants.kMaxHeight;
-import static frc.robot.Constants.ElevatorConstants.kMinHeight;
-import static frc.robot.Constants.ElevatorConstants.kMotionMagicAcceleration;
-import static frc.robot.Constants.ElevatorConstants.kMotionMagicCruiseVelocity;
-import static frc.robot.Constants.ElevatorConstants.kMotionMagicJerk;
-import static frc.robot.Constants.ElevatorConstants.kNormalCurrentLimits;
-import static frc.robot.Constants.ElevatorConstants.kP;
-import static frc.robot.Constants.ElevatorConstants.kRightMotorID;
-import static frc.robot.Constants.ElevatorConstants.kRightMotorInverted;
-import static frc.robot.Constants.ElevatorConstants.kRotationsToMeters;
-import static frc.robot.Constants.ElevatorConstants.kS;
-import static frc.robot.Constants.ElevatorConstants.kV;
-import static frc.robot.Constants.SuperstructureConstants.kSuperstructureCANBus;
+import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.SuperstructureConstants.*;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
@@ -102,16 +73,16 @@ public class Elevator extends SubsystemBase {
         leftConfig.MotorOutput.Inverted = kLeftMotorInverted;
         leftConfig.Slot0.GravityType = GravityTypeValue.Elevator_Static;
         leftConfig.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
-        leftConfig.Slot0.kP = kRotationsToMeters.getInput(kP);
-        leftConfig.Slot0.kI = kRotationsToMeters.getInput(kI);
-        leftConfig.Slot0.kD = kRotationsToMeters.getInput(kD);
+        leftConfig.Slot0.kP = kP;
+        leftConfig.Slot0.kI = kI;
+        leftConfig.Slot0.kD = kD;
         leftConfig.Slot0.kS = kS;
         leftConfig.Slot0.kG = kG;
-        leftConfig.MotionMagic.MotionMagicExpo_kA = kRotationsToMeters.getInput(kA);
-        leftConfig.MotionMagic.MotionMagicExpo_kV = kRotationsToMeters.getInput(kV);
-        leftConfig.MotionMagic.MotionMagicCruiseVelocity =  kRotationsToMeters.getInput(kMotionMagicCruiseVelocity.in(MetersPerSecond));
-        leftConfig.MotionMagic.MotionMagicAcceleration =  kRotationsToMeters.getInput(kMotionMagicAcceleration.in(MetersPerSecondPerSecond));
-        leftConfig.MotionMagic.MotionMagicJerk = kRotationsToMeters.getInput(kMotionMagicJerk.in(MetersPerSecondPerSecond.per(Second)));
+        leftConfig.MotionMagic.MotionMagicExpo_kA = kA;
+        leftConfig.MotionMagic.MotionMagicExpo_kV = kV;
+        leftConfig.MotionMagic.MotionMagicCruiseVelocity =  kMotionMagicCruiseVelocity.in(RotationsPerSecond);
+        leftConfig.MotionMagic.MotionMagicAcceleration = kMotionMagicAcceleration.in(RotationsPerSecondPerSecond);
+        leftConfig.MotionMagic.MotionMagicJerk = 0.0;
 
         leftConfig.CurrentLimits = kNormalCurrentLimits;
 

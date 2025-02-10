@@ -134,17 +134,17 @@ public final class Constants {
     public static final InvertedValue kLeftMotorInverted = InvertedValue.Clockwise_Positive;
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
 
-    // All gains are in Meters, m/s, m/s/s, or m/s/s/s
-    public static final double kP = 0;
+    // All gains are in terms of rotor rotations and volts
+    public static final double kP = 0.22;
     public static final double kI = 0;
-    public static final double kD = 0;
+    public static final double kD = 0.2;
     public static final double kS = 0;
-    public static final double kV = 0;
-    public static final double kA = 0;
-    public static final double kG = 0;
-    public static final LinearVelocity kMotionMagicCruiseVelocity = MetersPerSecond.of(2.0);
-    public static final LinearAcceleration kMotionMagicAcceleration = MetersPerSecondPerSecond.of(5.0);
-    public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
+    public static final double kV = 0.195;
+    public static final double kA = 0.08;
+    public static final double kG = 0.72;
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(15);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(20);
+    // public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
 
 
     // Thease are per-motor limits
