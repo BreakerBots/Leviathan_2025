@@ -182,8 +182,8 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakeRollerState {
-        INTAKE(-0.8),
-        EXTAKE(0.8),
+        INTAKE(-1),
+        EXTAKE(1),
         NEUTRAL(0.0);
         private double dutyCycleOut;
 
@@ -199,7 +199,7 @@ public class Intake extends SubsystemBase{
     public static enum IntakePivotState {
         EXTENDED(Rotations.of(0.035)),
         CLIMB(Degrees.of(45)),
-        RETRACTED(Rotations.of(0.28));
+        RETRACTED(Rotations.of(0.4));
 
         private Angle angle;
         private IntakePivotState(Angle angle) {
