@@ -16,6 +16,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -270,34 +272,31 @@ public final class Constants {
   }
 
   public static class ClimbConstants {
-    public static final int kForkMotorID = 0;
-    public static final int kWinchMotorID = 60;
-    public static final int kForkCoder = 0;
-    public static final int kForkSensor = 0;
-    public static final double kForkExtendedPosition = 0;
-    public static final double kForkRetractedPosition = 0;
-    public static final Rotation2d kForkReverseLimit = Rotation2d.fromDegrees(0);
-    public static final Rotation2d kForkForwardLimit = Rotation2d.fromDegrees(0);
-    public static final MechanismRatio kForkSensorGearRatio = new MechanismRatio(1,1);
-    public static final Rotation2d kWinchReverseLimit = Rotation2d.fromRotations(0);
-    public static final MechanismRatio kWinchSpoolRatio = new MechanismRatio(1,1); // rotations to distance (cm)
-    public static final Distance kWinchTolerance = Centimeter.of(2);
-    public static final Distance kWinchWoundLimit = Centimeter.of(0);
-    public static final Distance kWinchUnwound = Centimeter.of(0);
-    public static final Rotation2d kWinchForwardLimit = Rotation2d.fromDegrees(0);
-    public static final CurrentLimitsConfigs kWinchCurrentLimits = new CurrentLimitsConfigs()
+    public static final int kClimbMotorID = 0;
+    public static final int kClimbCoder = 0;
+
+    public static final double kClimbCoderAbsoluteSensorDiscontinuityPoint = 0;
+    public static final Angle kClimbCoderOffset = Radians.of(0);
+    public static final Angle kExtendedThreshold = Radian.of(0);
+
+    public static final double kClimbMotionMagicAcceleration = 0;
+    public static final double kClimbMotionMagicCruiseVelocity = 0;
+
+    public static final Rotation2d kClimbReverseLimit = Rotation2d.fromDegrees(0);
+    public static final Rotation2d kClimbForwardLimit = Rotation2d.fromDegrees(0);
+    public static final MechanismRatio kClimbGearRatio = new MechanismRatio(150,1);
+    public static final CurrentLimitsConfigs kClimbCurrentLimits = new CurrentLimitsConfigs()
                                               .withStatorCurrentLimit(30)
                                               .withStatorCurrentLimitEnable(true)
                                               .withSupplyCurrentLimit(25)
                                               .withSupplyCurrentLimitEnable(true);
-    public static final CurrentLimitsConfigs kForkCurrentLimits = new CurrentLimitsConfigs()
-                                              .withStatorCurrentLimit(20)
-                                              .withStatorCurrentLimitEnable(true)
-                                              .withSupplyCurrentLimit(15)
-                                              .withSupplyCurrentLimitEnable(true);
+    public static final Angle kClimbingPosition = Rotations.of(0);
+    public static final Angle kExtendedPosition = Rotations.of(0);
+    public static final Angle kStowPosition = Rotations.of(0);
+    public static final Angle kNeutralPosition = Rotations.of(0);
 
-    public static final double kG = 0;
   }
+
 
   public static class IndexerConstants {
     public static final int kIndexerMotorID = 0;
