@@ -208,8 +208,14 @@ public class Superstructure extends SubsystemBase {
             return intakeState;
         }
 
-        // public boolean doesEndEffectorFlipThrough() {
+        // public EndEffectorFlipDirection getEndEffectorFlipDirection(f3) {
+            
+        // }
 
+        // public static enum EndEffectorFlipDirection {
+        //     FRONT_TO_BACK,
+        //     BACK_TO_FRONT,
+        //     NONE
         // }
     }
 

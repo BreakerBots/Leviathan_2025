@@ -46,7 +46,6 @@ import frc.robot.Constants.EndEffectorConstants;
 public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
     private TalonSRX rollers;
-    private TalonFX pivot;
     private TalonFX wrist;
     private CANcoder pivotEncoder;
     private BreakerDigitalSensor coralSensor;
@@ -57,7 +56,7 @@ public class EndEffector extends SubsystemBase {
     
     public EndEffector() {
         pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0.5, Rotation.of(-0.075439453125), SensorDirectionValue.CounterClockwise_Positive);
-        pivot = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
+        wrist = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
     }
 
 
