@@ -9,8 +9,8 @@ public class ButtonBoard {
     private final ButtonBoardReefButtons reefButtons;
     private final ButtonBoardRightButtons rightButtons;
 
-    public ButtonBoard(GenericHID hid) {
-        this.hid = hid;
+    public ButtonBoard(int port) {
+        hid = new GenericHID(port);
         levelButtons = new ButtonBoardLevelButtons(hid);
         reefButtons = new ButtonBoardReefButtons(hid);
         rightButtons = new ButtonBoardRightButtons(hid);
