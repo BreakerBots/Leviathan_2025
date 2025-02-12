@@ -1,16 +1,14 @@
 package frc.robot.commands;
 
-import static com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue.BlueAlliance;
-import static edu.wpi.first.units.Units.*;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import static com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue.BlueAlliance;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.units.measure.LinearAcceleration;
-import edu.wpi.first.units.measure.LinearVelocity;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain;
 import frc.robot.BreakerLib.util.Localizer;
@@ -28,18 +26,15 @@ public class AutoPilot {
   public record ProfiledPIDControllerConfig(double kP, double kI, double kD, TrapezoidProfile.Constraints constraints) {
     public ProfiledPIDControllerConfig withConstraints(TrapezoidProfile.Constraints newConstraints) {
       return new ProfiledPIDControllerConfig(kP, kI, kD, newConstraints);
-    } 
+    }
   }
 
   public record NavToPoseConfig(
-    Pose2d positionTolerance,
-    ChassisSpeeds velocityTolerance,
-    ProfiledPIDControllerConfig xConfig,
-    ProfiledPIDControllerConfig yConfig,
-    ProfiledPIDControllerConfig thetaConfig
-  ) {
-  
-    
+      Pose2d positionTolerance,
+      ChassisSpeeds velocityTolerance,
+      ProfiledPIDControllerConfig xConfig,
+      ProfiledPIDControllerConfig yConfig,
+      ProfiledPIDControllerConfig thetaConfig) {
   }
 
   public Command navigateToPose(Pose2d goal, NavToPoseConfig config) {
@@ -72,6 +67,16 @@ public class AutoPilot {
       thetaController = fromConfig(config.thetaConfig);
       thetaController.enableContinuousInput(0, Degrees.of(360.0).in(Radians));
       addRequirements(drivetrain);
+    }
+
+    /**
+     * Updates the constraints of the x and y controllers.
+     * @param xConstraints The new constraints for the x controller.
+     * @param yConstraints The new constraints for the y controller.
+     */
+    public void updateConstraints(TrapezoidProfile.Constraints xConstraints, TrapezoidProfile.Constraints yConstraints) {
+      xController.setConstraints(xConstraints);
+      yController.setConstraints(xConstraints);
     }
 
     /**
