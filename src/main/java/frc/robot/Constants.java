@@ -137,15 +137,15 @@ public final class Constants {
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
 
     // All gains are in terms of rotor rotations and volts
-    public static final double kP = 0.22;
+    public static final double kP = 0.26;
     public static final double kI = 0;
-    public static final double kD = 0.2;
+    public static final double kD = 0.12;
     public static final double kS = 0;
-    public static final double kV = 0.195;
-    public static final double kA = 0.08;
-    public static final double kG = 0.72;
+    public static final double kV = 0.155;
+    public static final double kA = 0.03;
+    public static final double kG = 0.735;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(15);
-    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(20);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(25);
     // public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
 
 
@@ -236,6 +236,11 @@ public final class Constants {
   }
 
   public static class EndEffectorConstants {
+    private static final double kWristEncoderMagnetOffset = -0.3037109375;
+    public static final Angle kWristEncoderOffset = Rotations.of(kWristEncoderMagnetOffset + 0.25);
+
+    public static final MechanismRatio kWristRatio = new MechanismRatio(25).to(new MechanismRatio(15, 18)).to(new MechanismRatio(20, 56));//78.75
+
     public static final double kWristDiscontinuityPoint = 0.75;
     public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(45);
 
@@ -262,6 +267,8 @@ public final class Constants {
     public static final int kEndEffectorPivotMotorID = 50;
     public static final int kEndEffectorCANCoderID = 51;
     public static final int kEndEffectorCANdiID = 52;
+
+    //kp 8, kd 0.7, kv 8, ka 0.8, kg 0.26, vel 1.5, acc 2
     
   }
 
