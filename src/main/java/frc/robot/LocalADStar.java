@@ -723,4 +723,75 @@ public class LocalADStar implements Pathfinder {
       }
     }
   }
+
+  // Returns a list of grid positions intersected by a line segment.
+  public static List<GridPosition> getIntersectedCells(Translation2d a, Translation2d b, double cellSize) {
+      List<GridPosition> cells = new ArrayList<>();
+
+      var x0 = a.getX();
+      var y0 = a.getY();
+      var x1 = b.getX();
+      var y1 = b.getY();
+
+      // Convert starting and ending positions to grid indices.
+      int x = (int) Math.floor(x0 / cellSize);
+      int y = (int) Math.floor(y0 / cellSize);
+      int endX = (int) Math.floor(x1 / cellSize);
+      int endY = (int) Math.floor(y1 / cellSize);
+
+      // Calculate the differences.
+      double dx = x1 - x0;
+      double dy = y1 - y0;
+
+      // Determine step directions.
+      int stepX = (dx > 0) ? 1 : (dx < 0 ? -1 : 0);
+      int stepY = (dy > 0) ? 1 : (dy < 0 ? -1 : 0);
+
+      // Calculate tDelta for x and y (the t-value to cross one cell).
+      double tDeltaX = (dx != 0) ? (cellSize / Math.abs(dx)) : Double.POSITIVE_INFINITY;
+      double tDeltaY = (dy != 0) ? (cellSize / Math.abs(dy)) : Double.POSITIVE_INFINITY;
+
+      // Compute initial tMaxX and tMaxY: distance along the line to the first grid boundary.
+      double nextBoundaryX = (x + (stepX > 0 ? 1 : 0)) * cellSize;
+      double nextBoundaryY = (y + (stepY > 0 ? 1 : 0)) * cellSize;
+      double tMaxX = (dx != 0) ? ((nextBoundaryX - x0) / dx) : Double.POSITIVE_INFINITY;
+      double tMaxY = (dy != 0) ? ((nextBoundaryY - y0) / dy) : Double.POSITIVE_INFINITY;
+
+      // Add the starting cell.
+      cells.add(new GridPosition(x, y));
+
+      // Traverse the grid until the end cell is reached.
+      while (x != endX || y != endY) {
+          // Decide whether to move in the x or y direction.
+          if (tMaxX < tMaxY) {
+              x += stepX;
+              tMaxX += tDeltaX;
+          } else {
+              y += stepY;
+              tMaxY += tDeltaY;
+          }
+          cells.add(new GridPosition(x, y));
+      }
+
+      return cells;
+  }
+
+  // Returns true if the line segment between two poses does not collide with obstacle grids.
+  public boolean straightLineCollisionFree(Pose2d robotPose, Pose2d goalPose) {
+    var intersectedCells = getIntersectedCells(robotPose.getTranslation(), goalPose.getTranslation(), nodeSize);
+
+    boolean collisionFree = true;
+    requestLock.readLock().lock();
+    try {
+        for (var cell : intersectedCells) {
+            if (requestObstacles.contains(cell)) {
+                collisionFree = false;
+                break;
+            }
+        }
+    } finally {
+      requestLock.readLock().unlock();
+    }
+    return collisionFree;
+  }
 }
