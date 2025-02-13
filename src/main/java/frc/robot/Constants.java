@@ -232,7 +232,7 @@ public final class Constants {
     public static final int HIGH_RIGHT_SWITCH = 19;
     public static final int HIGH_RIGHT_BUTTON = 20;
 
-
+    public static final int POTENTIAL_SHORT_BUTTON = 21;
   }
 
   public static class EndEffectorConstants {
