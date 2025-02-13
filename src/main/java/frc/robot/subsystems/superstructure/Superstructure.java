@@ -208,15 +208,7 @@ public class Superstructure extends SubsystemBase {
             return intakeState;
         }
 
-        // public EndEffectorFlipDirection getEndEffectorFlipDirection(f3) {
-            
-        // }
-
-        // public static enum EndEffectorFlipDirection {
-        //     FRONT_TO_BACK,
-        //     BACK_TO_FRONT,
-        //     NONE
-        // }
+        
     }
 
     public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {

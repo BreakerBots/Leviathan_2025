@@ -404,6 +404,18 @@ public class EndEffector extends SubsystemBase {
             RollerState.EXTAKE, 
             KickerState.NEUTRAL
         );
+
+        // public 
+
+        // public EndEffectorFlipDirection getFlipDirection() {
+        //     if ()
+        // }
+
+        // public static enum EndEffectorFlipDirection {
+        //     FRONT_TO_BACK,
+        //     BACK_TO_FRONT,
+        //     NONE
+        // }
         
     }
 
