@@ -51,13 +51,13 @@ public class Superstructure extends SubsystemBase {
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
 
-    public Command climb() {
-        return Commands.sequence(
-            climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false),
-            Commands.waitUntil(climb::isForkContacting),
-            climb.setState(ClimbState.ROLLED_BACK, true)
-        );
-    }
+    // public Command climb() {
+    //     return Commands.sequence(
+    //         climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false),
+    //         Commands.waitUntil(climb::isForkContacting),
+    //         climb.setState(ClimbState.ROLLED_BACK, true)
+    //     );
+    // }
 
     private Command setEndEffectorSafe(EndEffectorSetpoint setpoint, boolean waitForSuccess) {
         return Commands.sequence(

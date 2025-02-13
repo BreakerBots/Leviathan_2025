@@ -254,10 +254,16 @@ public final class Constants {
     public static final Angle kDefaultWristAngleTolerence = Degrees.of(3.5);
     public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
 
+
     public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs();
     public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs();
     public static final SoftwareLimitSwitchConfigs kNormalLimits = new SoftwareLimitSwitchConfigs();
 
+    public static final CurrentLimitsConfigs kWristCurrentLimits = new CurrentLimitsConfigs()
+      .withStatorCurrentLimit(60)
+      .withStatorCurrentLimitEnable(true)
+      .withSupplyCurrentLimit(50)
+      .withStatorCurrentLimitEnable(true);
 
     public static final SupplyCurrentLimitConfiguration kNormalRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 30, 30, 0.2);
     public static final SupplyCurrentLimitConfiguration kAlgaeHoldRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
@@ -268,7 +274,17 @@ public final class Constants {
     public static final int kEndEffectorCANCoderID = 51;
     public static final int kEndEffectorCANdiID = 52;
 
-    //kp 8, kd 0.7, kv 8, ka 0.8, kg 0.26, vel 1.5, acc 2
+    public static final double kP = 8;
+    public static final double kI = 0;
+    public static final double kD = 0.7;
+    public static final double kV = 8;
+    public static final double kS = 0;
+    public static final double kA = 0.8;
+    public static final double kG = 0.26;
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1.5);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
+
+
     
   }
 

@@ -1,32 +1,23 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotation;
-import static edu.wpi.first.units.Units.Rotations;
-import static frc.robot.Constants.EndEffectorConstants.kAlgaeColor;
-import static frc.robot.Constants.EndEffectorConstants.kAlgaeHoldKickerCurrentLimitConfig;
-import static frc.robot.Constants.EndEffectorConstants.kAlgaeHoldRollerCurrentLimitConfig;
-import static frc.robot.Constants.EndEffectorConstants.kDefaultWristAngleTolerence;
-import static frc.robot.Constants.EndEffectorConstants.kDefaultWristVelocityTolerence;
-import static frc.robot.Constants.EndEffectorConstants.kElevatorExtendedLimits;
-import static frc.robot.Constants.EndEffectorConstants.kFloorRestrictedLimits;
-import static frc.robot.Constants.EndEffectorConstants.kHasAlgaeProximityThresh;
-import static frc.robot.Constants.EndEffectorConstants.kMaxColorDelta;
-import static frc.robot.Constants.EndEffectorConstants.kMaxElevatorRestrictedSafeAngle;
-import static frc.robot.Constants.EndEffectorConstants.kNormalKickerCurrentLimitConfig;
-import static frc.robot.Constants.EndEffectorConstants.kNormalLimits;
-import static frc.robot.Constants.EndEffectorConstants.kNormalRollerCurrentLimitConfig;
+import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.EndEffectorConstants.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 
 import edu.wpi.first.math.MathUtil;
@@ -47,16 +38,47 @@ public class EndEffector extends SubsystemBase {
     private TalonSRX kicker;
     private TalonSRX rollers;
     private TalonFX wrist;
-    private CANcoder pivotEncoder;
+    private CANcoder wristEncoder;
     private BreakerDigitalSensor coralSensor;
     private Canandcolor algaeSensor;
-    private MotionMagicExpoVoltage wristRequest;
+    private MotionMagicVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
     private EndEffectorWristLimits wristLimits;
     
     public EndEffector() {
-        pivotEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, 0.5, Rotation.of(-0.075439453125), SensorDirectionValue.CounterClockwise_Positive);
+        wristEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, kWristDiscontinuityPoint, kWristEncoderOffset, SensorDirectionValue.Clockwise_Positive);
         wrist = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
+
+        wristRequest = new MotionMagicVoltage(getWristAngle());
+
+        configWrist();
+    }
+
+    private void configWrist() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
+
+        config.Feedback.FeedbackRemoteSensorID = 51;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        config.Feedback.RotorToSensorRatio = kWristRatio.getRatioToOne();
+
+        config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
+        config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
+        config.Slot0.kP = kP;
+        config.Slot0.kI = kI;
+        config.Slot0.kD = kD;
+        config.Slot0.kV = kV;
+        config.Slot0.kS = kS;
+        config.Slot0.kA = kA;
+        config.Slot0.kG = kG;
+
+        config.MotionMagic.MotionMagicCruiseVelocity = kMotionMagicCruiseVelocity.in(RotationsPerSecond);
+        config.MotionMagic.MotionMagicAcceleration = kMotionMagicAcceleration.in(RotationsPerSecondPerSecond);
+
+        config.CurrentLimits = kWristCurrentLimits;
+
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        
     }
 
 
@@ -108,11 +130,11 @@ public class EndEffector extends SubsystemBase {
     }
 
     public Angle getWristAngle() {
-        return pivotEncoder.getAbsolutePosition().getValue();
+        return wristEncoder.getAbsolutePosition().getValue();
     }
 
     public AngularVelocity getWristVelocity() {
-        return pivotEncoder.getVelocity().getValue();
+        return wristEncoder.getVelocity().getValue();
     }
 
     public boolean isAtSetpoint() {
@@ -145,7 +167,7 @@ public class EndEffector extends SubsystemBase {
         }
 
         BreakerLog.log("EndEffector/Wrist/Motor", wrist);
-        BreakerLog.log("EndEffector/Wrist/Encoder", pivotEncoder);
+        BreakerLog.log("EndEffector/Wrist/Encoder", wristEncoder);
         BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
