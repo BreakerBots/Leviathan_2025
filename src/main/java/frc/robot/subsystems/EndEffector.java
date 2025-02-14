@@ -426,21 +426,38 @@ public class EndEffector extends SubsystemBase {
 
         // // public 
 
-        // public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
-        //     double f = from.in(Rotations);
-        //     double t = to.in(Rotations);
-        //     if (f > t) {
-        //         if (f < kMaxFlipAngle)
-        //     } else {
+        public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
+            double f = from.in(Rotations);
+            double t = to.in(Rotations);
+            
+            final double minFlip = kMinFlipAngle.in(Rotations);
+            final double maxFlip = kMaxFlipAngle.in(Rotations);
+            
+            if (f > t) { // if hell
+                if (f < minFlip) {
+                    return EndEffectorFlipDirection.NONE;
+                } else if (f > maxFlip) {
+                    return EndEffectorFlipDirection.FRONT_TO_BACK;
+                } else {
+                    // from angle is inside of the elevator?
+                    return EndEffectorFlipDirection.FRONT_TO_BACK;
+                }
+            } else {
+                if (f < minFlip) {
+                    return EndEffectorFlipDirection.BACK_TO_FRONT;
+                } else if (f > maxFlip) {
+                    return EndEffectorFlipDirection.NONE;
+                } else { // this branch is a little strange
+                    return EndEffectorFlipDirection.BACK_TO_FRONT;
+                }
+            }
+        }
 
-        //     }
-        // }
-
-        // public static enum EndEffectorFlipDirection {
-        //     FRONT_TO_BACK,
-        //     BACK_TO_FRONT,
-        //     NONE
-        // }
+        public static enum EndEffectorFlipDirection {
+            FRONT_TO_BACK,
+            BACK_TO_FRONT,
+            NONE
+        }
         
     }
 

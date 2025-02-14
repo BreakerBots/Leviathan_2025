@@ -290,8 +290,8 @@ public final class Constants {
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
 
 
-    // public static final Angle kMinFlipAngle = Rotations.of();
-    // public static final Angle kMaxFlipAngle = Rotations.of();
+    public static final Angle kMinFlipAngle = Rotations.of(0);
+    public static final Angle kMaxFlipAngle = Rotations.of(0);
   }
 
   public static class KickerConstants {
