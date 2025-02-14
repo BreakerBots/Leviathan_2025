@@ -161,10 +161,10 @@ public final class Constants {
       .withStatorCurrentLimit(80)
       .withStatorCurrentLimitEnable(true);
 
-    public static final Current kHomeSupplyCurrentLimit = Amps.of(5);
-    public static final Current kHomeSupplyLowerCurrentLimit = Amps.of(5);
+    public static final Current kHomeSupplyCurrentLimit = Amps.of(15);
+    public static final Current kHomeSupplyLowerCurrentLimit = Amps.of(15);
     public static final Time kHomeSupplyLowerCurrentLimitTime = Seconds.of(0);
-    public static final Current kHomeStatorCurrentLimit = Amps.of(6);
+    public static final Current kHomeStatorCurrentLimit = Amps.of(20);
     public static final CurrentLimitsConfigs kHomeingCurrentLimits = new CurrentLimitsConfigs()
       .withSupplyCurrentLimit(kHomeSupplyCurrentLimit)
       .withSupplyCurrentLowerLimit(kHomeSupplyLowerCurrentLimit)
@@ -176,13 +176,15 @@ public final class Constants {
     public static final Distance kMaxHeight = Inches.of(77.25); 
     public static final Distance kMinHeight = Meters.of(0.0);
 
-    public static final MechanismRatio kRotationsToMeters = new MechanismRatio( 0);
+    public static final Angle kMaxRotorRevs = Rotations.of(29.114258);
 
-    public static final Distance kDefaultHeightTolerence = Millimeters.of(5);
+    public static final MechanismRatio kRotationsToMeters = new MechanismRatio(kMaxHeight.in(Meters), kMaxRotorRevs.in(Rotations));
+
+    public static final Distance kDefaultHeightTolerence = Millimeters.of(15);
     public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
 
-    public static final double kHomeingVoltage = kG - 0.1; 
-    public static final Current kHomeDetectCurrentThreshold = Amps.of(3.5);
+    public static final double kHomeingVoltage = -2; 
+    public static final Current kHomeDetectCurrentThreshold = Amps.of(0.5);
   }
   
   public static class IntakeConstants {
@@ -286,7 +288,8 @@ public final class Constants {
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
 
 
-    
+    public static final Angle kMinFlipAngle = Rotations.of();
+    public static final Angle kMaxFlipAngle = Rotations.of();
   }
 
   public static class KickerConstants {

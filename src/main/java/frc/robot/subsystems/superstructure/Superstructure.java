@@ -47,7 +47,10 @@ public class Superstructure extends SubsystemBase {
 
     private HolonomicSlewRateLimiter limiter;
 
-    public Superstructure(Drivetrain drivetrain) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Intake intake) {
+        this.elevator = elevator;
+        this.intake = intake;
+        this.endEffector = endEffector;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
 

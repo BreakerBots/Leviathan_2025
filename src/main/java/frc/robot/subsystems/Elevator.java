@@ -7,6 +7,7 @@ import static frc.robot.Constants.SuperstructureConstants.*;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -25,13 +26,14 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.BreakerLib.util.commands.TimedWaitUntilCommand;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.logging.LoggedAlert;
 
 public class Elevator extends SubsystemBase {
     private TalonFX left, right;
     private ElevatorSetpoint setpoint;
-    private MotionMagicExpoVoltage motionMagicRequest;
+    private MotionMagicVoltage motionMagicRequest;
     private VoltageOut voltageRequest;
     private Follower followRequest;
     private NeutralOut neutralRequest;
@@ -44,8 +46,8 @@ public class Elevator extends SubsystemBase {
         configLeft();
         configRight();
         voltageRequest = new VoltageOut(0);
-        motionMagicRequest = new MotionMagicExpoVoltage(getNativePosition()).withEnableFOC(true);
-        followRequest = new Follower(kLeftMotorID, kLeftMotorInverted != kRightMotorInverted);
+        motionMagicRequest = new MotionMagicVoltage(getNativePosition()).withEnableFOC(true);
+        followRequest = new Follower(kLeftMotorID, true);
         
         var sp = new ElevatorSetpoint(getHeight());
         setFunc(sp);
@@ -55,17 +57,17 @@ public class Elevator extends SubsystemBase {
     }
 
     public void forceStop(boolean forceStop) {
-        if (forceStop) {
-            left.setControl(neutralRequest);
-            right.setControl(neutralRequest);
-        } else if (forceStoped && !forceStop) {
-            setControl(setpoint.getNativeSetpoint());
-        }
+        // if (forceStop) {
+        //     left.setControl(neutralRequest);
+        //     right.setControl(neutralRequest);
+        // } else if (forceStoped && !forceStop) {
+        //     setControl(setpoint.getNativeSetpoint());
+        // }
 
-        if (forceStop && !forceStoped) {
+        // if (forceStop && !forceStoped) {
 
-        }
-        forceStoped = forceStop;
+        // }
+        // forceStoped = forceStop;
     }
 
     private void configLeft() {
@@ -107,12 +109,14 @@ public class Elevator extends SubsystemBase {
             Commands.runOnce(() -> setHomeingCurrents(true)),
             set(ElevatorSetpoint.HOMEING, true).withTimeout(3),
             Commands.runOnce(() -> setVoltageOut(kHomeingVoltage)),
-            Commands.waitUntil(this::detectHome)
+            new TimedWaitUntilCommand(this::detectHome, 1)
                 .andThen(() -> homeingFailedAlert.set(true))
                 .raceWith(Commands.waitSeconds(8)
                     .andThen(() -> homeingFailedAlert.set(true))),
             Commands.runOnce(() -> setVoltageOut(0.0)),
+            Commands.waitSeconds(0.5),
             Commands.runOnce(this::homePosition),
+            Commands.runOnce(() -> setHomeingCurrents(false)),
             set(ElevatorSetpoint.STOW, false),
             Commands.runOnce(() -> isHomeingAlert.set(false))
         );
@@ -129,7 +133,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private boolean detectHome() {
-        return Math.abs(left.getStatorCurrent().getValue().in(Amps)) >= kHomeDetectCurrentThreshold.in(Units.Amps);
+        return Math.abs(left.getSupplyCurrent().getValue().in(Amps)) >= kHomeDetectCurrentThreshold.in(Units.Amps);
     }
 
     public Command set(ElevatorSetpoint setpoint, boolean waitForSuccess) { 
@@ -191,6 +195,7 @@ public class Elevator extends SubsystemBase {
         BreakerLog.log("Elevator/Motors/Left", left);
         BreakerLog.log("Elevator/Motors/Right", right);
         BreakerLog.log("Elevator/Setpoint/Value", setpoint.getHeight().in(Meters));
+        BreakerLog.log("Elevator/Setpoint/Value", setpoint.getNativeSetpoint().in(Rotations));
         BreakerLog.log("Elevator/Setpoint/Error", Math.abs(getHeight().in(Meters)) -  setpoint.getHeight().in(Meters));
         BreakerLog.log("Elevator/Setpoint/Tolerence", setpoint.getTolerence().in(Units.Meters));
         BreakerLog.log("Elevator/Setpoint/Satisfied", atSetpoint());
@@ -200,6 +205,7 @@ public class Elevator extends SubsystemBase {
         BreakerLog.log("Elevator/State/Velocity", getVelocity().in(MetersPerSecond));
         BreakerLog.log("Elevator/State/Acceleration", getAcceleration().in(MetersPerSecondPerSecond));
         homeingFailedAlert.log();
+
     }
 
     public static class ElevatorSetpoint {

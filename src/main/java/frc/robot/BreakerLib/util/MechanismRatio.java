@@ -29,7 +29,7 @@ public class MechanismRatio {
     }
 
     public double getInput(double output) {
-        return ratioToOne / output;
+        return ratioToOne * output;
     }
 
     public double getRatioToOne() {

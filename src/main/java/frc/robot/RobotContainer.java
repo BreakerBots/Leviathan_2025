@@ -17,6 +17,7 @@ import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
 import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExponential;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.TipProtectionSystem;
@@ -40,9 +41,10 @@ public class RobotContainer {
   // Subsystems are robot components like drivebase, arm, shooter, etc.
   // They contain the methods to control physical hardware
   private final Drivetrain drivetrain = new Drivetrain();
-  // private final Superstructure superstructure = new Superstructure();
   private final Intake intake = new Intake();
-  //private final Elevator elevator = new Elevator();
+  private final Elevator elevator = new Elevator();
+  private final EndEffector endEffector = new EndEffector();
+  private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, intake);
 
   // === CONTROLLERS ===
   // Xbox controller used for main driver
@@ -96,6 +98,9 @@ public class RobotContainer {
 
     drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
     // drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(() -> new BreakerVector2(driverX.get(), driverY.get()), driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
+
+    controller.getButtonX().onTrue(elevator.home());
+    controller.getButtonY().onTrue(superstructure.intakeCoralFromHumanPlayer());
   }
 
   /**

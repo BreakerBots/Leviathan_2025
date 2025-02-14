@@ -292,7 +292,7 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 
   @Override
   public void periodic() {
-    lowFrequencyTelemetry();
+    // lowFrequencyTelemetry();
    /* Periodically try to apply the operator perspective */
         /* If we haven't applied the operator perspective before, then we should apply it regardless of DS state */
         /* This allows us to correct the perspective in case the robot code restarts mid-match */

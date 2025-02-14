@@ -290,14 +290,14 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint STOW = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(180)), 
+                new WristSetpoint(Rotations.of(0.43)), 
                 RollerState.NEUTRAL, 
                 KickerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_INTAKE_HANDOFF = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(180)), 
+                new WristSetpoint(Degrees.of(30)), 
                 RollerState.INTAKE, 
                 KickerState.NEUTRAL
         );
@@ -407,15 +407,21 @@ public class EndEffector extends SubsystemBase {
 
         // public 
 
-        // public EndEffectorFlipDirection getFlipDirection() {
-        //     if ()
-        // }
+        public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
+            double f = from.in(Rotations);
+            double t = to.in(Rotations);
+            if (f > t) {
+                if (f < kMaxFlipAngle)
+            } else {
 
-        // public static enum EndEffectorFlipDirection {
-        //     FRONT_TO_BACK,
-        //     BACK_TO_FRONT,
-        //     NONE
-        // }
+            }
+        }
+
+        public static enum EndEffectorFlipDirection {
+            FRONT_TO_BACK,
+            BACK_TO_FRONT,
+            NONE
+        }
         
     }
 
