@@ -301,7 +301,16 @@ public final class Constants {
 
     public static final double kClimbCoderAbsoluteSensorDiscontinuityPoint = 0;
     public static final Angle kClimbCoderOffset = Radians.of(0);
-    public static final Angle kExtendedThreshold = Radian.of(0);
+
+    public static final Angle kClimbingPosition = Rotations.of(0);
+    public static final Angle kExtendedPosition = Rotations.of(0);
+
+    public static final Angle kExtendedArmTolerance = Rotations.of(0);
+
+    public static final Angle kStowPosition = Rotations.of(0);
+    public static final Angle kStowedArmTolerance = Rotations.of(0);
+
+    public static final Angle kNeutralPosition = Rotations.of(0);
 
     public static final double kClimbMotionMagicAcceleration = 0;
     public static final double kClimbMotionMagicCruiseVelocity = 0;
@@ -314,10 +323,6 @@ public final class Constants {
                                               .withStatorCurrentLimitEnable(true)
                                               .withSupplyCurrentLimit(25)
                                               .withSupplyCurrentLimitEnable(true);
-    public static final Angle kClimbingPosition = Rotations.of(0);
-    public static final Angle kExtendedPosition = Rotations.of(0);
-    public static final Angle kStowPosition = Rotations.of(0);
-    public static final Angle kNeutralPosition = Rotations.of(0);
 
   }
 

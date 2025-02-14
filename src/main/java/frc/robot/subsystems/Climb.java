@@ -17,9 +17,10 @@ import static frc.robot.Constants.ClimbConstants.kClimbMotorID;
 import static frc.robot.Constants.ClimbConstants.kClimbReverseLimit;
 import static frc.robot.Constants.ClimbConstants.kClimbingPosition;
 import static frc.robot.Constants.ClimbConstants.kExtendedPosition;
-import static frc.robot.Constants.ClimbConstants.kExtendedThreshold;
+import static frc.robot.Constants.ClimbConstants.kExtendedArmTolerance;
 import static frc.robot.Constants.ClimbConstants.kNeutralPosition;
 import static frc.robot.Constants.ClimbConstants.kStowPosition;
+import static frc.robot.Constants.ClimbConstants.kStowedArmTolerance;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -124,9 +125,9 @@ public class Climb extends SubsystemBase {
 
     public boolean isAtTargetState() {
         return switch (currentClimbState) {
-            case EXTENDED -> MathUtil.isNear(kExtendedThreshold.in(Rotations), getClimbCoderAngle().in(Rotations), 1e-5);
+            case EXTENDED -> MathUtil.isNear(kExtendedPosition.in(Rotations), getClimbCoderAngle().in(Rotations), kExtendedArmTolerance.in(Rotations));
             // does not account for foot.
-            case STOW -> MathUtil.isNear(0, getClimbCoderAngle().in(Rotations), 1e-5);
+            case STOW -> MathUtil.isNear(kStowPosition.in(Rotations), getClimbCoderAngle().in(Rotations), kStowedArmTolerance.in(Rotations));
             
             case CLIMBING -> true;
             case NEUTRAL -> true;
