@@ -131,7 +131,6 @@ public final class Constants {
   public static class ElevatorConstants {
     public static final int kLeftMotorID = 30;
     public static final int kRightMotorID = 31;
-    public static final MechanismRatio kRotationsToMeters = new MechanismRatio(0, 0);
 
     public static final InvertedValue kLeftMotorInverted = InvertedValue.Clockwise_Positive;
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
@@ -174,8 +173,10 @@ public final class Constants {
       .withStatorCurrentLimit(kHomeStatorCurrentLimit)
       .withStatorCurrentLimitEnable(true);
 
-    public static final Distance kMaxHeight = Meters.of(0.0);
+    public static final Distance kMaxHeight = Inches.of(77.25); 
     public static final Distance kMinHeight = Meters.of(0.0);
+
+    public static final MechanismRatio kRotationsToMeters = new MechanismRatio( 0);
 
     public static final Distance kDefaultHeightTolerence = Millimeters.of(5);
     public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);

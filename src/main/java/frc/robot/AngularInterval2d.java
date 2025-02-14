@@ -9,6 +9,6 @@ public class AngularInterval2d {
     }
 
     public boolean isContainedWithin(Angle angle) {
-        // rotation.getRotations() >
+        // rotation.getRotations() > 
     }
 }
