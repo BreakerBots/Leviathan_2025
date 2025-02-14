@@ -3,19 +3,25 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.EndEffectorConstants.*;
 
+import java.io.ObjectInputFilter.Config;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.S1CloseStateValue;
+import com.ctre.phoenix6.signals.S1FloatStateValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.reduxrobotics.sensors.canandcolor.Canandcolor;
@@ -39,6 +45,7 @@ public class EndEffector extends SubsystemBase {
     private TalonSRX rollers;
     private TalonFX wrist;
     private CANcoder wristEncoder;
+    private CANdi candi;
     private BreakerDigitalSensor coralSensor;
     private Canandcolor algaeSensor;
     private MotionMagicVoltage wristRequest;
@@ -48,12 +55,24 @@ public class EndEffector extends SubsystemBase {
     public EndEffector() {
         wristEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, kWristDiscontinuityPoint, kWristEncoderOffset, SensorDirectionValue.Clockwise_Positive);
         wrist = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
-
+        candi = new CANdi(EndEffectorConstants.kEndEffectorCANdiID);
+        kicker = new TalonSRX(kEndEffectorKickerID);
+        rollers = new TalonSRX(kEndEffectorRollerID);
+        configCandi();
         wristRequest = new MotionMagicVoltage(getWristAngle());
 
         configWrist();
     }
 
+    private void configCandi() {
+        CANdiConfiguration config = new CANdiConfiguration();
+        config.DigitalInputs.S1CloseState = S1CloseStateValue.CloseWhenHigh;
+        config.DigitalInputs.S1FloatState = S1FloatStateValue.FloatDetect;
+        candi.getConfigurator().apply(config);
+
+        coralSensor = BreakerDigitalSensor.fromCANdiS1(candi);
+    }
+ 
     private void configWrist() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -405,23 +424,23 @@ public class EndEffector extends SubsystemBase {
             KickerState.NEUTRAL
         );
 
-        // public 
+        // // public 
 
-        public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
-            double f = from.in(Rotations);
-            double t = to.in(Rotations);
-            if (f > t) {
-                if (f < kMaxFlipAngle)
-            } else {
+        // public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
+        //     double f = from.in(Rotations);
+        //     double t = to.in(Rotations);
+        //     if (f > t) {
+        //         if (f < kMaxFlipAngle)
+        //     } else {
 
-            }
-        }
+        //     }
+        // }
 
-        public static enum EndEffectorFlipDirection {
-            FRONT_TO_BACK,
-            BACK_TO_FRONT,
-            NONE
-        }
+        // public static enum EndEffectorFlipDirection {
+        //     FRONT_TO_BACK,
+        //     BACK_TO_FRONT,
+        //     NONE
+        // }
         
     }
 

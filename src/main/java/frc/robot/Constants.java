@@ -276,6 +276,8 @@ public final class Constants {
     public static final int kEndEffectorPivotMotorID = 50;
     public static final int kEndEffectorCANCoderID = 51;
     public static final int kEndEffectorCANdiID = 52;
+    public static final int kEndEffectorRollerID = 53;
+    public static final int kEndEffectorKickerID = 54;
 
     public static final double kP = 8;
     public static final double kI = 0;
@@ -288,8 +290,8 @@ public final class Constants {
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
 
 
-    public static final Angle kMinFlipAngle = Rotations.of();
-    public static final Angle kMaxFlipAngle = Rotations.of();
+    // public static final Angle kMinFlipAngle = Rotations.of();
+    // public static final Angle kMaxFlipAngle = Rotations.of();
   }
 
   public static class KickerConstants {
