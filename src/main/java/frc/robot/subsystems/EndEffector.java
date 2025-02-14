@@ -434,22 +434,23 @@ public class EndEffector extends SubsystemBase {
             final double maxFlip = kMaxFlipAngle.in(Rotations);
             
             if (f > t) { // if hell
-                if (f < minFlip) {
+                if (f < minFlip && t < minFlip) {
                     return EndEffectorFlipDirection.NONE;
-                } else if (f > maxFlip) {
+                } else if (f > maxFlip && t < minFlip) {
                     return EndEffectorFlipDirection.FRONT_TO_BACK;
-                } else {
-                    // from angle is inside of the elevator?
-                    return EndEffectorFlipDirection.FRONT_TO_BACK;
+                } else if (f > maxFlip && t > maxFlip) {
+                    return EndEffectorFlipDirection.NONE;
                 }
+                return EndEffectorFlipDirection.BACK_TO_FRONT;
             } else {
-                if (f < minFlip) {
-                    return EndEffectorFlipDirection.BACK_TO_FRONT;
-                } else if (f > maxFlip) {
+                if (f < minFlip && t < minFlip) {
                     return EndEffectorFlipDirection.NONE;
-                } else { // this branch is a little strange
+                } else if (f > maxFlip && t > maxFlip) {
+                    return EndEffectorFlipDirection.NONE;
+                } else if (f < minFlip && t > maxFlip) {
                     return EndEffectorFlipDirection.BACK_TO_FRONT;
                 }
+                return EndEffectorFlipDirection.FRONT_TO_BACK;
             }
         }
 
