@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -8,13 +10,16 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.Constants.IndexerConstants;
+import frc.robot.Constants.SuperstructureConstants;
 
 public class Indexer extends SubsystemBase {
-    private TalonSRX indexer;
+    private TalonFX indexer;
     private IndexerState currentState = IndexerState.NEUTRAL;
+    private DutyCycleOut dutyCycleOut;
 
     public Indexer() {
-        indexer = new TalonSRX(IndexerConstants.kIndexerMotorID);
+        indexer = new TalonFX(IndexerConstants.kIndexerMotorID, SuperstructureConstants.kSuperstructureCANBus);
+        dutyCycleOut = new DutyCycleOut(0);
     }
 
     private void set(IndexerState state) {
@@ -26,8 +31,8 @@ public class Indexer extends SubsystemBase {
     }
 
     public static enum IndexerState {
-        INDEXING(-1.0),
-        REVERSE(1.0),
+        INDEXING(1.0),
+        REVERSE(-1.0),
         NEUTRAL(0.0);
 
         private double dutyCycleOut;
@@ -43,18 +48,16 @@ public class Indexer extends SubsystemBase {
     @Override
     public void periodic() {
         if (RobotState.isDisabled()) {
-            setState(IndexerState.NEUTRAL);
+            set(IndexerState.NEUTRAL);
         }
 
         double cycle = currentState.getDutyCycleOut();
 
         BreakerLog.log("Indexer/State", currentState);
         BreakerLog.log("Indexer/DutyCycle", cycle);
-        BreakerLog.log("Indexer/Motor/OutputPercent", indexer.getMotorOutputPercent());
-        BreakerLog.log("Indexer/Motor/StatorCurrent", indexer.getStatorCurrent());
-        BreakerLog.log("Indexer/Motor/SupplyCurrent", indexer.getSupplyCurrent());
+        BreakerLog.log("Indexer/Motor", indexer);
 
-        indexer.set(TalonSRXControlMode.PercentOutput, cycle);
+        indexer.setControl(dutyCycleOut.withOutput(cycle));
     }
 
 }

@@ -48,7 +48,7 @@ public class Elevator extends SubsystemBase {
         voltageRequest = new VoltageOut(0);
         motionMagicRequest = new MotionMagicVoltage(getNativePosition()).withEnableFOC(true);
         followRequest = new Follower(kLeftMotorID, true);
-        
+        neutralRequest = new NeutralOut();
         var sp = new ElevatorSetpoint(getHeight());
         setFunc(sp);
 
@@ -57,17 +57,18 @@ public class Elevator extends SubsystemBase {
     }
 
     public void forceStop(boolean forceStop) {
-        // if (forceStop) {
-        //     left.setControl(neutralRequest);
-        //     right.setControl(neutralRequest);
-        // } else if (forceStoped && !forceStop) {
-        //     setControl(setpoint.getNativeSetpoint());
-        // }
+        if (forceStop) {
+            left.setControl(neutralRequest);
+            right.setControl(neutralRequest);
+        } else if (forceStoped && !forceStop) {
+            setControl(setpoint.getNativeSetpoint());
+        }
 
-        // if (forceStop && !forceStoped) {
 
-        // }
-        // forceStoped = forceStop;
+        if (forceStop && !forceStoped) {
+
+        }
+        forceStoped = forceStop;
     }
 
     private void configLeft() {
@@ -78,10 +79,12 @@ public class Elevator extends SubsystemBase {
         leftConfig.Slot0.kP = kP;
         leftConfig.Slot0.kI = kI;
         leftConfig.Slot0.kD = kD;
+        leftConfig.Slot0.kV = kV;
+        leftConfig.Slot0.kA = kA;
         leftConfig.Slot0.kS = kS;
         leftConfig.Slot0.kG = kG;
-        leftConfig.MotionMagic.MotionMagicExpo_kA = kA;
-        leftConfig.MotionMagic.MotionMagicExpo_kV = kV;
+        // leftConfig.MotionMagic.MotionMagicExpo_kA = kA;
+        // leftConfig.MotionMagic.MotionMagicExpo_kV = kV;
         leftConfig.MotionMagic.MotionMagicCruiseVelocity =  kMotionMagicCruiseVelocity.in(RotationsPerSecond);
         leftConfig.MotionMagic.MotionMagicAcceleration = kMotionMagicAcceleration.in(RotationsPerSecondPerSecond);
         leftConfig.MotionMagic.MotionMagicJerk = 0.0;
@@ -114,7 +117,7 @@ public class Elevator extends SubsystemBase {
                 .raceWith(Commands.waitSeconds(8)
                     .andThen(() -> homeingFailedAlert.set(true))),
             Commands.runOnce(() -> setVoltageOut(0.0)),
-            Commands.waitSeconds(0.5),
+            Commands.waitSeconds(0.3),
             Commands.runOnce(this::homePosition),
             Commands.runOnce(() -> setHomeingCurrents(false)),
             set(ElevatorSetpoint.STOW, false),
@@ -242,10 +245,10 @@ public class Elevator extends SubsystemBase {
         public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint L4 = new ElevatorSetpoint(Meters.of(0.0));
-        public static final ElevatorSetpoint HUMAN_PLAYER = new ElevatorSetpoint(Meters.of(0.0));
-        public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.0));
+        public static final ElevatorSetpoint HUMAN_PLAYER = new ElevatorSetpoint(Meters.of(0.5));
+        public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.085), Centimeters.of(4), kDefaultVelocityTolerence);
         public static final ElevatorSetpoint GROUND_ALGAE = new ElevatorSetpoint(Meters.of(0.0));
-        public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0));
+        public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0), Centimeters.of(4), kDefaultVelocityTolerence);
         private static final ElevatorSetpoint HOMEING = new ElevatorSetpoint(Meters.of(0.04));
     }
 

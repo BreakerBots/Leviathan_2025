@@ -47,7 +47,7 @@ public class EndEffector extends SubsystemBase {
     private CANcoder wristEncoder;
     private CANdi candi;
     private BreakerDigitalSensor coralSensor;
-    private Canandcolor algaeSensor;
+    // private Canandcolor algaeSensor;
     private MotionMagicVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
     private EndEffectorWristLimits wristLimits;
@@ -137,15 +137,15 @@ public class EndEffector extends SubsystemBase {
     }
 
     public boolean isAlgaeVisable() {
-        return getColorDelta(algaeSensor.getColor().toWpilibColor(), kAlgaeColor) <= kMaxColorDelta;
+        return false; //getColorDelta(algaeSensor.getColor().toWpilibColor(), kAlgaeColor) <= kMaxColorDelta;
     }
 
     private boolean isAlgaeProximityBelowThresh() {
-        return algaeSensor.getProximity() <= kHasAlgaeProximityThresh;
+        return false; //algaeSensor.getProximity() <= kHasAlgaeProximityThresh;
     }
 
     public boolean hasAlgae() {
-        return isAlgaeVisable() && isAlgaeProximityBelowThresh();
+        return false;//isAlgaeVisable() && isAlgaeProximityBelowThresh();
     }
 
     public Angle getWristAngle() {
@@ -202,21 +202,21 @@ public class EndEffector extends SubsystemBase {
 
         BreakerLog.log("EndEffector/HasCoral", hasCoral());
         BreakerLog.log("EndEffector/AlgaeSensor/HasAlgae", hasAlgae());
-        Color c = algaeSensor.getColor().toWpilibColor();
-        double cd = getColorDelta(c, kAlgaeColor);
-        BreakerLog.log("EndEffector/AlgaeSensor/SeesAlgae", cd <= kMaxColorDelta);
-        BreakerLog.log("EndEffector/AlgaeSensor/Color/Delta", cd);
-        BreakerLog.log("EndEffector/AlgaeSensor/Color/R", c.red);
-        BreakerLog.log("EndEffector/AlgaeSensor/Color/G", c.green);
-        BreakerLog.log("EndEffector/AlgaeSensor/Color/B", c.blue);
+        // Color c = algaeSensor.getColor().toWpilibColor();
+        // double cd = getColorDelta(c, kAlgaeColor);
+        // BreakerLog.log("EndEffector/AlgaeSensor/SeesAlgae", cd <= kMaxColorDelta);
+        // BreakerLog.log("EndEffector/AlgaeSensor/Color/Delta", cd);
+        // BreakerLog.log("EndEffector/AlgaeSensor/Color/R", c.red);
+        // BreakerLog.log("EndEffector/AlgaeSensor/Color/G", c.green);
+        // BreakerLog.log("EndEffector/AlgaeSensor/Color/B", c.blue);
     }
 
 
     public static enum RollerState {
-        INTAKE(-0.5, kNormalRollerCurrentLimitConfig),
-        EXTAKE(1.0, kNormalRollerCurrentLimitConfig),
-        INTAKE_ALGAE(-0.75, kNormalRollerCurrentLimitConfig),
-        HOLD_ALGAE(-0.15, kAlgaeHoldRollerCurrentLimitConfig),
+        INTAKE(1, kNormalRollerCurrentLimitConfig),
+        EXTAKE(-1.0, kNormalRollerCurrentLimitConfig),
+        INTAKE_ALGAE(0.75, kNormalRollerCurrentLimitConfig),
+        HOLD_ALGAE(0.15, kAlgaeHoldRollerCurrentLimitConfig),
         NEUTRAL(0.0, kNormalRollerCurrentLimitConfig);
         private double dutyCycleOut;
         private SupplyCurrentLimitConfiguration currentLimitConfig;
@@ -249,10 +249,10 @@ public class EndEffector extends SubsystemBase {
     }
 
     public static enum KickerState {
-        KICK(-1.0, kNormalKickerCurrentLimitConfig),
-        INTAKE(-0.8, kNormalKickerCurrentLimitConfig),
-        EXTAKE(0.8, kNormalKickerCurrentLimitConfig),
-        HOLD(-0.1, kAlgaeHoldKickerCurrentLimitConfig),
+        KICK(1.0, kNormalKickerCurrentLimitConfig),
+        INTAKE(1, kNormalKickerCurrentLimitConfig),
+        EXTAKE(-0.8, kNormalKickerCurrentLimitConfig),
+        HOLD(0.1, kAlgaeHoldKickerCurrentLimitConfig),
         NEUTRAL(0.0, kNormalKickerCurrentLimitConfig);
 
         private double dutyCycleOut;
@@ -309,16 +309,16 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint STOW = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Rotations.of(0.43)), 
+                new WristSetpoint(Rotations.of(0.45)), 
                 RollerState.NEUTRAL, 
                 KickerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_INTAKE_HANDOFF = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(30)), 
+                new WristSetpoint(Rotations.of(0.55)), 
                 RollerState.INTAKE, 
-                KickerState.NEUTRAL
+                KickerState.INTAKE
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_INTAKE_HANDOFF_REVERSE = 
@@ -351,14 +351,14 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER_NEUTRAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(55)), 
+            new WristSetpoint(Degrees.of(30)), 
             RollerState.NEUTRAL, 
             KickerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(55)), 
+            new WristSetpoint(Degrees.of(30)), 
             RollerState.INTAKE, 
             KickerState.INTAKE
         );

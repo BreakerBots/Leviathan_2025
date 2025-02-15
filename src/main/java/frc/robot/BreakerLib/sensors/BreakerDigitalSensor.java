@@ -43,11 +43,11 @@ public class BreakerDigitalSensor extends SubsystemBase implements BooleanSuppli
   }
 
   public static BreakerDigitalSensor fromCANdiS1(CANdi candi) {
-    return new BreakerDigitalSensor((BooleanSupplier)candi.getS1Closed().asSupplier(), () -> candi.close());
+    return new BreakerDigitalSensor(() -> candi.getS1Closed().getValue(), () -> candi.close());
   }
 
   public static BreakerDigitalSensor fromCANdiS2(CANdi candi) {
-    return new BreakerDigitalSensor((BooleanSupplier)candi.getS2Closed().asSupplier(), () -> candi.close());
+    return new BreakerDigitalSensor(() -> candi.getS2Closed().getValue(), () -> candi.close());
   }
 
 

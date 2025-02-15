@@ -40,18 +40,19 @@ public class Superstructure extends SubsystemBase {
     private Climb climb;
     private Drivetrain drivetrain;
 
-    private final TipProtectionSystem tipProtectionSystem;
+    // private final TipProtectionSystem tipProtectionSystem;
 
 
     private SuperstructureState setpoint;
 
     private HolonomicSlewRateLimiter limiter;
 
-    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Intake intake) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake) {
         this.elevator = elevator;
         this.intake = intake;
+        this.indexer = indexer;
         this.endEffector = endEffector;
-        tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
+        // tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
 
     // public Command climb() {
@@ -85,7 +86,7 @@ public class Superstructure extends SubsystemBase {
                         Commands.waitUntil(() -> endEffector.isAtSetpoint() || !waitForSuccess)
                     ), 
 
-                () -> doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint) || !isEndEffectorSafe());
+                () -> doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint) && isEndEffectorSafe());
     }
 
     public Command intakeCoralFromGround() {
@@ -96,7 +97,7 @@ public class Superstructure extends SubsystemBase {
                 setEndEffectorSafe(EndEffectorSetpoint.STOW, true)
             ),
             intake.setState(IntakeState.INTAKE, false),
-            Commands.waitUntil(intake::hasCoral),
+            //Commands.waitUntil(intake::hasCoral),
             Commands.parallel(
                 indexer.setState(IndexerState.INDEXING),
                 endEffector.set(EndEffectorSetpoint.CORAL_GROUND_INTAKE_HANDOFF, false)
@@ -105,7 +106,7 @@ public class Superstructure extends SubsystemBase {
             Commands.parallel(
                 indexer.setState(IndexerState.NEUTRAL),
                 endEffector.set(EndEffectorSetpoint.STOW, false),
-                intake.setState(IntakeState.STOW, false)
+                intake.setState(IntakeState.EXTENDED_NEUTRAL, false)
             )
         ); 
     }
@@ -164,7 +165,7 @@ public class Superstructure extends SubsystemBase {
             endEffector.setWristLimits(EndEffectorWristLimits.ELEVATOR_EXTENDED);
         }
 
-        if ((elevator.getHeight().in(Meter) >= kMaxHeightForEndEffectorFullMotion.in(Meter) - 0.05) && !safe) {
+        if ((elevator.getHeight().in(Meter) >= kMaxHeightForEndEffectorFullMotion.in(Meter)) && !safe) {
             elevator.forceStop(true);
         } else {
             elevator.forceStop(false);
@@ -215,13 +216,13 @@ public class Superstructure extends SubsystemBase {
     }
 
     public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {
-        tipProtectionSystem.setStreams(linear, rotational);
+        // tipProtectionSystem.setStreams(linear, rotational);
         return drivetrain.getTeleopControlCommand(linear.getX(), linear.getY(), rotational, config);
     }
 
     @Override
     public void periodic() {
         endEffectorSaftyCheck();
-        tipProtectionSystem.update();
+        // tipProtectionSystem.update();
     }
 }

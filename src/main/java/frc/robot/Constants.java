@@ -118,7 +118,7 @@ public final class Constants {
 
   public static class SuperstructureConstants {
     public static final Distance kMaxHeightForEndEffectorFloorLimit = Centimeters.of(4);
-    public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(30);
+    public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(20);
     public static final CANBus kSuperstructureCANBus = new CANBus("superstructure");
 
     // public static final InterpolatingTreeMap<Distance, DrivetrainKinimaticLimits> kElevatorExtendedDriveKinimaticLimitsTable = 
@@ -136,13 +136,13 @@ public final class Constants {
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
 
     // All gains are in terms of rotor rotations and volts
-    public static final double kP = 0.26;
+    public static final double kP = 0.5;//0.26
     public static final double kI = 0;
     public static final double kD = 0.12;
     public static final double kS = 0;
-    public static final double kV = 0.155;
-    public static final double kA = 0.03;
-    public static final double kG = 0.735;
+    public static final double kV = 0.185;
+    public static final double kA = 0.035;
+    public static final double kG = 0.73;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(15);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(25);
     // public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
@@ -188,7 +188,7 @@ public final class Constants {
   }
   
   public static class IntakeConstants {
-    public static final Angle kPivotTolerence = Degrees.of(4);
+    public static final Angle kPivotTolerence = Degrees.of(8);
     private static final Angle kPivotEncoderMagnetOffset = Rotations.of(0.1455078125);
     private static final Angle kPivotEncoderZeroPointOffsetFromAbsolute = Rotations.of(0.029053);
     public static final Angle kPivotEncoderOffset = kPivotEncoderMagnetOffset.plus(kPivotEncoderZeroPointOffsetFromAbsolute);
@@ -245,7 +245,7 @@ public final class Constants {
     public static final MechanismRatio kWristRatio = new MechanismRatio(25).to(new MechanismRatio(15, 18)).to(new MechanismRatio(20, 56));//78.75
 
     public static final double kWristDiscontinuityPoint = 0.75;
-    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(45);
+    public static final Angle kMaxElevatorRestrictedSafeAngle = Rotations.of(0.1);
 
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
     public static final double kMaxColorDelta = 0.15;
@@ -328,7 +328,7 @@ public final class Constants {
 
 
   public static class IndexerConstants {
-    public static final int kIndexerMotorID = 0;
+    public static final int kIndexerMotorID = 43;
   }
 
   public static class AutoConstants {

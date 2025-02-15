@@ -18,9 +18,13 @@ import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExpo
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.TipProtectionSystem;
+
+import com.reduxrobotics.sensors.canandcolor.DigoutChannel.Index;
+
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -42,9 +46,11 @@ public class RobotContainer {
   // They contain the methods to control physical hardware
   private final Drivetrain drivetrain = new Drivetrain();
   private final Intake intake = new Intake();
+  private final Indexer indexer = new Indexer();
   private final Elevator elevator = new Elevator();
   private final EndEffector endEffector = new EndEffector();
-  private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, intake);
+  private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
+  intake);
 
   // === CONTROLLERS ===
   // Xbox controller used for main driver
@@ -101,6 +107,7 @@ public class RobotContainer {
 
     controller.getButtonX().onTrue(elevator.home());
     controller.getButtonY().onTrue(superstructure.intakeCoralFromHumanPlayer());
+    controller.getButtonA().onTrue(superstructure.intakeCoralFromGround());
   }
 
   /**
