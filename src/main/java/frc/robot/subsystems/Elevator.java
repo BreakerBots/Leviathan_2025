@@ -110,7 +110,7 @@ public class Elevator extends SubsystemBase {
         return Commands.sequence(
             Commands.runOnce(() -> isHomeingAlert.set(true)),
             Commands.runOnce(() -> setHomeingCurrents(true)),
-            set(ElevatorSetpoint.HOMEING, true).withTimeout(3),
+            // set(ElevatorSetpoint.HOMEING, true).withTimeout(3),
             Commands.runOnce(() -> setVoltageOut(kHomeingVoltage)),
             new TimedWaitUntilCommand(this::detectHome, 1)
                 .andThen(() -> homeingFailedAlert.set(true))
@@ -198,7 +198,7 @@ public class Elevator extends SubsystemBase {
         BreakerLog.log("Elevator/Motors/Left", left);
         BreakerLog.log("Elevator/Motors/Right", right);
         BreakerLog.log("Elevator/Setpoint/Value", setpoint.getHeight().in(Meters));
-        BreakerLog.log("Elevator/Setpoint/Value", setpoint.getNativeSetpoint().in(Rotations));
+        BreakerLog.log("Elevator/Setpoint/ValueNative", setpoint.getNativeSetpoint().in(Rotations));
         BreakerLog.log("Elevator/Setpoint/Error", Math.abs(getHeight().in(Meters)) -  setpoint.getHeight().in(Meters));
         BreakerLog.log("Elevator/Setpoint/Tolerence", setpoint.getTolerence().in(Units.Meters));
         BreakerLog.log("Elevator/Setpoint/Satisfied", atSetpoint());
@@ -242,11 +242,12 @@ public class Elevator extends SubsystemBase {
         }
 
         public static final ElevatorSetpoint L1 = new ElevatorSetpoint(Meters.of(0.0));
-        public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.0));
-        public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.0));
-        public static final ElevatorSetpoint L4 = new ElevatorSetpoint(Meters.of(0.0));
-        public static final ElevatorSetpoint HUMAN_PLAYER = new ElevatorSetpoint(Meters.of(0.5));
-        public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.085), Centimeters.of(4), kDefaultVelocityTolerence);
+        public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.87));
+        public static final ElevatorSetpoint L2_L3_ALGAE = new ElevatorSetpoint(Meters.of(0.55));
+        public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.87).plus(Inches.of(15.75)));
+        public static final ElevatorSetpoint L4 = new ElevatorSetpoint(kMaxHeight.minus(Centimeters.of(5)));
+        public static final ElevatorSetpoint HUMAN_PLAYER = new ElevatorSetpoint(Meters.of(0.5).minus(Inches.of(2.5)));
+        public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.08), Centimeters.of(4), kDefaultVelocityTolerence);
         public static final ElevatorSetpoint GROUND_ALGAE = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0), Centimeters.of(4), kDefaultVelocityTolerence);
         private static final ElevatorSetpoint HOMEING = new ElevatorSetpoint(Meters.of(0.04));

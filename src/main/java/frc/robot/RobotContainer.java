@@ -26,11 +26,13 @@ import frc.robot.subsystems.superstructure.TipProtectionSystem;
 import com.reduxrobotics.sensors.canandcolor.DigoutChannel.Index;
 
 import dev.doglog.DogLogOptions;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -106,8 +108,11 @@ public class RobotContainer {
     // drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(() -> new BreakerVector2(driverX.get(), driverY.get()), driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
 
     controller.getButtonX().onTrue(elevator.home());
+    //controller.getButtonY().onTrue(superstructure.intakeCoralFromHumanPlayer());
     controller.getButtonY().onTrue(superstructure.intakeCoralFromHumanPlayer());
-    controller.getButtonA().onTrue(superstructure.intakeCoralFromGround());
+    controller.getButtonA().onTrue(superstructure.moveToExtakeCoralL4());
+    controller.getButtonB().onTrue(superstructure.extakeCoralL4());
+    controller.getLeftBumper().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
   }
 
   /**

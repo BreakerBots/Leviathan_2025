@@ -117,8 +117,8 @@ public final class Constants {
   }
 
   public static class SuperstructureConstants {
-    public static final Distance kMaxHeightForEndEffectorFloorLimit = Centimeters.of(4);
-    public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(20);
+    public static final Distance kMaxHeightForEndEffectorFloorLimit = Centimeters.of(30);
+    public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(25);
     public static final CANBus kSuperstructureCANBus = new CANBus("superstructure");
 
     // public static final InterpolatingTreeMap<Distance, DrivetrainKinimaticLimits> kElevatorExtendedDriveKinimaticLimitsTable = 
@@ -245,7 +245,7 @@ public final class Constants {
     public static final MechanismRatio kWristRatio = new MechanismRatio(25).to(new MechanismRatio(15, 18)).to(new MechanismRatio(20, 56));//78.75
 
     public static final double kWristDiscontinuityPoint = 0.75;
-    public static final Angle kMaxElevatorRestrictedSafeAngle = Rotations.of(0.1);
+    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(40);
 
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
     public static final double kMaxColorDelta = 0.15;
@@ -259,10 +259,11 @@ public final class Constants {
 
 
     public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs();
-    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs();
+    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs().withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true);
     public static final SoftwareLimitSwitchConfigs kNormalLimits = new SoftwareLimitSwitchConfigs();
 
     public static final CurrentLimitsConfigs kWristCurrentLimits = new CurrentLimitsConfigs()
+    
       .withStatorCurrentLimit(60)
       .withStatorCurrentLimitEnable(true)
       .withSupplyCurrentLimit(50)

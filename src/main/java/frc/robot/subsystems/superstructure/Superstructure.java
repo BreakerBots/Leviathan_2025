@@ -5,6 +5,7 @@
 package frc.robot.subsystems.superstructure;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFloorLimit;
@@ -18,6 +19,7 @@ import frc.robot.HolonomicSlewRateLimiter;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
+import frc.robot.BreakerLib.util.commands.TimedWaitUntilCommand;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Climb.ClimbState;
 import frc.robot.subsystems.Drivetrain;
@@ -26,6 +28,7 @@ import frc.robot.subsystems.Elevator.ElevatorSetpoint;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint;
 import frc.robot.subsystems.EndEffector.EndEffectorWristLimits;
+import frc.robot.subsystems.EndEffector.WristSetpoint;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake;
@@ -86,8 +89,20 @@ public class Superstructure extends SubsystemBase {
                         Commands.waitUntil(() -> endEffector.isAtSetpoint() || !waitForSuccess)
                     ), 
 
-                () -> doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint) && isEndEffectorSafe());
+                () -> doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint));
     }
+
+    private Command setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint endEffectorSetpoint, ElevatorSetpoint elevatorSetpoint, boolean waitForSuccess) {
+        return Commands.either(
+            endEffector.set(new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(15))), endEffectorSetpoint.rollerState(), endEffectorSetpoint.kickerState()), false)
+                .andThen(setEndEffectorSafe(endEffectorSetpoint, waitForSuccess)),
+            setEndEffectorSafe(endEffectorSetpoint, waitForSuccess), 
+            () -> endEffectorSetpoint.wristSetpoint().requiresFlip()).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
+    }
+
+       
+        
+
 
     public Command intakeCoralFromGround() {
         return Commands.sequence(
@@ -128,12 +143,53 @@ public class Superstructure extends SubsystemBase {
             setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.INTAKE_HUMAN_PLAYER_NEUTRAL, ElevatorSetpoint.HUMAN_PLAYER, true),
             endEffector.set(EndEffectorSetpoint.INTAKE_HUMAN_PLAYER, false),
             Commands.waitUntil(endEffector::hasCoral),
-            Commands.parallel(
-                setEndEffectorSafe(EndEffectorSetpoint.STOW, false),
-                elevator.set(ElevatorSetpoint.STOW, false)
-            )
+            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
         );
     }
+
+    public Command moveToExtakeCoralL2() {
+        return setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L2_NEUTRAL, ElevatorSetpoint.L2, true);
+    }
+
+    public Command extakeCoralL2() {
+        return Commands.sequence(
+            setEndEffectorSafe(EndEffectorSetpoint.L2_EXTAKE_CORAL, false),
+            new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.5),
+            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
+        );
+    }
+
+    public Command moveToExtakeCoralL3() {
+        return setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L3_NEUTRAL, ElevatorSetpoint.L3, true);
+    }
+
+    public Command extakeCoralL3() {
+        return Commands.sequence(
+            setEndEffectorSafe(EndEffectorSetpoint.L3_EXTAKE_CORAL, false),
+            new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.5),
+            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
+        );
+    }
+
+    public Command moveToExtakeCoralL4() {
+        return setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L4_NEUTRAL, ElevatorSetpoint.L4, true);
+    }
+
+    public Command extakeCoralL4() {
+        return Commands.sequence(
+            setEndEffectorSafe(EndEffectorSetpoint.L4_EXTAKE_CORAL, false),
+            new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.5),
+            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
+        );
+    }
+
+    public Command intakeAlgaeL2L3() {
+        return Commands.sequence(
+            setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L2_L3_NEUTRAL, ElevatorSetpoint.L2_L3_ALGAE, true),
+            setEndEffectorSafe(EndEffectorSetpoint.L2_L3_INTAKE_ALGAE, false)
+        );
+    }
+
 
     public boolean doesElevatorSetpointAllowEndEffectorFliping(ElevatorSetpoint setpoint) {
         return setpoint.getHeight().in(Meters) < kMaxHeightForEndEffectorFullMotion.in(Meter);
