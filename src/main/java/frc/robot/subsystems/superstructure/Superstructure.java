@@ -92,7 +92,7 @@ public class Superstructure extends SubsystemBase {
                 )
             );
 
-        } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {
+        } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {//we arnt able to flip now but will be able to after moving the elevator
             var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(15))), endEffectorSetpoint.rollerState(), endEffectorSetpoint.kickerState());
             
             cmd = endEffector.set(intermedairySP, false)
