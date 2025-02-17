@@ -111,6 +111,7 @@ public final class Constants {
   public static class OperatorConstants {
     /** USB port number for main driver controller (listed in Driver Station) */
     public static final int kDriverControllerPort = 0;
+    public static final int kButtonBoardPort = 1;
 
     public static final double TRANSLATIONAL_DEADBAND = 0.1;
     public static final double ROTATIONAL_DEADBAND = 0.1;
@@ -291,8 +292,8 @@ public final class Constants {
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
 
 
-    public static final Angle kMinFlipAngle = Rotations.of(0);
-    public static final Angle kMaxFlipAngle = Rotations.of(0);
+    public static final Angle kMinFlipAngle = kMaxElevatorRestrictedSafeAngle;
+    public static final Angle kMaxFlipAngle = kMaxElevatorRestrictedSafeAngle.plus(Degrees.of(20));
   }
 
   public static class KickerConstants {

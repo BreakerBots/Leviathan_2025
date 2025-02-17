@@ -30,6 +30,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -51,14 +52,17 @@ public class RobotContainer {
   private final Indexer indexer = new Indexer();
   private final Elevator elevator = new Elevator();
   private final EndEffector endEffector = new EndEffector();
-  private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake);
 
-  // === CONTROLLERS ===
-  // Xbox controller used for main driver
-  // Ports can be checked/changed in Driver Station
   private final BreakerXboxController controller =
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
+  private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
+
+
+
+
+  private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
+  intake, controller);
+
 
   private BreakerInputStream driverX, driverY, driverOmega;
   
@@ -108,11 +112,14 @@ public class RobotContainer {
     // drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(() -> new BreakerVector2(driverX.get(), driverY.get()), driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
 
     controller.getButtonX().onTrue(elevator.home());
-    //controller.getButtonY().onTrue(superstructure.intakeCoralFromHumanPlayer());
     controller.getButtonY().onTrue(superstructure.intakeCoralFromHumanPlayer());
-    controller.getButtonA().onTrue(superstructure.moveToExtakeCoralL4());
-    controller.getButtonB().onTrue(superstructure.extakeCoralL4());
+    controller.getButtonA().onTrue(superstructure.intakeCoralFromGround());
     controller.getLeftBumper().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
+
+    buttonBoard.getLevelButtons().getL1Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
+    buttonBoard.getLevelButtons().getL2Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));
+    buttonBoard.getLevelButtons().getL3Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L3));
+    buttonBoard.getLevelButtons().getL4Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4));
   }
 
   /**

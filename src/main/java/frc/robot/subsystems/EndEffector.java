@@ -308,8 +308,8 @@ public class EndEffector extends SubsystemBase {
             return setpoint.in(Degrees) >= kMaxElevatorRestrictedSafeAngle.in(Degrees);
         }
 
-        public boolean requiresFlip(Angle endEffectorAngle) {
-            return EndEffectorSetpoint.getFlipDirection(endEffectorAngle, setpoint) != EndEffectorFlipDirection.NONE;
+        public EndEffectorFlipDirection getFlipDirectionFrom(Angle from) {
+            return EndEffectorSetpoint.getFlipDirection(from, setpoint);
         }
         
     }
@@ -323,17 +323,24 @@ public class EndEffector extends SubsystemBase {
                 KickerState.NEUTRAL
         );
 
-        public static final EndEffectorSetpoint CORAL_GROUND_INTAKE_HANDOFF = 
+        public static final EndEffectorSetpoint EXTENDED_STOW = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(5)), 
+                RollerState.NEUTRAL, 
+                KickerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_INTAKE = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Rotations.of(0.71)), 
                 RollerState.INTAKE, 
                 KickerState.INTAKE
         );
 
-        public static final EndEffectorSetpoint CORAL_GROUND_INTAKE_HANDOFF_REVERSE = 
+        public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_NEUTRAL = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(180)), 
-                RollerState.INTAKE, 
+                new WristSetpoint(Rotations.of(0.71)), 
+                RollerState.NEUTRAL, 
                 KickerState.NEUTRAL
         );
 
@@ -448,8 +455,6 @@ public class EndEffector extends SubsystemBase {
             RollerState.EXTAKE, 
             KickerState.NEUTRAL
         );
-
-        // // public 
 
         public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
             double f = from.in(Rotations);

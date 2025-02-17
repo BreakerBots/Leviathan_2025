@@ -1,13 +1,27 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.subsystems.superstructure.Superstructure.MastState;
 
 public class ReefPosition {
     public static enum ReefLevel {
-        L1,
-        L2,
-        L3,
-        L4;
+        L1(MastState.L1_NEUTRAL, MastState.L1_EXTAKE),
+        L2(MastState.L2_NEUTRAL, MastState.L2_EXTAKE),
+        L3(MastState.L3_NEUTRAL, MastState.L3_EXTAKE),
+        L4(MastState.L4_NEUTRAL, MastState.L4_EXTAKE);
+        private MastState neutral, extake;
+        private ReefLevel(MastState neutral, MastState extake) {
+            this.extake = extake;
+            this.neutral = neutral;
+        }
+
+        public MastState getExtakeMastState() {
+            return extake;
+        }
+
+        public MastState getNeutralMastState() {
+            return neutral;
+        }
     }
 
     public static enum ReefBranch {

@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFloorLimit;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFullMotion;
 
@@ -15,9 +16,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.HolonomicSlewRateLimiter;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
+import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerRumbleType;
+import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.commands.TimedWaitUntilCommand;
 import frc.robot.subsystems.Climb;
@@ -29,6 +33,7 @@ import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint;
 import frc.robot.subsystems.EndEffector.EndEffectorWristLimits;
 import frc.robot.subsystems.EndEffector.WristSetpoint;
+import frc.robot.subsystems.EndEffector.EndEffectorSetpoint.EndEffectorFlipDirection;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake;
@@ -41,152 +46,102 @@ public class Superstructure extends SubsystemBase {
     private EndEffector endEffector;
     private Intake intake;
     private Climb climb;
+    private BreakerXboxController controller;
     private Drivetrain drivetrain;
 
     // private final TipProtectionSystem tipProtectionSystem;
 
 
-    private SuperstructureState setpoint;
-
     private HolonomicSlewRateLimiter limiter;
 
-    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, BreakerXboxController controller) {
         this.elevator = elevator;
         this.intake = intake;
         this.indexer = indexer;
         this.endEffector = endEffector;
+        this.drivetrain = drivetrain;
+        // this.climb = climb;
+        this.controller = controller;
         // tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
 
-    // public Command climb() {
-    //     return Commands.sequence(
-    //         climb.setState(ClimbState.NEUTRAL_WINCH_EXTENDED_FORK, false),
-    //         Commands.waitUntil(climb::isForkContacting),
-    //         climb.setState(ClimbState.ROLLED_BACK, true)
-    //     );
-    // }
 
-    private Command setEndEffectorSafe(EndEffectorSetpoint setpoint, boolean waitForSuccess) {
-        return Commands.sequence(
-            Commands.waitUntil(() -> !setpoint.wristSetpoint().requiresFlip())
-                .raceWith(
-                    Commands.waitUntil(this::canEndEffectorFlip)
-                ),
-            endEffector.set(setpoint, waitForSuccess)
-        );
+
+    private Command setMastState(MastState mastState, boolean waitForSuccess) {
+        var elevatorSetpoint = mastState.elevatorSetpoint;
+        var endEffectorSetpoint = mastState.endEffectorSetpoint;
+        EndEffectorFlipDirection flipDirection = endEffectorSetpoint.wristSetpoint().getFlipDirectionFrom(endEffector.getWristAngle());
+
+        boolean canEndEffectorFlip = canEndEffectorFlip();
+        boolean doesSetpointAllowFlipping = doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint);
+
+        // boolean isElevatorSetpointFloorLimited = isElevatorSetpointFloorLimited(elevatorSetpoint);
+        // boolean isFloorLimited = isEndEffectorFloorLimited();
+
+        Command cmd = null;
+
+        if ((canEndEffectorFlip && doesSetpointAllowFlipping) || flipDirection == EndEffectorFlipDirection.NONE) { // never flip restricted during travle or we dont flip
+
+            cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
+
+        } else if ((canEndEffectorFlip && !doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.FRONT_TO_BACK) {//We can flip now but wont be able to after moving the elevator
+
+            cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(
+                Commands.waitUntil(this::isEndEffectorSafe).andThen(
+                    elevator.set(elevatorSetpoint, waitForSuccess)
+                )
+            );
+
+        } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {
+            var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(15))), endEffectorSetpoint.rollerState(), endEffectorSetpoint.kickerState());
+            
+            cmd = endEffector.set(intermedairySP, false)
+            .andThen(
+                Commands.waitUntil(this::isEndEffectorSafe),
+                endEffector.set(endEffectorSetpoint, waitForSuccess)
+            ).alongWith(
+                elevator.set(elevatorSetpoint, waitForSuccess)
+            );
+        } else {
+            cmd = Commands.print("INVALID SUPERSTRUCT SETPOINT COMMANDED");
+        }
+
+        return cmd;
     }
-
-    private Command setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint endEffectorSetpoint, ElevatorSetpoint elevatorSetpoint, boolean waitForSuccess) {
-        return Commands.either(
-                setEndEffectorSafe(endEffectorSetpoint, waitForSuccess)
-                    .alongWith(elevator.set(elevatorSetpoint, waitForSuccess)), 
-
-                elevator.set(ElevatorSetpoint.STOW, false).alongWith(
-                    setEndEffectorSafe(endEffectorSetpoint, false)
-                ).andThen(
-                    Commands.waitUntil(this::isEndEffectorSafe),
-                    elevator.set(elevatorSetpoint, waitForSuccess)).alongWith(
-                        Commands.waitUntil(() -> endEffector.isAtSetpoint() || !waitForSuccess)
-                    ), 
-
-                () -> doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint));
-    }
-
-    private Command setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint endEffectorSetpoint, ElevatorSetpoint elevatorSetpoint, boolean waitForSuccess) {
-        return Commands.either(
-            endEffector.set(new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(15))), endEffectorSetpoint.rollerState(), endEffectorSetpoint.kickerState()), false)
-                .andThen(setEndEffectorSafe(endEffectorSetpoint, waitForSuccess)),
-            setEndEffectorSafe(endEffectorSetpoint, waitForSuccess), 
-            () -> endEffectorSetpoint.wristSetpoint().requiresFlip()).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
-    }
-
-       
-        
-
 
     public Command intakeCoralFromGround() {
-        return Commands.sequence(
-            Commands.parallel(
-                elevator.set(ElevatorSetpoint.HANDOFF, true),
-                intake.setState(IntakeState.EXTENDED_NEUTRAL, true),
-                setEndEffectorSafe(EndEffectorSetpoint.STOW, true)
-            ),
-            intake.setState(IntakeState.INTAKE, false),
-            //Commands.waitUntil(intake::hasCoral),
-            Commands.parallel(
-                indexer.setState(IndexerState.INDEXING),
-                endEffector.set(EndEffectorSetpoint.CORAL_GROUND_INTAKE_HANDOFF, false)
-            ),
-            Commands.waitUntil(endEffector::hasCoral),
-            Commands.parallel(
-                indexer.setState(IndexerState.NEUTRAL),
-                endEffector.set(EndEffectorSetpoint.STOW, false),
-                intake.setState(IntakeState.EXTENDED_NEUTRAL, false)
-            )
+        return 
+        setMastState(MastState.GROUND_CORAL_HANDOFF_NEUTRAL, true)
+            .alongWith(intake.setState(IntakeState.EXTENDED_NEUTRAL, true))
+            .andThen(
+                setMastState(MastState.GROUND_CORAL_HANDOFF_INTAKE,false)
+                    .alongWith(
+                        intake.setState(IntakeState.INTAKE, false),
+                        indexer.setState(IndexerState.INDEXING)),
+                Commands.waitUntil(endEffector::hasCoral),
+                setMastState(MastState.PARTIAL_STOW, false)
+                    .alongWith(
+                        intake.setState(IntakeState.STOW, false),
+                        indexer.setState(IndexerState.NEUTRAL))
+            
         ); 
     }
 
-    public Command intakeAlgaeFromGround() {
-        return Commands.sequence(
-            Commands.parallel(
-                elevator.set(ElevatorSetpoint.GROUND_ALGAE, true),
-                setEndEffectorSafe(EndEffectorSetpoint.ALGAE_GROUND_INTAKE_NEUTRAL, true)
-            ),
-            endEffector.set(EndEffectorSetpoint.ALGAE_GROUND_INTAKE, false),
-            Commands.waitUntil(endEffector::hasAlgae),
-            endEffector.set(EndEffectorSetpoint.ALGAE_HOLD_GROUND, false)
-        );
-    }
-
     public Command intakeCoralFromHumanPlayer() {
-        return Commands.sequence(
-            setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.INTAKE_HUMAN_PLAYER_NEUTRAL, ElevatorSetpoint.HUMAN_PLAYER, true),
-            endEffector.set(EndEffectorSetpoint.INTAKE_HUMAN_PLAYER, false),
+        return setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true).andThen(
+            setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
-            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
+            setMastState(MastState.PARTIAL_STOW, false)
         );
     }
 
-    public Command moveToExtakeCoralL2() {
-        return setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L2_NEUTRAL, ElevatorSetpoint.L2, true);
-    }
-
-    public Command extakeCoralL2() {
-        return Commands.sequence(
-            setEndEffectorSafe(EndEffectorSetpoint.L2_EXTAKE_CORAL, false),
-            new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.5),
-            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
-        );
-    }
-
-    public Command moveToExtakeCoralL3() {
-        return setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L3_NEUTRAL, ElevatorSetpoint.L3, true);
-    }
-
-    public Command extakeCoralL3() {
-        return Commands.sequence(
-            setEndEffectorSafe(EndEffectorSetpoint.L3_EXTAKE_CORAL, false),
-            new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.5),
-            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
-        );
-    }
-
-    public Command moveToExtakeCoralL4() {
-        return setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L4_NEUTRAL, ElevatorSetpoint.L4, true);
-    }
-
-    public Command extakeCoralL4() {
-        return Commands.sequence(
-            setEndEffectorSafe(EndEffectorSetpoint.L4_EXTAKE_CORAL, false),
-            new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.5),
-            setEndEffectorRetractionFlipProtectedWithElevator(EndEffectorSetpoint.STOW, ElevatorSetpoint.STOW, false)
-        );
-    }
-
-    public Command intakeAlgaeL2L3() {
-        return Commands.sequence(
-            setEndEffectorExtensionFlipProtectedWithElevator(EndEffectorSetpoint.L2_L3_NEUTRAL, ElevatorSetpoint.L2_L3_ALGAE, true),
-            setEndEffectorSafe(EndEffectorSetpoint.L2_L3_INTAKE_ALGAE, false)
+    public Command scoreOnReefManual(ReefLevel level) {
+        return setMastState(level.getNeutralMastState(), true).andThen(
+            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.1)),
+            Commands.waitUntil(controller.getButtonB()),
+            setMastState(level.getExtakeMastState(), false),
+            new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
+            setMastState(MastState.STOW, false)
         );
     }
 
@@ -194,6 +149,10 @@ public class Superstructure extends SubsystemBase {
     public boolean doesElevatorSetpointAllowEndEffectorFliping(ElevatorSetpoint setpoint) {
         return setpoint.getHeight().in(Meters) < kMaxHeightForEndEffectorFullMotion.in(Meter);
     }
+
+    // private boolean isElevatorSetpointFloorLimited(ElevatorSetpoint setpoint) {
+    //     return setpoint.getHeight().in(Meter) < kMaxHeightForEndEffectorFloorLimit.in(Meter);
+    // }
 
     public boolean canEndEffectorFlip() {
         return elevator.getHeight().in(Meter) < kMaxHeightForEndEffectorFullMotion.in(Meter);
@@ -228,48 +187,91 @@ public class Superstructure extends SubsystemBase {
         }
     }
 
+    // public Command setSuperstructureState(SuperstructureState state, SuperstructureStateSuccessType successType) {
+    //     return setEndEffectorWithElevator(state.endEffectorSetpoint, state.elevatorSetpoint, successType.waitForElevatorAndEndEffector())
+    //         .alongWith(
+    //             intake.setState(state.intakeState, successType.waitForIntakeAndIndexer()),
+    //             indexer.setState(state.indexerState)
+    //             );
+    // }
+
+    // public static enum SuperstructureStateSuccessType {
+    //     INSTANT,
+    //     END_EFFECTOR_AND_ELEVATOR_ONLY,
+    //     WAIT_FOR_ALL;
+
+    //     public boolean waitForElevatorAndEndEffector() {
+    //         return this == END_EFFECTOR_AND_ELEVATOR_ONLY || this == WAIT_FOR_ALL;
+    //     }
+
+    //     public boolean waitForIntakeAndIndexer() {
+    //         return this == END_EFFECTOR_AND_ELEVATOR_ONLY || this == WAIT_FOR_ALL;
+    //     }
+    // }
+
+    public static record MastState(
+        ElevatorSetpoint elevatorSetpoint, 
+        EndEffectorSetpoint endEffectorSetpoint
+    ) {
+        public static final MastState STOW = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.STOW);
+        public static final MastState PARTIAL_STOW = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.EXTENDED_STOW);
+        public static final MastState L1_NEUTRAL = new MastState(ElevatorSetpoint.L1, EndEffectorSetpoint.L1_NEUTRAL);
+        public static final MastState L1_EXTAKE = new MastState(ElevatorSetpoint.L1, EndEffectorSetpoint.L2_EXTAKE_CORAL);
+        public static final MastState L2_NEUTRAL = new MastState(ElevatorSetpoint.L2, EndEffectorSetpoint.L2_NEUTRAL);
+        public static final MastState L2_EXTAKE = new MastState(ElevatorSetpoint.L2, EndEffectorSetpoint.L2_EXTAKE_CORAL);
+        public static final MastState L3_NEUTRAL = new MastState(ElevatorSetpoint.L3, EndEffectorSetpoint.L3_NEUTRAL);
+        public static final MastState L3_EXTAKE = new MastState(ElevatorSetpoint.L3, EndEffectorSetpoint.L3_EXTAKE_CORAL);
+        public static final MastState L4_NEUTRAL = new MastState(ElevatorSetpoint.L4, EndEffectorSetpoint.L4_NEUTRAL);
+        public static final MastState L4_EXTAKE = new MastState(ElevatorSetpoint.L4, EndEffectorSetpoint.L4_EXTAKE_CORAL); 
+        public static final MastState HUMAN_PLAYER_NEUTRAL = new MastState(ElevatorSetpoint.HUMAN_PLAYER, EndEffectorSetpoint.INTAKE_HUMAN_PLAYER_NEUTRAL);
+        public static final MastState HUMAN_PLAYER_INTAKE = new MastState(ElevatorSetpoint.HUMAN_PLAYER, EndEffectorSetpoint.INTAKE_HUMAN_PLAYER);
+        public static final MastState GROUND_CORAL_HANDOFF_NEUTRAL = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.CORAL_GROUND_HANDOFF_NEUTRAL);
+        public static final MastState GROUND_CORAL_HANDOFF_INTAKE = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.CORAL_GROUND_HANDOFF_INTAKE);
+    }
     
  
 
-    public static class SuperstructureState {
+    // public static class SuperstructureState {
 
-        public static final SuperstructureState STOW = new SuperstructureState(ElevatorSetpoint.STOW, EndEffectorSetpoint.STOW, IntakeState.STOW, IndexerState.NEUTRAL);
+    //     public static final SuperstructureState STOW = new SuperstructureState(ElevatorSetpoint.STOW, EndEffectorSetpoint.STOW, IntakeState.STOW, IndexerState.NEUTRAL);
 
 
-        private ElevatorSetpoint elevatorSetpoint;
-        private EndEffectorSetpoint endEffectorSetpoint;
-        private IntakeState intakeState;
-        private IndexerState indexerState;
-        private SuperstructureState(
-            ElevatorSetpoint elevatorSetpoint, 
-            EndEffectorSetpoint endEffectorSetpoint, 
-            IntakeState intakeState, 
-            IndexerState indexerState
-            ) {
-            this.elevatorSetpoint = elevatorSetpoint;
-            this.endEffectorSetpoint = endEffectorSetpoint;
-            this.intakeState = intakeState;
-            this.indexerState = indexerState;
-        }
+    //     private ElevatorSetpoint elevatorSetpoint;
+    //     private EndEffectorSetpoint endEffectorSetpoint;
 
-        public ElevatorSetpoint getElevatorSetpoint() {
-            return elevatorSetpoint;
-        }
+    //     private IntakeState intakeState;
+    //     private IndexerState indexerState;
 
-        public EndEffectorSetpoint getEndEffectorSetpoint() {
-            return endEffectorSetpoint;
-        }
+    //     private SuperstructureState(
+    //         ElevatorSetpoint elevatorSetpoint, 
+    //         EndEffectorSetpoint endEffectorSetpoint, 
+    //         IntakeState intakeState, 
+    //         IndexerState indexerState
+    //         ) {
+    //         this.elevatorSetpoint = elevatorSetpoint;
+    //         this.endEffectorSetpoint = endEffectorSetpoint;
+    //         this.intakeState = intakeState;
+    //         this.indexerState = indexerState;
+    //     }
 
-        public IndexerState getIndexerState() {
-            return indexerState;
-        }
+    //     public ElevatorSetpoint getElevatorSetpoint() {
+    //         return elevatorSetpoint;
+    //     }
 
-        public IntakeState getIntakeState() {
-            return intakeState;
-        }
+    //     public EndEffectorSetpoint getEndEffectorSetpoint() {
+    //         return endEffectorSetpoint;
+    //     }
+
+    //     public IndexerState getIndexerState() {
+    //         return indexerState;
+    //     }
+
+    //     public IntakeState getIntakeState() {
+    //         return intakeState;
+    //     }
 
         
-    }
+    // }
 
     public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {
         // tipProtectionSystem.setStreams(linear, rotational);
