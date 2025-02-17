@@ -12,8 +12,10 @@ import static edu.wpi.first.units.Units.Rotations;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFloorLimit;
 import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFullMotion;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.ReefPosition.ReefLevel;
@@ -24,6 +26,7 @@ import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerR
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.commands.TimedWaitUntilCommand;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Climb.ClimbState;
 import frc.robot.subsystems.Drivetrain;
@@ -66,47 +69,72 @@ public class Superstructure extends SubsystemBase {
     }
 
 
-
-    private Command setMastState(MastState mastState, boolean waitForSuccess) {
-        var elevatorSetpoint = mastState.elevatorSetpoint;
-        var endEffectorSetpoint = mastState.endEffectorSetpoint;
-        EndEffectorFlipDirection flipDirection = endEffectorSetpoint.wristSetpoint().getFlipDirectionFrom(endEffector.getWristAngle());
-
-        boolean canEndEffectorFlip = canEndEffectorFlip();
-        boolean doesSetpointAllowFlipping = doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint);
-
-        // boolean isElevatorSetpointFloorLimited = isElevatorSetpointFloorLimited(elevatorSetpoint);
-        // boolean isFloorLimited = isEndEffectorFloorLimited();
-
-        Command cmd = null;
-
-        if ((canEndEffectorFlip && doesSetpointAllowFlipping) || flipDirection == EndEffectorFlipDirection.NONE) { // never flip restricted during travle or we dont flip
-
-            cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
-
-        } else if ((canEndEffectorFlip && !doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.FRONT_TO_BACK) {//We can flip now but wont be able to after moving the elevator
-
-            cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(
-                Commands.waitUntil(this::isEndEffectorSafe).andThen(
-                    elevator.set(elevatorSetpoint, waitForSuccess)
-                )
-            );
-
-        } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {//we arnt able to flip now but will be able to after moving the elevator
-            var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(15))), endEffectorSetpoint.rollerState(), endEffectorSetpoint.kickerState());
-            
-            cmd = endEffector.set(intermedairySP, false)
-            .andThen(
-                Commands.waitUntil(this::isEndEffectorSafe),
-                endEffector.set(endEffectorSetpoint, waitForSuccess)
-            ).alongWith(
-                elevator.set(elevatorSetpoint, waitForSuccess)
-            );
-        } else {
-            cmd = Commands.print("INVALID SUPERSTRUCT SETPOINT COMMANDED");
+    private class SetMastStateCommand extends Command {
+        private MastState mastState;
+        private boolean waitForSuccess;
+        private Command cmd;
+        public SetMastStateCommand(MastState mastState, boolean waitForSuccess) {
+            this.mastState = mastState;
+            this.waitForSuccess = waitForSuccess;
+            addRequirements(elevator, endEffector);
         }
 
-        return cmd;
+        @Override
+        public void initialize() {
+            var elevatorSetpoint = mastState.elevatorSetpoint;
+            var endEffectorSetpoint = mastState.endEffectorSetpoint;
+            EndEffectorFlipDirection flipDirection = endEffectorSetpoint.wristSetpoint().getFlipDirectionFrom(endEffector.getWristAngle());
+
+            boolean canEndEffectorFlip = canEndEffectorFlip();
+            boolean doesSetpointAllowFlipping = doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint);
+
+            if ((canEndEffectorFlip && doesSetpointAllowFlipping) || flipDirection == EndEffectorFlipDirection.NONE) { // never flip restricted during travle or we dont flip
+    
+                cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
+    
+            } else if ((canEndEffectorFlip && !doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.FRONT_TO_BACK) {//We can flip now but wont be able to after moving the elevator
+                cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(
+                    Commands.waitUntil(() -> isEndEffectorSafe()).andThen(
+                        elevator.set(elevatorSetpoint, waitForSuccess)
+                    )
+                );
+    
+            } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {//we arnt able to flip now but will be able to after moving the elevator
+                var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(25))), endEffectorSetpoint.rollerState(), endEffectorSetpoint.kickerState());
+                cmd = endEffector.set(intermedairySP, false)
+                .andThen(
+                    Commands.waitUntil(() -> canEndEffectorFlip()),
+                    endEffector.set(endEffectorSetpoint, waitForSuccess)
+                ).alongWith(
+                    elevator.set(elevatorSetpoint, waitForSuccess)
+                );
+            } else {
+                cmd = Commands.print("INVALID SUPERSTRUCT SETPOINT COMMANDED");
+            }
+    
+            cmd.initialize();
+        }
+
+        @Override
+        public void execute() {
+            cmd.execute();
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            cmd.end(interrupted);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return cmd.isFinished();
+        }
+    }
+
+
+    private Command setMastState(MastState mastState, boolean waitForSuccess) {
+
+        return this.new SetMastStateCommand(mastState, waitForSuccess);
     }
 
     public Command intakeCoralFromGround() {
@@ -139,6 +167,7 @@ public class Superstructure extends SubsystemBase {
         return setMastState(level.getNeutralMastState(), true).andThen(
             Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.1)),
             Commands.waitUntil(controller.getButtonB()),
+            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
             setMastState(level.getExtakeMastState(), false),
             new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
             setMastState(MastState.STOW, false)
@@ -216,7 +245,7 @@ public class Superstructure extends SubsystemBase {
         public static final MastState STOW = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.STOW);
         public static final MastState PARTIAL_STOW = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.EXTENDED_STOW);
         public static final MastState L1_NEUTRAL = new MastState(ElevatorSetpoint.L1, EndEffectorSetpoint.L1_NEUTRAL);
-        public static final MastState L1_EXTAKE = new MastState(ElevatorSetpoint.L1, EndEffectorSetpoint.L2_EXTAKE_CORAL);
+        public static final MastState L1_EXTAKE = new MastState(ElevatorSetpoint.L1, EndEffectorSetpoint.L1_EXTAKE_CORAL);
         public static final MastState L2_NEUTRAL = new MastState(ElevatorSetpoint.L2, EndEffectorSetpoint.L2_NEUTRAL);
         public static final MastState L2_EXTAKE = new MastState(ElevatorSetpoint.L2, EndEffectorSetpoint.L2_EXTAKE_CORAL);
         public static final MastState L3_NEUTRAL = new MastState(ElevatorSetpoint.L3, EndEffectorSetpoint.L3_NEUTRAL);

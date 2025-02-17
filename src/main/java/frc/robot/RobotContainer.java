@@ -75,13 +75,13 @@ public class RobotContainer {
   }
 
   private void startLog() {
-    BreakerLog.setOptions(new DogLogOptions(() -> !DriverStation.isFMSAttached(), false, true, true, true, 20000));
+    // BreakerLog.setOptions(new DogLogOptions(() -> !DriverStation.isFMSAttached(), false, true, true, true, 20000));
     // BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
     BreakerLog.addCANBus(DriveConstants.kCANBus);
     BreakerLog.setEnabled(true);
 
     GitInfo gitInfo = new GitInfo(BuildConstants.MAVEN_NAME, BuildConstants.GIT_REVISION, BuildConstants.GIT_SHA, BuildConstants.GIT_DATE, BuildConstants.GIT_BRANCH, BuildConstants.BUILD_DATE, BuildConstants.DIRTY);
-    BreakerLog.logMetadata(new Metadata("Leviathan", 2025, "Roman Abrahamson, Lee Wang, Noah Lumbra, Max Xu", gitInfo));
+    // BreakerLog.logMetadata(new Metadata("Leviathan", 2025, "Roman Abrahamson, Lee Wang, Noah Lumbra, Max Xu", gitInfo));
   }
 
   /**

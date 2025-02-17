@@ -196,7 +196,8 @@ public class EndEffector extends SubsystemBase {
         BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle()
-       .in(Degrees)) - setpoint.wristSetpoint.setpoint.in(Degrees));
+       .in(Degrees) - setpoint.wristSetpoint.setpoint.in(Degrees)));
+       BreakerLog.log("EndEffector/Wrist/Setpoint/Satisifed", isAtSetpoint());
 
         BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
         BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
@@ -388,7 +389,7 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L1_NEUTRAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-65)), 
+            new WristSetpoint(Degrees.of(-20)), 
             RollerState.NEUTRAL, 
             KickerState.NEUTRAL
         );
@@ -423,7 +424,7 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L1_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-65)), 
+            new WristSetpoint(Degrees.of(-20)), 
             RollerState.EXTAKE, 
             KickerState.NEUTRAL
         );

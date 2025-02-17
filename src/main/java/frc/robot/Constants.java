@@ -255,13 +255,13 @@ public final class Constants {
     public static final Angle kMinWristAngle = Degrees.of(0);
     public static final Angle kMaxWristAngle = Degrees.of(270);
 
-    public static final Angle kDefaultWristAngleTolerence = Degrees.of(3.5);
+    public static final Angle kDefaultWristAngleTolerence = Degrees.of(20); //Degrees.of(3.5);
     public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
 
 
-    public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs();
+    public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs().withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true);
     public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs().withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true);
-    public static final SoftwareLimitSwitchConfigs kNormalLimits = new SoftwareLimitSwitchConfigs();
+    public static final SoftwareLimitSwitchConfigs kNormalLimits =   new SoftwareLimitSwitchConfigs();
 
     public static final CurrentLimitsConfigs kWristCurrentLimits = new CurrentLimitsConfigs()
     
