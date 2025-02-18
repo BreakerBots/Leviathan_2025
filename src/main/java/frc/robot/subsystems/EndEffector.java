@@ -1,9 +1,38 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
-import static frc.robot.Constants.EndEffectorConstants.*;
-
-import java.io.ObjectInputFilter.Config;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static frc.robot.Constants.EndEffectorConstants.kA;
+import static frc.robot.Constants.EndEffectorConstants.kAlgaeHoldKickerCurrentLimitConfig;
+import static frc.robot.Constants.EndEffectorConstants.kAlgaeHoldRollerCurrentLimitConfig;
+import static frc.robot.Constants.EndEffectorConstants.kD;
+import static frc.robot.Constants.EndEffectorConstants.kDefaultWristAngleTolerence;
+import static frc.robot.Constants.EndEffectorConstants.kDefaultWristVelocityTolerence;
+import static frc.robot.Constants.EndEffectorConstants.kElevatorExtendedLimits;
+import static frc.robot.Constants.EndEffectorConstants.kEndEffectorKickerID;
+import static frc.robot.Constants.EndEffectorConstants.kEndEffectorRollerID;
+import static frc.robot.Constants.EndEffectorConstants.kFloorRestrictedLimits;
+import static frc.robot.Constants.EndEffectorConstants.kG;
+import static frc.robot.Constants.EndEffectorConstants.kI;
+import static frc.robot.Constants.EndEffectorConstants.kMaxElevatorRestrictedSafeAngle;
+import static frc.robot.Constants.EndEffectorConstants.kMaxFlipAngle;
+import static frc.robot.Constants.EndEffectorConstants.kMinFlipAngle;
+import static frc.robot.Constants.EndEffectorConstants.kMotionMagicAcceleration;
+import static frc.robot.Constants.EndEffectorConstants.kMotionMagicCruiseVelocity;
+import static frc.robot.Constants.EndEffectorConstants.kNormalKickerCurrentLimitConfig;
+import static frc.robot.Constants.EndEffectorConstants.kNormalLimits;
+import static frc.robot.Constants.EndEffectorConstants.kNormalRollerCurrentLimitConfig;
+import static frc.robot.Constants.EndEffectorConstants.kP;
+import static frc.robot.Constants.EndEffectorConstants.kS;
+import static frc.robot.Constants.EndEffectorConstants.kV;
+import static frc.robot.Constants.EndEffectorConstants.kWristCurrentLimits;
+import static frc.robot.Constants.EndEffectorConstants.kWristDiscontinuityPoint;
+import static frc.robot.Constants.EndEffectorConstants.kWristEncoderOffset;
+import static frc.robot.Constants.EndEffectorConstants.kWristRatio;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -11,7 +40,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicExpoVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdi;
@@ -24,7 +52,6 @@ import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.signals.S1FloatStateValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-import com.reduxrobotics.sensors.canandcolor.Canandcolor;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -36,11 +63,11 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
-import frc.robot.Constants.EndEffectorConstants;
-import frc.robot.Constants.MiscConstants;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint.EndEffectorFlipDirection;
 
 public class EndEffector extends SubsystemBase {

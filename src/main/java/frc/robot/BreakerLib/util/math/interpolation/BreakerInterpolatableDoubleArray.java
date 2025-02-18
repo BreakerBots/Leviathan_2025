@@ -7,7 +7,6 @@ package frc.robot.BreakerLib.util.math.interpolation;
 import java.util.Arrays;
 
 import edu.wpi.first.math.MathUtil;
-import frc.robot.BreakerLib.util.math.BreakerMath;
 
 /**
  * Wraps around the double primitive type for use with BreakerLib's
