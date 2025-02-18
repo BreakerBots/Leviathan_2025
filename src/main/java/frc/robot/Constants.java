@@ -44,8 +44,12 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstantsFactory;
 import com.pathplanner.lib.config.PIDConstants;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.LinearAccelerationUnit;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.VelocityUnit;
@@ -92,16 +96,37 @@ public final class Constants {
       public static final DrivetrainKinematicLimits kTenCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
       public static final DrivetrainKinematicLimits kTwentyCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
       public static final DrivetrainKinematicLimits kThirtyCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
-    
-      public static final InterpolatingTreeMap<Distance, DrivetrainKinematicLimits> kinematicLimitMap = new InterpolatingTreeMap<>(null, null);
+      
+      // surely there's a nicer way to do this. 😬
+      public static final Interpolator<DrivetrainKinematicLimits> kInterpolator = (start, end, delta) -> {
+        var angAccel = MathUtil.interpolate(start.angularAcceleration().baseUnitMagnitude(), end.angularAcceleration().baseUnitMagnitude(), delta);
+        var angularAcceleration = AngularAcceleration.ofBaseUnits(angAccel, start.angularAcceleration().unit());
 
-      public static final Angle tippingThreshold = Degrees.of(0);
+        var angVel = MathUtil.interpolate(start.angularVelocity().baseUnitMagnitude(), end.angularVelocity().baseUnitMagnitude(), delta);
+        var angularVelocity = AngularVelocity.ofBaseUnits(angVel, start.angularVelocity().unit());
+
+        var linearAcc = MathUtil.interpolate(start.linearAcceleration().baseUnitMagnitude(), end.linearAcceleration().baseUnitMagnitude(), delta);
+        var linearAcceleration = LinearAcceleration.ofBaseUnits(linearAcc, start.linearAcceleration().unit());
+
+        var linearVel = MathUtil.interpolate(start.linearVelocity().baseUnitMagnitude(), end.linearVelocity().baseUnitMagnitude(), delta);
+        var linearVelocity = LinearVelocity.ofBaseUnits(linearVel, start.linearVelocity().unit());
+        
+        return new DrivetrainKinematicLimits(linearVelocity, linearAcceleration, angularVelocity, angularAcceleration);
+      };
+      public static final InverseInterpolator<Distance> kInverseInterpolator = (start, end, query) -> {
+        return MathUtil.inverseInterpolate(start.in(Meters), end.in(Meters), query.in(Meters));
+      };
+
+      public static final InterpolatingTreeMap<Distance, DrivetrainKinematicLimits> kKinematicLimitMap = 
+        new InterpolatingTreeMap<>(kInverseInterpolator, kInterpolator);
+
+      public static final Angle kTippingThreshold = Degrees.of(0);
 
       static {
-        kinematicLimitMap.put(Centimeter.of(10), kTenCentimeterLimit);
-        kinematicLimitMap.put(Centimeter.of(20), kTwentyCentimeterLimit);
-        kinematicLimitMap.put(Centimeter.of(30), kThirtyCentimeterLimit);
-        kinematicLimitMap.put(Centimeter.of(40), kFullyExtendedLimit);
+        kKinematicLimitMap.put(Centimeter.of(10), kTenCentimeterLimit);
+        kKinematicLimitMap.put(Centimeter.of(20), kTwentyCentimeterLimit);
+        kKinematicLimitMap.put(Centimeter.of(30), kThirtyCentimeterLimit);
+        kKinematicLimitMap.put(Centimeter.of(40), kFullyExtendedLimit);
       }
     }
   /** 
