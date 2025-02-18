@@ -1,9 +1,5 @@
 package frc.robot.BreakerLib.util.math.interpolation.maps;
 
-import java.util.Map.Entry;
-
-import edu.wpi.first.math.geometry.Translation2d;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.BreakerLib.util.math.BreakerMath;
 import frc.robot.BreakerLib.util.math.interpolation.BreakerInterpolable;
 

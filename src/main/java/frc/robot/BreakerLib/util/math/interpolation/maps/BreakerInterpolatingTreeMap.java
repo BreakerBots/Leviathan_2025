@@ -4,16 +4,12 @@
 
 package frc.robot.BreakerLib.util.math.interpolation.maps;
 
-import java.util.Map.Entry;
-
-import edu.wpi.first.math.interpolation.Interpolatable;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import edu.wpi.first.math.interpolation.Interpolatable;
 import frc.robot.BreakerLib.util.math.BreakerMath;
-import frc.robot.BreakerLib.util.math.interpolation.BreakerInterpolable;
 
 /** Add your docs here. */
 public class BreakerInterpolatingTreeMap<K extends Number, V extends Interpolatable<V>> extends BreakerGenericInterpolatingMap<K, V> {

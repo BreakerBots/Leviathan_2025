@@ -1,23 +1,12 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Rotation;
-
-import java.util.concurrent.BlockingDeque;
-
-import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
-
-import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.commands.AutoPilot;
 import frc.robot.subsystems.superstructure.Superstructure.MastState;
 
 public class ReefPosition {
