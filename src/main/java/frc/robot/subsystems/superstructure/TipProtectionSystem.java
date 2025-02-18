@@ -34,12 +34,12 @@ public class TipProtectionSystem {
 
     public void update() {
         var height = elevator.getHeight();
-        DrivetrainKinematicLimits limit = TipProtectionSystemConstants.kinematicLimitMap.get(height);
+        DrivetrainKinematicLimits limit = TipProtectionSystemConstants.kKinematicLimitMap.get(height);
         limiter.setLimits(limit.linearAcceleration(), limit.angularAcceleration());
 
         if (height.magnitude() > 0) {
             var angles = new BreakerVector2(imu.getPitch().getValue().in(Radian), imu.getRoll().getValue().in(Radian));
-            if (angles.getMagnitude() > TipProtectionSystemConstants.tippingThreshold.in(Radian)) {
+            if (angles.getMagnitude() > TipProtectionSystemConstants.kTippingThreshold.in(Radian)) {
                 CommandScheduler
                     .getInstance()
                     .schedule(elevator.set(ElevatorSetpoint.STOW, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
