@@ -7,21 +7,15 @@ package frc.robot.BreakerLib.util.logging;
 import java.util.ArrayList;
 
 import com.ctre.phoenix6.CANBus;
-import com.ctre.phoenix6.CANBus.CANBusStatus;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.swerve.SwerveModule;
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
-import choreo.trajectory.TrajectorySample;
 import dev.doglog.DogLog;
-import dev.doglog.DogLogOptions;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,19 +23,11 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Unit;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.util.WPILibVersion;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BuildConstants;
 import frc.robot.BreakerLib.physics.BreakerVector2;
 import frc.robot.BreakerLib.physics.BreakerVector3;
@@ -151,12 +137,12 @@ public class BreakerLog extends DogLog implements Subsystem {
     public static void log(String key, CANBus value) {
         log(key + "/Name", value.getName());
         log(key + "/IsNetworkFD", value.isNetworkFD());
-        CANBusStatus status = value.getStatus();
-        log(key + "/Status/BusUtilization", status.BusUtilization);
-        log(key + "/Status/BusOffCount", status.BusOffCount);
-        log(key + "/Status/ReceiveErrorCount", status.REC);
-        log(key + "/Status/TransmitErrorCount", status.TEC);
-        log(key + "/Status/TransmitBufferFullCount", status.TxFullCount);
+        // CANBusStatus status = value.getStatus(); // too slow
+        // log(key + "/Status/BusUtilization", status.BusUtilization);
+        // log(key + "/Status/BusOffCount", status.BusOffCount);
+        // log(key + "/Status/ReceiveErrorCount", status.REC);
+        // log(key + "/Status/TransmitErrorCount", status.TEC);
+        // log(key + "/Status/TransmitBufferFullCount", status.TxFullCount);
     }
 
     public static void log(String key, Alert value) {

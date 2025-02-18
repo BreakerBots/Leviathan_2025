@@ -23,12 +23,14 @@ import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.util.commands.TimedWaitUntilCommand;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.logging.LoggedAlert;
+import frc.robot.Constants.MiscConstants;
 
 public class Elevator extends SubsystemBase {
     private TalonFX left, right;
@@ -40,6 +42,9 @@ public class Elevator extends SubsystemBase {
     private LoggedAlert homeingFailedAlert;
     private LoggedAlert isHomeingAlert;
     private boolean forceStoped;
+
+    private Timer logRefreshTimer = new Timer();
+
     public Elevator() {
         left = new TalonFX(kLeftMotorID, kSuperstructureCANBus);
         right = new TalonFX(kRightMotorID, kSuperstructureCANBus);
@@ -174,7 +179,7 @@ public class Elevator extends SubsystemBase {
     }
 
     private Angle getNativePosition() {
-        return left.getPosition().getValue();
+        return left.getPosition(false).getValue();
     }
 
     public Distance getHeight() {
@@ -182,11 +187,23 @@ public class Elevator extends SubsystemBase {
     }
 
     public LinearVelocity getVelocity() {
-        return MetersPerSecond.of(kRotationsToMeters.getOutput(left.getVelocity().getValue().in(RotationsPerSecond)));
+        return MetersPerSecond.of(kRotationsToMeters.getOutput(left.getVelocity(false).getValue().in(RotationsPerSecond)));
     }
 
-    public LinearAcceleration getAcceleration() {
-        return MetersPerSecondPerSecond.of(kRotationsToMeters.getOutput(left.getAcceleration().getValue().in(RotationsPerSecondPerSecond)));
+    // public LinearAcceleration getAcceleration() {
+    //     return MetersPerSecondPerSecond.of(kRotationsToMeters.getOutput(left.getAcceleration().getValue().in(RotationsPerSecondPerSecond)));
+    // }
+
+    private void refreshLogs() {
+        BreakerLog.log("Elevator/Left/StatorCurrent", left.getStatorCurrent().getValueAsDouble());
+        BreakerLog.log("Elevator/Left/SupplyCurrent", left.getSupplyCurrent().getValueAsDouble());
+        
+        BreakerLog.log("Elevator/Motors/Right", right);
+
+        BreakerLog.log("Elevator/Setpoint/Value", setpoint.getHeight().in(Meters));
+        BreakerLog.log("Elevator/Setpoint/ValueNative", setpoint.getNativeSetpoint().in(Rotations));
+        BreakerLog.log("Elevator/Setpoint/Tolerence", setpoint.getTolerence().in(Units.Meters));
+        BreakerLog.log("Elevator/Setpoint/Satisfied", atSetpoint());
     }
 
     @Override
@@ -195,20 +212,19 @@ public class Elevator extends SubsystemBase {
             setFunc(new ElevatorSetpoint(getHeight()));
         }
 
-        BreakerLog.log("Elevator/Motors/Left", left);
-        BreakerLog.log("Elevator/Motors/Right", right);
-        BreakerLog.log("Elevator/Setpoint/Value", setpoint.getHeight().in(Meters));
-        BreakerLog.log("Elevator/Setpoint/ValueNative", setpoint.getNativeSetpoint().in(Rotations));
+        if (logRefreshTimer.advanceIfElapsed(MiscConstants.kInfrequentLogRate)) {
+            refreshLogs();
+        }
+
+        BreakerLog.log("Elevator/Motors/Left/Positoin", left.getPosition().getValueAsDouble());
+        BreakerLog.log("Elevator/Motors/Left/Velocity", left.getVelocity().getValueAsDouble());
         BreakerLog.log("Elevator/Setpoint/Error", Math.abs(getHeight().in(Meters)) -  setpoint.getHeight().in(Meters));
-        BreakerLog.log("Elevator/Setpoint/Tolerence", setpoint.getTolerence().in(Units.Meters));
-        BreakerLog.log("Elevator/Setpoint/Satisfied", atSetpoint());
 
         BreakerLog.log("Elevator/State/NativePosition", getNativePosition());
         BreakerLog.log("Elevator/State/Height", getHeight().in(Meters));
         BreakerLog.log("Elevator/State/Velocity", getVelocity().in(MetersPerSecond));
-        BreakerLog.log("Elevator/State/Acceleration", getAcceleration().in(MetersPerSecondPerSecond));
+        // BreakerLog.log("Elevator/State/Acceleration", getAcceleration().in(MetersPerSecondPerSecond));
         homeingFailedAlert.log();
-
     }
 
     public static class ElevatorSetpoint {

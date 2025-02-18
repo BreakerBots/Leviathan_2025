@@ -31,6 +31,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -39,6 +40,7 @@ import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.MiscConstants;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint.EndEffectorFlipDirection;
 
 public class EndEffector extends SubsystemBase {
@@ -52,6 +54,8 @@ public class EndEffector extends SubsystemBase {
     private MotionMagicVoltage wristRequest;
     private EndEffectorSetpoint setpoint;
     private EndEffectorWristLimits wristLimits;
+
+    private Timer logRefreshTimer = new Timer();
     
     public EndEffector() {
         wristEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, kWristDiscontinuityPoint, kWristEncoderOffset, SensorDirectionValue.Clockwise_Positive);
@@ -153,11 +157,11 @@ public class EndEffector extends SubsystemBase {
     }
 
     public Angle getWristAngle() {
-        return wristEncoder.getAbsolutePosition().getValue();
+        return wristEncoder.getAbsolutePosition(false).getValue();
     }
 
     public AngularVelocity getWristVelocity() {
-        return wristEncoder.getVelocity().getValue();
+        return wristEncoder.getVelocity(false).getValue();
     }
 
     public boolean isAtSetpoint() {
@@ -183,31 +187,40 @@ public class EndEffector extends SubsystemBase {
         return at.getDistance(bt);
     }
 
+    private void refreshLogs() {
+        BreakerLog.log("EndEffector/Wrist/Motor", wrist);
+        
+        BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
+        BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
+        BreakerLog.log("EndEffector/KickerMotor/SupplyCurrent", rollers.getSupplyCurrent());
+        
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Satisifed", isAtSetpoint());
+        BreakerLog.log("EndEffector/Wrist/Angle", getWristAngle().in(Degrees));
+
+        BreakerLog.log("EndEffector/HasCoral", hasCoral());
+        BreakerLog.log("EndEffector/AlgaeSensor/HasAlgae", hasAlgae());
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
+        BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
+    }
+    
     @Override
     public void periodic() {
         if (RobotState.isDisabled()) {
             setControl(new EndEffectorSetpoint(new WristSetpoint(getWristAngle()), RollerState.NEUTRAL, KickerState.NEUTRAL));
         }
-
-        BreakerLog.log("EndEffector/Wrist/Motor", wrist);
+        
+        if (logRefreshTimer.advanceIfElapsed(MiscConstants.kInfrequentLogRate)) {
+            refreshLogs();
+        }
+        
         BreakerLog.log("EndEffector/Wrist/Encoder", wristEncoder);
-        BreakerLog.log("EndEffector/Wrist/Angle", getWristAngle().in(Degrees));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle()
        .in(Degrees) - setpoint.wristSetpoint.setpoint.in(Degrees)));
-       BreakerLog.log("EndEffector/Wrist/Setpoint/Satisifed", isAtSetpoint());
-
-        BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
-        BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
+       
         BreakerLog.log("EndEffector/RollerMotor/Output", rollers.getMotorOutputPercent());
-        BreakerLog.log("EndEffector/KickerMotor/SupplyCurrent", rollers.getSupplyCurrent());
-
         BreakerLog.log("EndEffector/KickerMotor/Output", rollers.getMotorOutputPercent());
 
-        BreakerLog.log("EndEffector/HasCoral", hasCoral());
-        BreakerLog.log("EndEffector/AlgaeSensor/HasAlgae", hasAlgae());
         // Color c = algaeSensor.getColor().toWpilibColor();
         // double cd = getColorDelta(c, kAlgaeColor);
         // BreakerLog.log("EndEffector/AlgaeSensor/SeesAlgae", cd <= kMaxColorDelta);
