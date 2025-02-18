@@ -1,6 +1,23 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Rotation;
+
+import java.util.concurrent.BlockingDeque;
+
+import com.ctre.phoenix6.mechanisms.swerve.LegacySwerveRequest.FieldCentric;
+
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants.AutoPilotConstants;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.commands.AutoPilot;
 import frc.robot.subsystems.superstructure.Superstructure.MastState;
 
 public class ReefPosition {
@@ -25,20 +42,40 @@ public class ReefPosition {
     }
 
     public static enum ReefBranch {
-        A(new Pose2d()),
-        B(new Pose2d()),
-        C(new Pose2d()),
-        D(new Pose2d()),
-        E(new Pose2d()),
-        F(new Pose2d()),
-        G(new Pose2d()),
-        H(new Pose2d()),
-        I(new Pose2d()),
-        J(new Pose2d()),
-        K(new Pose2d()),
-        L(new Pose2d());
+        A(0, 0, true),
+        B(0, 0, false),
+        C(0, 0, true),
+        D(0, 0, false),
+        E(0, 0, true),
+        F(0, 0, false),
+        G(0, 0, true),
+        H(0, 0, false),
+        I(0, 0, true),
+        J(0, 0, false),
+        K(0, 0, true),
+        L(0, 0, false);
 
-        private ReefBranch(Pose2d blueAllignPose) {
+        private int blueReefFaceApriltagID, redReefFaceApriltagID;
+        private boolean isLeft;
+        private ReefBranch(int blueReefFaceApriltagID, int redReefFaceApriltagID, boolean isLeft) {
+            this.blueReefFaceApriltagID = blueReefFaceApriltagID;
+            this.redReefFaceApriltagID = redReefFaceApriltagID;
+            this.isLeft = isLeft;
+        }
+
+        public Pose2d getAllignPose(Alliance alliance) {
+            Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueReefFaceApriltagID : redReefFaceApriltagID).get().toPose2d();
+
+            Translation2d allignOffsetRel = new Translation2d(FieldConstants.kReefBranchOffsetFromFaceApriltag.getX() - AutoPilotConstants.kReefAutoAllignOffsetFromBranch.in(Units.Meters), isLeft ? FieldConstants.kReefBranchOffsetFromFaceApriltag.getY() : -FieldConstants.kReefBranchOffsetFromFaceApriltag.getY());
+            
+            Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
+
+            Translation2d allignTrans = tagPose.getTranslation().plus(allignOffset);
+
+            Pose2d allignPose = new Pose2d(allignTrans, tagPose.getRotation());
+            
+
+            return allignPose;
 
         }
     }
