@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.HolonomicSlewRateLimiter;
+import frc.robot.ReefPosition;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerRumbleType;
@@ -133,7 +134,6 @@ public class Superstructure extends SubsystemBase {
 
 
     private Command setMastState(MastState mastState, boolean waitForSuccess) {
-
         return this.new SetMastStateCommand(mastState, waitForSuccess);
     }
 
@@ -173,6 +173,10 @@ public class Superstructure extends SubsystemBase {
             setMastState(MastState.STOW, false)
         );
     }
+
+    // public Command scoreOnReef(ReefPosition position) {
+
+    // }
 
 
     public boolean doesElevatorSetpointAllowEndEffectorFliping(ElevatorSetpoint setpoint) {
