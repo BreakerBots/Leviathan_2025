@@ -40,13 +40,12 @@ public class BreakerSlewRateLimiter {
     }
 
     public void setRateLimit(double limit) {
-        positiveRateLimit = limit;
-        negativeRateLimit = -limit;
+        setRateLimit(limit, -limit);
     }
 
     public void setRateLimit(double positiveLimit, double negativeLimit) {
         this.positiveRateLimit = positiveLimit;
-        this.negativeRateLimit = -negativeLimit;
+        this.negativeRateLimit = negativeLimit;
     }
 
     /**
