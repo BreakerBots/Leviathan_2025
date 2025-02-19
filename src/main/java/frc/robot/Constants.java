@@ -78,10 +78,6 @@ public final class Constants {
     }
 
     public static class TipProtectionSystemConstants {
-      public static final DrivetrainKinematicLimits kFullyExtendedLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(1), MetersPerSecondPerSecond.of(1), DegreesPerSecond.of(45), DegreesPerSecondPerSecond.of(45));
-      public static final DrivetrainKinematicLimits kTenCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
-      public static final DrivetrainKinematicLimits kTwentyCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
-      public static final DrivetrainKinematicLimits kThirtyCentimeterLimit = new DrivetrainKinematicLimits(MetersPerSecond.of(5), MetersPerSecondPerSecond.of(3), DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(90));
       
       // surely there's a nicer way to do this. 😬
       public static final Interpolator<DrivetrainKinematicLimits> kInterpolator = (start, end, delta) -> {
@@ -107,12 +103,11 @@ public final class Constants {
         new InterpolatingTreeMap<>(kInverseInterpolator, kInterpolator);
 
       public static final Angle kTippingThreshold = Degrees.of(15);
+      public static final Distance kHeightThreshold = Centimeters.of(10);
 
       static {
-        kKinematicLimitMap.put(Centimeter.of(10), kTenCentimeterLimit);
-        kKinematicLimitMap.put(Centimeter.of(20), kTwentyCentimeterLimit);
-        kKinematicLimitMap.put(Centimeter.of(30), kThirtyCentimeterLimit);
-        kKinematicLimitMap.put(Centimeter.of(40), kFullyExtendedLimit);
+        kKinematicLimitMap.put(kHeightThreshold, new DrivetrainKinematicLimits(MetersPerSecond.of(2), MetersPerSecondPerSecond.of(0.8), DegreesPerSecond.of(360), DegreesPerSecondPerSecond.of(240)));
+        kKinematicLimitMap.put(ElevatorConstants.kMaxHeight, new DrivetrainKinematicLimits(MetersPerSecond.of(0.2), MetersPerSecondPerSecond.of(0.2), DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(100)));
       }
     }
   /** 
@@ -257,7 +252,7 @@ public final class Constants {
     public static final MechanismRatio kWristRatio = new MechanismRatio(25).to(new MechanismRatio(15, 18)).to(new MechanismRatio(20, 56));//78.75
 
     public static final double kWristDiscontinuityPoint = 0.75;
-    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(40);
+    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(45);
 
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
     public static final double kMaxColorDelta = 0.15;
@@ -537,7 +532,7 @@ public final class Constants {
     private static final boolean kBackLeftEncoderInverted = false;
 
     private static final Distance kBackLeftXPos = Inches.of(-10.375);
-    private static final Distance kBackLeftYPos = Inches.of(10.428);
+    private static final Distance kBackLeftYPos = Inches.of(10.375);
 
     // Back Right
     private static final int kBackRightDriveMotorId = 16;
@@ -549,7 +544,7 @@ public final class Constants {
     private static final boolean kBackRightEncoderInverted = false;
 
     private static final Distance kBackRightXPos = Inches.of(-10.375);
-    private static final Distance kBackRightYPos = Inches.of(-10.428);
+    private static final Distance kBackRightYPos = Inches.of(-10.375);
 
 
     public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FrontLeft =

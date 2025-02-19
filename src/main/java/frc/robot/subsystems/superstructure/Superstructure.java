@@ -7,6 +7,8 @@ package frc.robot.subsystems.superstructure;
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.SuperstructureConstants.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -156,13 +158,17 @@ public class Superstructure extends SubsystemBase {
 
     public Command scoreOnReefManual(ReefLevel level) {
         return setMastState(level.getNeutralMastState(), true).andThen(
-            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.1)),
-            Commands.waitUntil(controller.getButtonB()),
+            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.RIGHT, 0.3)),
+            Commands.waitUntil(controller.getButtonA()),
             Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
             setMastState(level.getExtakeMastState(), false),
             new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
             setMastState(MastState.STOW, false)
         );
+    }
+
+    public Command stowAll() {
+        return setMastState(MastState.STOW, true).andThen(intake.setState(IntakeState.STOW, false), indexer.setState(IndexerState.NEUTRAL));
     }
 
     // public Command scoreOnReef(ReefPosition position) {
@@ -299,8 +305,8 @@ public class Superstructure extends SubsystemBase {
     // }
 
     public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {
-        // tipProtectionSystem.setStreams(linear, rotational);
-        return drivetrain.getTeleopControlCommand(linear.getX(), linear.getY(), rotational, config);
+        var streams = tipProtectionSystem.setStreams(linear, rotational);
+        return drivetrain.getTeleopControlCommand(streams.getFirst().getX(), streams.getFirst().getY(), streams.getSecond(), config);
     }
 
     @Override

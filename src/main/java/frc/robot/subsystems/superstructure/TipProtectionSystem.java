@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Radian;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.TipProtectionSystemConstants;
@@ -33,16 +34,18 @@ public class TipProtectionSystem {
     }
 
     public void update() {
-        var height = elevator.getHeight();
-        DrivetrainKinematicLimits limit = TipProtectionSystemConstants.kKinematicLimitMap.get(height);
-        limiter.setLimits(limit.linearAcceleration(), limit.angularAcceleration());
+        if (limiter != null) {
+            var height = elevator.getHeight();
+            DrivetrainKinematicLimits limit = TipProtectionSystemConstants.kKinematicLimitMap.get(height);
+            limiter.setLimits(limit.linearAcceleration(), limit.angularAcceleration());
 
-        if (height.magnitude() > 0) {
-            var angles = new BreakerVector2(imu.getPitch().getValue().in(Radian), imu.getRoll().getValue().in(Radian));
-            if (angles.getMagnitude() > TipProtectionSystemConstants.kTippingThreshold.in(Radian)) {
-                CommandScheduler
-                    .getInstance()
-                    .schedule(elevator.set(ElevatorSetpoint.STOW, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+            if (height.in(Units.Meters) > TipProtectionSystemConstants.kHeightThreshold.in(Units.Meters)) {
+                var angles = new BreakerVector2(imu.getPitch().getValue().in(Radian), imu.getRoll().getValue().in(Radian));
+                if (angles.getMagnitude() > TipProtectionSystemConstants.kTippingThreshold.in(Radian)) {
+                    CommandScheduler
+                        .getInstance()
+                        .schedule(elevator.set(ElevatorSetpoint.STOW, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                }
             }
         }
     }

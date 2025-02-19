@@ -19,6 +19,7 @@ public class HolonomicSlewRateLimiter {
     public HolonomicSlewRateLimiter(BreakerInputStream2d linearInputStream, BreakerInputStream rotationalInputStream) {
         this.linearInputStream = linearInputStream.map(this::updateLinear);
         this.rotationalInputStream = rotationalInputStream.map(this::updateRot);
+        prevLinear = new BreakerVector2();
     }
 
     public BreakerInputStream2d getLinearInputStream() {
@@ -48,7 +49,7 @@ public class HolonomicSlewRateLimiter {
         slrY.reset(prevLinear.getY());
 
         var x = slrX.calculate(vec.getX());
-        var y = slrY.calculate(vec.getX());
+        var y = slrY.calculate(vec.getY());
 
         prevLinear = new BreakerVector2(x, y);
         return prevLinear;

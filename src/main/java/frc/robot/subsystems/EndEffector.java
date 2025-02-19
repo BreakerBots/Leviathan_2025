@@ -231,6 +231,7 @@ public class EndEffector extends SubsystemBase {
     public static enum RollerState {
         INTAKE(1, kNormalRollerCurrentLimitConfig),
         EXTAKE(-1.0, kNormalRollerCurrentLimitConfig),
+        EXTAKE_L1(-0.5, kNormalRollerCurrentLimitConfig),
         INTAKE_ALGAE(0.75, kNormalRollerCurrentLimitConfig),
         HOLD_ALGAE(0.15, kAlgaeHoldRollerCurrentLimitConfig),
         NEUTRAL(0.0, kNormalRollerCurrentLimitConfig);
@@ -435,7 +436,7 @@ public class EndEffector extends SubsystemBase {
         public static final EndEffectorSetpoint L1_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-20)), 
-            RollerState.EXTAKE, 
+            RollerState.EXTAKE_L1, 
             KickerState.NEUTRAL
         );
 
