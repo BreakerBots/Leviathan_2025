@@ -1,12 +1,12 @@
 package frc.robot;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.physics.BreakerVector2;
+import frc.robot.BreakerLib.util.BreakerSlewRateLimiter;
 
 public class HolonomicSlewRateLimiter {
     private BreakerInputStream2d linearInputStream;
@@ -15,6 +15,11 @@ public class HolonomicSlewRateLimiter {
     private double rotationalLim;
     private BreakerVector2 prevLinear;
     private double prevRot;
+
+    private final BreakerSlewRateLimiter slrX = new BreakerSlewRateLimiter(0);
+    private final BreakerSlewRateLimiter slrY = new BreakerSlewRateLimiter(0);
+
+    private final BreakerSlewRateLimiter slr = new BreakerSlewRateLimiter(0);
 
     public HolonomicSlewRateLimiter(BreakerInputStream2d linearInputStream, BreakerInputStream rotationalInputStream) {
         this.linearInputStream = linearInputStream.map(this::updateLinear);
@@ -42,11 +47,16 @@ public class HolonomicSlewRateLimiter {
             deltaUnitVec = new BreakerVector2(1.0, 1.0).getUnitVector();
         }
         
-        var slrX = new SlewRateLimiter(linearLim * deltaUnitVec.getX());
-        var slrY = new SlewRateLimiter(linearLim * deltaUnitVec.getY());
+        // var slrX = new SlewRateLimiter(linearLim * deltaUnitVec.getX());
+        // var slrY = new SlewRateLimiter(linearLim * deltaUnitVec.getY());
+        slrX.setRateLimit(linearLim * deltaUnitVec.getX());
+        slrY.setRateLimit(linearLim * deltaUnitVec.getY());
 
-        slrX.reset(prevLinear.getX());
-        slrY.reset(prevLinear.getY());
+        // slrX.reset(prevLinear.getX());
+        // slrY.reset(prevLinear.getY());
+
+        // slrX.setLastValue(prevLinear.getX());
+        // slrY.setLastValue(prevLinear.getY());
 
         var x = slrX.calculate(vec.getX());
         var y = slrY.calculate(vec.getY());
@@ -56,8 +66,11 @@ public class HolonomicSlewRateLimiter {
     }
 
     private double updateRot(double rot) {
-        var slr = new SlewRateLimiter(rotationalLim);
-        slr.reset(prevRot);
+        // var slr = new SlewRateLimiter(rotationalLim);
+        slr.setRateLimit(rotationalLim);
+        // slr.reset(prevRot);
+        // slr.setLastValue(prevRot);
+        
         prevRot = slr.calculate(rot);
         return prevRot;
     }

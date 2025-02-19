@@ -35,11 +35,12 @@ public class TipProtectionSystem {
 
     public void update() {
         if (limiter != null) {
-            var height = elevator.getHeight();
-            DrivetrainKinematicLimits limit = TipProtectionSystemConstants.kKinematicLimitMap.get(height);
-            limiter.setLimits(limit.linearAcceleration(), limit.angularAcceleration());
-
-            if (height.in(Units.Meters) > TipProtectionSystemConstants.kHeightThreshold.in(Units.Meters)) {
+            var elevatorHeight = elevator.getHeight();
+            
+            if (elevatorHeight.in(Units.Meters) > TipProtectionSystemConstants.kHeightThreshold.in(Units.Meters)) {
+                DrivetrainKinematicLimits limit = TipProtectionSystemConstants.kKinematicLimitMap.get(elevatorHeight);
+                limiter.setLimits(limit.linearAcceleration(), limit.angularAcceleration());
+                
                 var angles = new BreakerVector2(imu.getPitch().getValue().in(Radian), imu.getRoll().getValue().in(Radian));
                 if (angles.getMagnitude() > TipProtectionSystemConstants.kTippingThreshold.in(Radian)) {
                     CommandScheduler
