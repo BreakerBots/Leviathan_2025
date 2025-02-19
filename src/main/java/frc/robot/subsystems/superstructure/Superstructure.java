@@ -47,7 +47,7 @@ public class Superstructure extends SubsystemBase {
     private BreakerXboxController controller;
     private Drivetrain drivetrain;
 
-    // private final TipProtectionSystem tipProtectionSystem;
+    private final TipProtectionSystem tipProtectionSystem;
 
 
     private HolonomicSlewRateLimiter limiter;
@@ -60,6 +60,7 @@ public class Superstructure extends SubsystemBase {
         this.drivetrain = drivetrain;
         // this.climb = climb;
         this.controller = controller;
+        tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
         // tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
 
@@ -308,6 +309,7 @@ public class Superstructure extends SubsystemBase {
     @Override
     public void periodic() {
         endEffectorSaftyCheck();
+        tipProtectionSystem.update();
         // tipProtectionSystem.update();
     }
 }
