@@ -4,12 +4,8 @@
 
 package frc.robot.subsystems.superstructure;
 
-import static edu.wpi.first.units.Units.Degree;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.Meters;
-import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFloorLimit;
-import static frc.robot.Constants.SuperstructureConstants.kMaxHeightForEndEffectorFullMotion;
+import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.SuperstructureConstants.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;

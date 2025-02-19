@@ -1,35 +1,7 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Centimeters;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static frc.robot.Constants.ElevatorConstants.kA;
-import static frc.robot.Constants.ElevatorConstants.kD;
-import static frc.robot.Constants.ElevatorConstants.kDefaultHeightTolerence;
-import static frc.robot.Constants.ElevatorConstants.kDefaultVelocityTolerence;
-import static frc.robot.Constants.ElevatorConstants.kG;
-import static frc.robot.Constants.ElevatorConstants.kHomeDetectCurrentThreshold;
-import static frc.robot.Constants.ElevatorConstants.kHomeingCurrentLimits;
-import static frc.robot.Constants.ElevatorConstants.kHomeingVoltage;
-import static frc.robot.Constants.ElevatorConstants.kI;
-import static frc.robot.Constants.ElevatorConstants.kLeftMotorID;
-import static frc.robot.Constants.ElevatorConstants.kLeftMotorInverted;
-import static frc.robot.Constants.ElevatorConstants.kMaxHeight;
-import static frc.robot.Constants.ElevatorConstants.kMinHeight;
-import static frc.robot.Constants.ElevatorConstants.kMotionMagicAcceleration;
-import static frc.robot.Constants.ElevatorConstants.kMotionMagicCruiseVelocity;
-import static frc.robot.Constants.ElevatorConstants.kNormalCurrentLimits;
-import static frc.robot.Constants.ElevatorConstants.kP;
-import static frc.robot.Constants.ElevatorConstants.kRightMotorID;
-import static frc.robot.Constants.ElevatorConstants.kRightMotorInverted;
-import static frc.robot.Constants.ElevatorConstants.kRotationsToMeters;
-import static frc.robot.Constants.ElevatorConstants.kS;
-import static frc.robot.Constants.ElevatorConstants.kV;
+import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.ElevatorConstants.*;
 import static frc.robot.Constants.SuperstructureConstants.kSuperstructureCANBus;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;

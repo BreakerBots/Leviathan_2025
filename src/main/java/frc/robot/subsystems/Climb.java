@@ -4,22 +4,8 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Rotations;
-import static frc.robot.Constants.ClimbConstants.kClimbCoder;
-import static frc.robot.Constants.ClimbConstants.kClimbCoderAbsoluteSensorDiscontinuityPoint;
-import static frc.robot.Constants.ClimbConstants.kClimbCoderOffset;
-import static frc.robot.Constants.ClimbConstants.kClimbCurrentLimits;
-import static frc.robot.Constants.ClimbConstants.kClimbForwardLimit;
-import static frc.robot.Constants.ClimbConstants.kClimbGearRatio;
-import static frc.robot.Constants.ClimbConstants.kClimbMotionMagicAcceleration;
-import static frc.robot.Constants.ClimbConstants.kClimbMotionMagicCruiseVelocity;
-import static frc.robot.Constants.ClimbConstants.kClimbMotorID;
-import static frc.robot.Constants.ClimbConstants.kClimbReverseLimit;
-import static frc.robot.Constants.ClimbConstants.kClimbingPosition;
-import static frc.robot.Constants.ClimbConstants.kExtendedPosition;
-import static frc.robot.Constants.ClimbConstants.kExtendedThreshold;
-import static frc.robot.Constants.ClimbConstants.kNeutralPosition;
-import static frc.robot.Constants.ClimbConstants.kStowPosition;
+import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.ClimbConstants.*;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
