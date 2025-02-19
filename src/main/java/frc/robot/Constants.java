@@ -426,8 +426,8 @@ public final class Constants {
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
-    private static final double kCoupleRatio_MK4i = 0.0;
-    private static final double kCoupleRatio_MK4n = 0.0;
+    private static final double kCoupleRatio_MK4i = 50.0 / 16.0;
+    private static final double kCoupleRatio_MK4n = 50.0 / 16.0;
     private static final double kDriveGearRatio = 7.13;
     private static final double kSteerGearRatio_MK4i = 150.0/7.0;
     private static final double kSteerGearRatio_MK4n = 18.75;
