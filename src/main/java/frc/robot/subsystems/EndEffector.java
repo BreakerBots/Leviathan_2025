@@ -99,6 +99,7 @@ public class EndEffector extends SubsystemBase {
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         
+        wrist.getConfigurator().apply(config);
     }
 
 

@@ -106,7 +106,7 @@ public final class Constants {
       public static final InterpolatingTreeMap<Distance, DrivetrainKinematicLimits> kKinematicLimitMap = 
         new InterpolatingTreeMap<>(kInverseInterpolator, kInterpolator);
 
-      public static final Angle kTippingThreshold = Degrees.of(0);
+      public static final Angle kTippingThreshold = Degrees.of(15);
 
       static {
         kKinematicLimitMap.put(Centimeter.of(10), kTenCentimeterLimit);
@@ -266,7 +266,7 @@ public final class Constants {
     public static final Angle kMinWristAngle = Degrees.of(0);
     public static final Angle kMaxWristAngle = Degrees.of(270);
 
-    public static final Angle kDefaultWristAngleTolerence = Degrees.of(20); //Degrees.of(3.5);
+    public static final Angle kDefaultWristAngleTolerence = Degrees.of(25); //Degrees.of(3.5);
     public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
 
 

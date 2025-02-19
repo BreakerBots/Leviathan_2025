@@ -129,7 +129,7 @@ public class Superstructure extends SubsystemBase {
 
     public Command intakeCoralFromGround() {
         return 
-        setMastState(MastState.GROUND_CORAL_HANDOFF_NEUTRAL, true)
+        setMastState(MastState.GROUND_CORAL_HANDOFF_PREP, true)
             .alongWith(intake.setState(IntakeState.EXTENDED_NEUTRAL, true))
             .andThen(
                 setMastState(MastState.GROUND_CORAL_HANDOFF_INTAKE,false)
@@ -248,6 +248,7 @@ public class Superstructure extends SubsystemBase {
         public static final MastState L4_EXTAKE = new MastState(ElevatorSetpoint.L4, EndEffectorSetpoint.L4_EXTAKE_CORAL); 
         public static final MastState HUMAN_PLAYER_NEUTRAL = new MastState(ElevatorSetpoint.HUMAN_PLAYER, EndEffectorSetpoint.INTAKE_HUMAN_PLAYER_NEUTRAL);
         public static final MastState HUMAN_PLAYER_INTAKE = new MastState(ElevatorSetpoint.HUMAN_PLAYER, EndEffectorSetpoint.INTAKE_HUMAN_PLAYER);
+        public static final MastState GROUND_CORAL_HANDOFF_PREP = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.STOW);
         public static final MastState GROUND_CORAL_HANDOFF_NEUTRAL = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.CORAL_GROUND_HANDOFF_NEUTRAL);
         public static final MastState GROUND_CORAL_HANDOFF_INTAKE = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.CORAL_GROUND_HANDOFF_INTAKE);
     }
