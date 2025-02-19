@@ -4,13 +4,8 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static frc.robot.Constants.IntakeConstants.kPivotEncoderOffset;
-import static frc.robot.Constants.IntakeConstants.kPivotTolerence;
+import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.IntakeConstants.*;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
