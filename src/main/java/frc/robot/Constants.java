@@ -191,7 +191,7 @@ public final class Constants {
     public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
 
     public static final double kHomeingVoltage = -2; 
-    public static final Current kHomeDetectCurrentThreshold = Amps.of(0.5);
+    public static final Current kHomeDetectCurrentThreshold = Amps.of(0.3);
   }
   
   public static class IntakeConstants {
@@ -261,11 +261,11 @@ public final class Constants {
     public static final Angle kMinWristAngle = Degrees.of(0);
     public static final Angle kMaxWristAngle = Degrees.of(270);
 
-    public static final Angle kDefaultWristAngleTolerence = Degrees.of(25); //Degrees.of(3.5);
+    public static final Angle kDefaultWristAngleTolerence = Degrees.of(10); //Degrees.of(3.5);
     public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
 
 
-    public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs().withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true);
+    public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs().withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(Degrees.of(-32)).withReverseSoftLimitEnable(true);
     public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs().withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true);
     public static final SoftwareLimitSwitchConfigs kNormalLimits =   new SoftwareLimitSwitchConfigs();
 
@@ -287,13 +287,14 @@ public final class Constants {
     public static final int kEndEffectorRollerID = 53;
     public static final int kEndEffectorKickerID = 54;
 
-    public static final double kP = 8;
+    public static final double kP = 50;
     public static final double kI = 0;
-    public static final double kD = 0.7;
-    public static final double kV = 8;
+    public static final double kD = 1.2;
+    public static final double kV = 9;
     public static final double kS = 0;
-    public static final double kA = 0.8;
-    public static final double kG = 0.26;
+    public static final double kA = 0.85;
+    public static final double kG = 0.265;
+
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1.5);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
 

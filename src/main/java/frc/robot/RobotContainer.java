@@ -99,14 +99,14 @@ public class RobotContainer {
             .map(new BreakerLinearizedConstrainedExponential(0.0, 3.0, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
-    drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
-    //drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
+    //drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
+    drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
 
     controller.getButtonX().onTrue(elevator.home());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
-    // controller.getRightBumper().onTrue(superstructure.intakeCoralFromHumanPlayer());
+    controller.getLeftBumper().onTrue(superstructure.intakeCoralFromGround());
     controller.getStartButton().onTrue(superstructure.intakeCoralFromHumanPlayer());
-    new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
+    new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
 
     buttonBoard.getLevelButtons().getL1Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
     buttonBoard.getLevelButtons().getL2Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));

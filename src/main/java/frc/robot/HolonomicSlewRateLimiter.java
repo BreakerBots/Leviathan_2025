@@ -42,15 +42,15 @@ public class HolonomicSlewRateLimiter {
 
     private BreakerVector2 updateLinear(BreakerVector2 vec) {
         var delta = vec.minus(prevLinear);
-        var deltaUnitVec = vec.getUnitVector();
+        var deltaUnitVec = delta.getUnitVector();
         if (delta.getMagnitude() <= 1e-5) {
             deltaUnitVec = new BreakerVector2(1.0, 1.0).getUnitVector();
         }
         
         // var slrX = new SlewRateLimiter(linearLim * deltaUnitVec.getX());
         // var slrY = new SlewRateLimiter(linearLim * deltaUnitVec.getY());
-        slrX.setRateLimit(linearLim * deltaUnitVec.getX());
-        slrY.setRateLimit(linearLim * deltaUnitVec.getY());
+        slrX.setRateLimit(Math.abs(linearLim * deltaUnitVec.getX()));
+        slrY.setRateLimit(Math.abs(linearLim * deltaUnitVec.getY()));
 
         // slrX.reset(prevLinear.getX());
         // slrY.reset(prevLinear.getY());

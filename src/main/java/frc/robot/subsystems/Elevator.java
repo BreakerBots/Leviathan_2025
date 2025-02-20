@@ -55,6 +55,8 @@ public class Elevator extends SubsystemBase {
         var sp = new ElevatorSetpoint(getHeight());
         setFunc(sp);
 
+        logRefreshTimer.start();
+
         homeingFailedAlert = new LoggedAlert("Elevator/Errors/HomeingFailed", "Failed to home elevator, setpoints will be inacurate", AlertType.kError);
         isHomeingAlert = new LoggedAlert("Elevator/Errors/IsHomeing", "Elevator Is Homeing, Please Wait", AlertType.kInfo);
     }
@@ -125,6 +127,7 @@ public class Elevator extends SubsystemBase {
             Commands.runOnce(() -> setHomeingCurrents(false)),
             set(ElevatorSetpoint.STOW, false),
             Commands.runOnce(() -> isHomeingAlert.set(false))
+
         );
     }
 

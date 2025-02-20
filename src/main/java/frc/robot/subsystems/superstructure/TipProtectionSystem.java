@@ -1,6 +1,8 @@
 package frc.robot.subsystems.superstructure;
 
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radian;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
@@ -43,10 +45,12 @@ public class TipProtectionSystem {
                 
                 var angles = new BreakerVector2(imu.getPitch().getValue().in(Radian), imu.getRoll().getValue().in(Radian));
                 if (angles.getMagnitude() > TipProtectionSystemConstants.kTippingThreshold.in(Radian)) {
-                    CommandScheduler
-                        .getInstance()
-                        .schedule(elevator.set(ElevatorSetpoint.STOW, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                    // CommandScheduler
+                    //     .getInstance()
+                    //     .schedule(elevator.set(ElevatorSetpoint.STOW, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
                 }
+            } else {
+                limiter.setLimits(MetersPerSecondPerSecond.of(500), RotationsPerSecondPerSecond.of(10000));
             }
         }
     }

@@ -61,7 +61,7 @@ public class EndEffector extends SubsystemBase {
         rollers = new TalonSRX(kEndEffectorRollerID);
         configCandi();
         wristRequest = new MotionMagicVoltage(getWristAngle());
-
+        logRefreshTimer.start();
         configWrist();
     }
 
@@ -344,14 +344,14 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_INTAKE = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Rotations.of(0.71)), 
+                new WristSetpoint(Rotations.of(0.6)), 
                 RollerState.INTAKE, 
                 KickerState.INTAKE
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_NEUTRAL = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Rotations.of(0.71)), 
+                new WristSetpoint(Rotations.of(0.6)), 
                 RollerState.NEUTRAL, 
                 KickerState.NEUTRAL
         );
@@ -407,7 +407,7 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L2_NEUTRAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-35.0)), 
+            new WristSetpoint(Degrees.of(-32.0)), 
             RollerState.NEUTRAL, 
             KickerState.NEUTRAL
         );
@@ -421,14 +421,14 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L3_NEUTRAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-35)), 
+            new WristSetpoint(Degrees.of(-32)), 
             RollerState.NEUTRAL, 
             KickerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L4_NEUTRAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-50)), 
+            new WristSetpoint(Degrees.of(-32)), 
             RollerState.NEUTRAL, 
             KickerState.NEUTRAL
         );
@@ -442,7 +442,7 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L2_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-35.0)), 
+            new WristSetpoint(Degrees.of(-32.0)), 
             RollerState.EXTAKE, 
             KickerState.NEUTRAL
         );
@@ -456,14 +456,14 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L3_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-35)), 
+            new WristSetpoint(Degrees.of(-32)), 
             RollerState.EXTAKE, 
             KickerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L4_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-50)), 
+            new WristSetpoint(Degrees.of(-32)), 
             RollerState.EXTAKE, 
             KickerState.NEUTRAL
         );
