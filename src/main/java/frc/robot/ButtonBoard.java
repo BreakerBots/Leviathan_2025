@@ -1,9 +1,14 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.BreakerLib.util.logging.Elastic;
+import frc.robot.BreakerLib.util.logging.LoggedAlert;
+import frc.robot.BreakerLib.util.logging.Elastic.Notification;
+import frc.robot.BreakerLib.util.logging.Elastic.Notification.NotificationLevel;
 import frc.robot.Constants.ButtonBoardConstants;
 
 public class ButtonBoard {
@@ -21,11 +26,14 @@ public class ButtonBoard {
         reefButtons = new ButtonBoardReefButtons(hid);
         rightButtons = new ButtonBoardRightButtons(hid);
 
+
         new JoystickButton(hid, ButtonBoardConstants.POTENTIAL_SHORT_BUTTON)
             .onTrue(Commands.runOnce(() -> {
                 potentiallyShorted = true;
                 BreakerLog.log("ButtonBoard/Shorted", potentiallyShorted);
+                Elastic.sendNotification(new Notification(NotificationLevel.WARNING, "ButtonBoard Potentially Shorted", "The button board may be potentially shorted, replug it in and if the problem persists check the wires."));
             }));
+        
     }
     
     public ButtonBoardLevelButtons getLevelButtons() {
