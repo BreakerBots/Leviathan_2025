@@ -78,6 +78,8 @@ public final class Constants {
     }
 
     public static class TipProtectionSystemConstants {
+
+      public static final DrivetrainKinematicLimits kBaseKinimaticLimits = new DrivetrainKinematicLimits(DriveConstants.MAXIMUM_TRANSLATIONAL_VELOCITY, MetersPerSecondPerSecond.of(14.477), DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY, RadiansPerSecondPerSecond.of(39.486));
       
       // surely there's a nicer way to do this. 😬
       public static final Interpolator<DrivetrainKinematicLimits> kInterpolator = (start, end, delta) -> {
@@ -97,6 +99,7 @@ public final class Constants {
       };
       public static final InverseInterpolator<Distance> kInverseInterpolator = (start, end, query) -> {
         return MathUtil.inverseInterpolate(start.in(Meters), end.in(Meters), query.in(Meters));
+        
       };
 
       public static final InterpolatingTreeMap<Distance, DrivetrainKinematicLimits> kKinematicLimitMap = 
@@ -106,8 +109,13 @@ public final class Constants {
       public static final Distance kHeightThreshold = Centimeters.of(10);
 
       static {
-        kKinematicLimitMap.put(kHeightThreshold, new DrivetrainKinematicLimits(MetersPerSecond.of(2), MetersPerSecondPerSecond.of(0.8), DegreesPerSecond.of(360), DegreesPerSecondPerSecond.of(240)));
-        kKinematicLimitMap.put(ElevatorConstants.kMaxHeight, new DrivetrainKinematicLimits(MetersPerSecond.of(0.2), MetersPerSecondPerSecond.of(0.2), DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(100)));
+        kKinematicLimitMap.put(kHeightThreshold, kBaseKinimaticLimits.scale(0.7));
+        kKinematicLimitMap.put(Meters.of(0.6), kBaseKinimaticLimits.scale(0.35, 0.7));
+        kKinematicLimitMap.put(Meters.of(0.87), kBaseKinimaticLimits.scale(0.35, 0.7));
+        kKinematicLimitMap.put(Meters.of(1.27), kBaseKinimaticLimits.scale(0.3, 0.65));
+        kKinematicLimitMap.put(ElevatorConstants.kMaxHeight, new DrivetrainKinematicLimits(kBaseKinimaticLimits.linearVelocity().times(0.5), kBaseKinimaticLimits.linearAcceleration().times(0.15), kBaseKinimaticLimits.angularVelocity().times(0.3), kBaseKinimaticLimits.angularAcceleration().times(0.15)));
+
+        
       }
     }
   /** 

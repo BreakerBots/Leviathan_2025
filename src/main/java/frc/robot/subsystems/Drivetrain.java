@@ -25,6 +25,14 @@ public class Drivetrain extends BreakerSwerveDrivetrain {
   public static record DrivetrainKinematicLimits(LinearVelocity linearVelocity, LinearAcceleration linearAcceleration, AngularVelocity angularVelocity, AngularAcceleration angularAcceleration) {
     
 
+    public DrivetrainKinematicLimits scale(double scalar) {
+      return new DrivetrainKinematicLimits(linearVelocity.times(scalar), linearAcceleration.times(scalar), angularVelocity.times(scalar), angularAcceleration.times(scalar));
+    }
+
+    public DrivetrainKinematicLimits scale(double accelScalar, double velScalar) {
+      return new DrivetrainKinematicLimits(linearVelocity.times(velScalar), linearAcceleration.times(accelScalar), angularVelocity.times(velScalar), angularAcceleration.times(accelScalar));
+    }
+
     public static class KinimaticLimitInterpolator implements Interpolator<DrivetrainKinematicLimits> {
 
       public KinimaticLimitInterpolator() {}

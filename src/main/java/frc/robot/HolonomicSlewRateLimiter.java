@@ -75,5 +75,13 @@ public class HolonomicSlewRateLimiter {
         return prevRot;
     }
 
+    public double getLinearLim() {
+        return linearLim;
+    }
+
+    public double getRotationalLim() {
+        return rotationalLim;
+    }
+
    
 }

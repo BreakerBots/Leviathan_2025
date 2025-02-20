@@ -379,14 +379,14 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER_NEUTRAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(32.5)), 
+            new WristSetpoint(Degrees.of(31)), 
             RollerState.NEUTRAL, 
             KickerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(32.5)), 
+            new WristSetpoint(Degrees.of(31)), 
             RollerState.INTAKE, 
             KickerState.INTAKE
         );

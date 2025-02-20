@@ -306,7 +306,7 @@ public class Superstructure extends SubsystemBase {
 
     public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {
         var streams = tipProtectionSystem.setStreams(linear, rotational);
-        return drivetrain.getTeleopControlCommand(streams.getFirst().getX(), streams.getFirst().getY(), streams.getSecond(), config);
+        return drivetrain.getTeleopControlCommand(streams.getFirst().getY(), streams.getFirst().getX(), streams.getSecond(), config);
     }
 
     @Override
