@@ -113,7 +113,7 @@ public final class Constants {
         kKinematicLimitMap.put(Meters.of(0.6), kBaseKinimaticLimits.scale(0.35, 0.7));
         kKinematicLimitMap.put(Meters.of(0.87), kBaseKinimaticLimits.scale(0.35, 0.7));
         kKinematicLimitMap.put(Meters.of(1.27), kBaseKinimaticLimits.scale(0.3, 0.65));
-        kKinematicLimitMap.put(ElevatorConstants.kMaxHeight, new DrivetrainKinematicLimits(kBaseKinimaticLimits.linearVelocity().times(0.5), kBaseKinimaticLimits.linearAcceleration().times(0.15), kBaseKinimaticLimits.angularVelocity().times(0.3), kBaseKinimaticLimits.angularAcceleration().times(0.15)));
+        kKinematicLimitMap.put(ElevatorConstants.kMaxHeight, new DrivetrainKinematicLimits(kBaseKinimaticLimits.linearVelocity().times(0.5), kBaseKinimaticLimits.linearAcceleration().times(0.15), kBaseKinimaticLimits.angularVelocity().times(0.15), kBaseKinimaticLimits.angularAcceleration().times(0.08)));
 
         
       }
