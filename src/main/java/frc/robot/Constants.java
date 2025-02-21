@@ -318,8 +318,8 @@ public final class Constants {
   }
 
   public static class ClimbConstants {
-    public static final int kClimbMotorID = 0;
-    public static final int kClimbCoder = 0;
+    public static final int kClimbMotorID = 60;
+    public static final int kClimbCoder = 61;
 
     public static final double kClimbCoderAbsoluteSensorDiscontinuityPoint = 0;
     public static final Angle kClimbCoderOffset = Radians.of(0);
