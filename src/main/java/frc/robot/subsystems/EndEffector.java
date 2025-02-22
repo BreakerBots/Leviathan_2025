@@ -76,7 +76,7 @@ public class EndEffector extends SubsystemBase {
 
     private void configCandi() {
         CANdiConfiguration config = new CANdiConfiguration();
-        config.DigitalInputs.S1CloseState = S1CloseStateValue.CloseWhenLow;
+        config.DigitalInputs.S1CloseState = S1CloseStateValue.CloseWhenNotHigh;
         config.DigitalInputs.S1FloatState = S1FloatStateValue.FloatDetect;
         candi.getConfigurator().apply(config);
 
@@ -118,8 +118,8 @@ public class EndEffector extends SubsystemBase {
         TalonFXSConfiguration config = new TalonFXSConfiguration();
         config.CurrentLimits = kNormalRollerCurrentLimitConfig;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        config.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
         rollers.getConfigurator().apply(config);
     }
 
@@ -137,14 +137,17 @@ public class EndEffector extends SubsystemBase {
 
 
     private void setControl(EndEffectorSetpoint setpoint) {
-        this.setpoint = setpoint;
+        
         setRollerState(setpoint.rollerState());
         // setKicker(setpoint.kickerState());
         setWrist(setpoint.wristSetpoint().getSetpoint());
+        this.setpoint = setpoint;
     }
  
     private void setRollerState(RollerState rollerState) {
-        rollers.getConfigurator().apply(rollerState.getCurrentLimitConfig());
+        if (setpoint == null || rollerState != setpoint.rollerState()) {
+            rollers.getConfigurator().apply(rollerState.getCurrentLimitConfig());
+        }
         rollers.setControl(rollerRequest.withOutput(rollerState.getDutyCycle()));
     }
 
@@ -361,13 +364,13 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_INTAKE = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Rotations.of(0.6)), 
+                new WristSetpoint(Degrees.of(186)), 
                 RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_NEUTRAL = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Rotations.of(0.6)), 
+                new WristSetpoint(Degrees.of(186)), 
                 RollerState.NEUTRAL
         );
 
@@ -391,13 +394,13 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER_NEUTRAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(31)), 
+            new WristSetpoint(Degrees.of(43)), 
             RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(31)), 
+            new WristSetpoint(Degrees.of(43)), 
             RollerState.INTAKE
         );
 

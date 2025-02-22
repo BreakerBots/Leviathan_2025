@@ -173,7 +173,7 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakeRollerState {
-        INTAKE(-1),
+        INTAKE(-0.35),
         EXTAKE(1),
         NEUTRAL(0.0);
         private double dutyCycleOut;

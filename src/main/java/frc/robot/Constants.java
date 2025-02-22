@@ -72,7 +72,7 @@ public final class Constants {
     }
 
     public static class FieldConstants {
-      public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+      public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
       public static final Translation2d kReefBranchOffsetFromFaceApriltag = new Translation2d();
       
     }
@@ -151,13 +151,13 @@ public final class Constants {
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
 
     // All gains are in terms of rotor rotations and volts
-    public static final double kP = 0.5;//0.26
+    public static final double kP = 1.5;//0.26
     public static final double kI = 0;
     public static final double kD = 0.12;
     public static final double kS = 0;
-    public static final double kV = 0.185;
+    public static final double kV = 0.35;
     public static final double kA = 0.035;
-    public static final double kG = 0.73;
+    public static final double kG = 0.7;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(15);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(25);
     // public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
@@ -260,7 +260,8 @@ public final class Constants {
     public static final MechanismRatio kWristRatio = new MechanismRatio(240);//
 
     public static final double kWristDiscontinuityPoint = 0.75;
-    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(45);
+    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(50
+    );
 
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
     public static final double kMaxColorDelta = 0.15;
@@ -284,7 +285,7 @@ public final class Constants {
       .withSupplyCurrentLimit(50)
       .withStatorCurrentLimitEnable(true);
 
-    public static final CurrentLimitsConfigs kNormalRollerCurrentLimitConfig = new CurrentLimitsConfigs().withStatorCurrentLimit(30).withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
+    public static final CurrentLimitsConfigs kNormalRollerCurrentLimitConfig = new CurrentLimitsConfigs().withStatorCurrentLimit(40).withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
     public static final CurrentLimitsConfigs kAlgaeHoldRollerCurrentLimitConfig =new CurrentLimitsConfigs().withStatorCurrentLimit(10).withSupplyCurrentLimit(8).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
     // public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);new CurrentLimitsConfigs().withStatorCurrentLimit(30).withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
     // public static final SupplyCurrentLimitConfiguration kAlgaeHoldKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
@@ -295,13 +296,13 @@ public final class Constants {
     public static final int kEndEffectorRollerID = 53;
     // public static final int kEndEffectorKickerID = 54;
 
-    public static final double kP = 50;
+    public static final double kP = 35;
     public static final double kI = 0;
-    public static final double kD = 1.2;
-    public static final double kV = 9;
+    public static final double kD = 2.5;
+    public static final double kV = 23.5;
     public static final double kS = 0;
     public static final double kA = 0.85;
-    public static final double kG = 0.265;
+    public static final double kG = 0.225;
 
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1.5);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
