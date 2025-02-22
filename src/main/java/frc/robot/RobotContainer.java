@@ -40,7 +40,7 @@ public class RobotContainer {
   // They contain the methods to control physical hardware
   private final Drivetrain drivetrain = new Drivetrain();
   private final Intake intake = new Intake();
-  private final Indexer indexer = new Indexer();
+  private final Indexer indexer = null;
   private final Elevator elevator = new Elevator();
   private final EndEffector endEffector = new EndEffector();
 
@@ -104,7 +104,7 @@ public class RobotContainer {
 
     controller.getButtonX().onTrue(elevator.home());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
-    controller.getLeftBumper().onTrue(superstructure.intakeCoralFromGround());
+    // controller.getLeftBumper().onTrue(superstructure.intakeCoralFromGround());
     controller.getStartButton().onTrue(superstructure.intakeCoralFromHumanPlayer());
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
 

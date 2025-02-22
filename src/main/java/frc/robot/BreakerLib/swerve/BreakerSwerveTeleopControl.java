@@ -66,7 +66,7 @@ public class BreakerSwerveTeleopControl extends Command {
       if (generationConfig.getRobotConfig().isPresent()) {
         setpointGenerator = Optional.of(new SwerveSetpointGenerator(generationConfig.getRobotConfig().get(), generationConfig.getMaxModuleAzimuthVelocity()));
       } else if (drivetrain.constants.pathplannerConfig.robotConfig.isPresent()) {
-        setpointGenerator = Optional.of(new SwerveSetpointGenerator(drivetrain.constants.pathplannerConfig.robotConfig.get(), generationConfig.getMaxModuleAzimuthVelocity()));
+        // setpointGenerator = Optional.of(new SwerveSetpointGenerator(drivetrain.constants.pathplannerConfig.robotConfig.get(), generationConfig.getMaxModuleAzimuthVelocity()));
       } else {
         setpointGenerator = Optional.empty();
       }

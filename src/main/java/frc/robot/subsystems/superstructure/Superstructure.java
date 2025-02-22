@@ -168,7 +168,7 @@ public class Superstructure extends SubsystemBase {
     }
 
     public Command stowAll() {
-        return setMastState(MastState.STOW, true).andThen(intake.setState(IntakeState.STOW, false), indexer.setState(IndexerState.NEUTRAL));
+        return setMastState(MastState.STOW, true).andThen(intake.setState(IntakeState.STOW, false));
     }
 
     // public Command scoreOnReef(ReefPosition position) {

@@ -52,23 +52,23 @@ public class ReefPosition {
             this.isLeft = isLeft;
         }
 
-        public Pose2d getAllignPose(Alliance alliance) {
-            Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueReefFaceApriltagID : redReefFaceApriltagID).get().toPose2d();
-
-            Translation2d allignOffsetRel = new Translation2d(
-                FieldConstants.kReefBranchOffsetFromFaceApriltag.getX() - AutoPilotConstants.kReefAutoAllignOffsetFromBranch.in(Units.Meters), 
-                isLeft ? FieldConstants.kReefBranchOffsetFromFaceApriltag.getY() : -FieldConstants.kReefBranchOffsetFromFaceApriltag.getY());
-            
-            Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
-
-            Translation2d allignTrans = tagPose.getTranslation().plus(allignOffset);
-
-            Pose2d allignPose = new Pose2d(allignTrans, tagPose.getRotation());
-            
-
-            return allignPose;
-
-        }
+        // public Pose2d getAllignPose(Alliance alliance) {
+            // Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueReefFaceApriltagID : redReefFaceApriltagID).get().toPose2d();
+// 
+            // Translation2d allignOffsetRel = new Translation2d(
+                // FieldConstants.kReefBranchOffsetFromFaceApriltag.getX() - AutoPilotConstants.kReefAutoAllignOffsetFromBranch.in(Units.Meters), 
+                // isLeft ? FieldConstants.kReefBranchOffsetFromFaceApriltag.getY() : -FieldConstants.kReefBranchOffsetFromFaceApriltag.getY());
+            // 
+            // Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
+// 
+            // Translation2d allignTrans = tagPose.getTranslation().plus(allignOffset);
+// 
+            // Pose2d allignPose = new Pose2d(allignTrans, tagPose.getRotation());
+            // 
+// 
+            // return allignPose;
+// 
+        // }
     }
 
     

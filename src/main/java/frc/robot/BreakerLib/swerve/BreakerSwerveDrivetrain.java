@@ -222,31 +222,31 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
 
 
   private void configPathPlanner() {
-    if (constants.pathplannerConfig.robotConfig.isPresent()) {
-      double driveBaseRadius = 0;
-      for (var moduleLocation : getModuleLocations()) {
-          driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
-      }
+    // if (constants.pathplannerConfig.robotConfig.isPresent()) {
+      // double driveBaseRadius = 0;
+      // for (var moduleLocation : getModuleLocations()) {
+          // driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
+      // }
 
-      SwerveRequest.ApplyRobotSpeeds request = new SwerveRequest.ApplyRobotSpeeds();
-      request.DriveRequestType = DriveRequestType.Velocity;
-      BiConsumer<ChassisSpeeds, DriveFeedforwards> output = (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
-        request.Speeds = speeds;
-        request.WheelForceFeedforwardsX = feedforwards.robotRelativeForcesXNewtons();
-        request.WheelForceFeedforwardsY = feedforwards.robotRelativeForcesYNewtons();
-        setControl(request);
-      };
+      // SwerveRequest.ApplyRobotSpeeds request = new SwerveRequest.ApplyRobotSpeeds();
+      // request.DriveRequestType = DriveRequestType.Velocity;
+      // BiConsumer<ChassisSpeeds, DriveFeedforwards> output = (ChassisSpeeds speeds, DriveFeedforwards feedforwards) -> {
+        // request.Speeds = speeds;
+        // request.WheelForceFeedforwardsX = feedforwards.robotRelativeForcesXNewtons();
+        // request.WheelForceFeedforwardsY = feedforwards.robotRelativeForcesYNewtons();
+        // setControl(request);
+      // };
 
-      AutoBuilder.configure(
-        localizer::getPose, // Supplier of current robot pose
-        localizer::resetPose,  // Consumer for seeding pose against auto
-        localizer::getSpeeds,
-        output, // Consumer of ChassisSpeeds to drive the robot
-        new PPHolonomicDriveController(constants.pathplannerConfig.translationPID, constants.pathplannerConfig.rotationPID),
-        constants.pathplannerConfig.robotConfig.get(),
-        () -> DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red, // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-        this); // Subsystem for requirements
-    }
+      // AutoBuilder.configure(
+        // localizer::getPose, // Supplier of current robot pose
+        // localizer::resetPose,  // Consumer for seeding pose against auto
+        // localizer::getSpeeds,
+        // output, // Consumer of ChassisSpeeds to drive the robot
+        // new PPHolonomicDriveController(constants.pathplannerConfig.translationPID, constants.pathplannerConfig.rotationPID),
+        // constants.pathplannerConfig.robotConfig.get(),
+        // () -> DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red, // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+        // this); // Subsystem for requirements
+    // }
   }
 
   private void configChoreo() {
@@ -429,7 +429,7 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
     public static class PathplannerConfig {
       public PIDConstants translationPID = new PIDConstants(10, 0, 0);
       public PIDConstants rotationPID = new PIDConstants(10, 0, 0);
-      public Optional<RobotConfig> robotConfig = getRobotConfigFromGUI();
+      public Optional<RobotConfig> robotConfig = Optional.empty();
       public PathplannerConfig() {
       }
 

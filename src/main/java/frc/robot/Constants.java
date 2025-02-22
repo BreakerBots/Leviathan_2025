@@ -72,7 +72,7 @@ public final class Constants {
     }
 
     public static class FieldConstants {
-      public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+      // public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
       public static final Translation2d kReefBranchOffsetFromFaceApriltag = new Translation2d();
       
     }
