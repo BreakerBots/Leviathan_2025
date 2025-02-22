@@ -13,12 +13,14 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"7.598789691925049 m", "val":7.598789691925049}, "y":{"exp":"7.310201644897461 m", "val":7.310201644897461}, "heading":{"exp":"-3.127189448449934 rad", "val":-3.127189448449934}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"5.141938209533691 m", "val":5.141938209533691}, "y":{"exp":"5.591689586639404 m", "val":5.591689586639404}, "heading":{"exp":"-2.120649820977995 rad", "val":-2.120649820977995}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"7.598789691925049 m", "val":7.598789691925049}, "y":{"exp":"7.310201644897461 m", "val":7.310201644897461}, "heading":{"exp":"0.01440386413966038 rad", "val":0.01440386413966038}, "intervals":26, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"5.141938209533691 m", "val":5.141938209533691}, "y":{"exp":"5.591689586639404 m", "val":5.591689586639404}, "heading":{"exp":"1.020943832612798 rad", "val":1.020943832612798}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"16.54 m", "val":16.54}, "h":{"exp":"8.21 m", "val":8.21}}}, "enabled":true}],
+    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"16.54 m", "val":16.54}, "h":{"exp":"8.21 m", "val":8.21}}}, "enabled":true},
+    {"from":0, "to":0, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true},
+    {"from":0, "to":0, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05
