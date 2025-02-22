@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
 
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,12 +12,12 @@ import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 public class Indexer extends SubsystemBase {
-    private TalonFX indexer;
+    private TalonFXS indexer;
     private IndexerState currentState = IndexerState.NEUTRAL;
     private DutyCycleOut dutyCycleOut;
 
     public Indexer() {
-        indexer = new TalonFX(IndexerConstants.kIndexerMotorID, SuperstructureConstants.kSuperstructureCANBus);
+        indexer = new TalonFXS(IndexerConstants.kIndexerMotorID, SuperstructureConstants.kSuperstructureCANBus);
         dutyCycleOut = new DutyCycleOut(0);
     }
 

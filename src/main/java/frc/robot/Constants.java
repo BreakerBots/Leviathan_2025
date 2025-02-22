@@ -147,7 +147,7 @@ public final class Constants {
     public static final int kLeftMotorID = 30;
     public static final int kRightMotorID = 31;
 
-    public static final InvertedValue kLeftMotorInverted = InvertedValue.Clockwise_Positive;
+    public static final InvertedValue kLeftMotorInverted = InvertedValue.CounterClockwise_Positive;
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
 
     // All gains are in terms of rotor rotations and volts
@@ -204,7 +204,7 @@ public final class Constants {
   
   public static class IntakeConstants {
     public static final Angle kPivotTolerence = Degrees.of(8);
-    private static final Angle kPivotEncoderMagnetOffset = Rotations.of(0.1455078125);
+    private static final Angle kPivotEncoderMagnetOffset = Rotations.of(0.125732421875);
     private static final Angle kPivotEncoderZeroPointOffsetFromAbsolute = Rotations.of(0.029053);
     public static final Angle kPivotEncoderOffset = kPivotEncoderMagnetOffset.plus(kPivotEncoderZeroPointOffsetFromAbsolute);
     public static final int kIntakePivotMotorID = 40;
@@ -213,12 +213,12 @@ public final class Constants {
 
     public static final MechanismRatio kPivotGearRatio = new MechanismRatio(92.25);
 
-    public static final double kP = 0.5;
+    public static final double kP = 20;
     public static final double kI = 0.0;
-    public static final double kD = 2.5;
+    public static final double kD = 0.1;
     public static final double kS = 0.0;
-    public static final double kV = 12.0;
-    public static final double kA = 2.5;
+    public static final double kV = 35;
+    public static final double kA = 0.2;
     public static final double kG = 0.25;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(3);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
@@ -254,10 +254,10 @@ public final class Constants {
   }
 
   public static class EndEffectorConstants {
-    private static final double kWristEncoderMagnetOffset = -0.3037109375;
-    public static final Angle kWristEncoderOffset = Rotations.of(kWristEncoderMagnetOffset + 0.25);
+    private static final Angle kWristEncoderMagnetOffset = Rotations.of(-0.2392578125);
+    public static final Angle kWristEncoderOffset = kWristEncoderMagnetOffset.plus(Rotations.of(0.5).minus(Degrees.of(6.035)));
 
-    public static final MechanismRatio kWristRatio = new MechanismRatio(25).to(new MechanismRatio(15, 18)).to(new MechanismRatio(20, 56));//78.75
+    public static final MechanismRatio kWristRatio = new MechanismRatio(240);//
 
     public static final double kWristDiscontinuityPoint = 0.75;
     public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(45);
@@ -284,16 +284,16 @@ public final class Constants {
       .withSupplyCurrentLimit(50)
       .withStatorCurrentLimitEnable(true);
 
-    public static final SupplyCurrentLimitConfiguration kNormalRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 30, 30, 0.2);
-    public static final SupplyCurrentLimitConfiguration kAlgaeHoldRollerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
-    public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);
-    public static final SupplyCurrentLimitConfiguration kAlgaeHoldKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
+    public static final CurrentLimitsConfigs kNormalRollerCurrentLimitConfig = new CurrentLimitsConfigs().withStatorCurrentLimit(30).withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
+    public static final CurrentLimitsConfigs kAlgaeHoldRollerCurrentLimitConfig =new CurrentLimitsConfigs().withStatorCurrentLimit(10).withSupplyCurrentLimit(8).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
+    // public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);new CurrentLimitsConfigs().withStatorCurrentLimit(30).withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
+    // public static final SupplyCurrentLimitConfiguration kAlgaeHoldKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
     
     public static final int kEndEffectorPivotMotorID = 50;
     public static final int kEndEffectorCANCoderID = 51;
     public static final int kEndEffectorCANdiID = 52;
     public static final int kEndEffectorRollerID = 53;
-    public static final int kEndEffectorKickerID = 54;
+    // public static final int kEndEffectorKickerID = 54;
 
     public static final double kP = 50;
     public static final double kI = 0;

@@ -7,15 +7,22 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.hardware.TalonFXS;
+import com.ctre.phoenix6.signals.AdvancedHallSupportValue;
+import com.ctre.phoenix6.signals.ExternalFeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorArrangementValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.S1CloseStateValue;
 import com.ctre.phoenix6.signals.S1FloatStateValue;
@@ -40,14 +47,14 @@ import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.EndEffector.EndEffectorSetpoint.EndEffectorFlipDirection;
 
 public class EndEffector extends SubsystemBase {
-    private TalonSRX kicker;
-    private TalonSRX rollers;
-    private TalonFX wrist;
+    private TalonFXS rollers;
+    private TalonFXS wrist;
     private CANcoder wristEncoder;
     private CANdi candi;
     private BreakerDigitalSensor coralSensor;
     // private Canandcolor algaeSensor;
     private MotionMagicVoltage wristRequest;
+    private DutyCycleOut rollerRequest;
     private EndEffectorSetpoint setpoint;
     private EndEffectorWristLimits wristLimits;
 
@@ -55,19 +62,21 @@ public class EndEffector extends SubsystemBase {
     
     public EndEffector() {
         wristEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, kWristDiscontinuityPoint, kWristEncoderOffset, SensorDirectionValue.Clockwise_Positive);
-        wrist = new TalonFX(EndEffectorConstants.kEndEffectorPivotMotorID);
+        wrist = new TalonFXS(EndEffectorConstants.kEndEffectorPivotMotorID);
         candi = new CANdi(EndEffectorConstants.kEndEffectorCANdiID);
-        kicker = new TalonSRX(kEndEffectorKickerID);
-        rollers = new TalonSRX(kEndEffectorRollerID);
+        // kicker = new TalonSRX(kEndEffectorKickerID);
+        rollers = new TalonFXS(kEndEffectorRollerID);
         configCandi();
         wristRequest = new MotionMagicVoltage(getWristAngle());
+        rollerRequest = new DutyCycleOut(0);
         logRefreshTimer.start();
         configWrist();
+        configRollers();
     }
 
     private void configCandi() {
         CANdiConfiguration config = new CANdiConfiguration();
-        config.DigitalInputs.S1CloseState = S1CloseStateValue.CloseWhenHigh;
+        config.DigitalInputs.S1CloseState = S1CloseStateValue.CloseWhenLow;
         config.DigitalInputs.S1FloatState = S1FloatStateValue.FloatDetect;
         candi.getConfigurator().apply(config);
 
@@ -75,11 +84,11 @@ public class EndEffector extends SubsystemBase {
     }
  
     private void configWrist() {
-        TalonFXConfiguration config = new TalonFXConfiguration();
+        TalonFXSConfiguration config = new TalonFXSConfiguration();
 
-        config.Feedback.FeedbackRemoteSensorID = 51;
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-        config.Feedback.RotorToSensorRatio = kWristRatio.getRatioToOne();
+        config.ExternalFeedback.FeedbackRemoteSensorID = 51;
+        config.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.FusedCANcoder;
+        config.ExternalFeedback.RotorToSensorRatio = kWristRatio.getRatioToOne();
 
         config.Slot0.GravityType = GravityTypeValue.Arm_Cosine;
         config.Slot0.StaticFeedforwardSign = StaticFeedforwardSignValue.UseVelocitySign;
@@ -96,10 +105,22 @@ public class EndEffector extends SubsystemBase {
 
         config.CurrentLimits = kWristCurrentLimits;
 
-        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+        config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
+        config.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled;
         
         wrist.getConfigurator().apply(config);
+    }
+
+    private void configRollers() {
+        TalonFXSConfiguration config = new TalonFXSConfiguration();
+        config.CurrentLimits = kNormalRollerCurrentLimitConfig;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.Commutation.MotorArrangement = MotorArrangementValue.NEO550_JST;
+        rollers.getConfigurator().apply(config);
     }
 
 
@@ -118,19 +139,19 @@ public class EndEffector extends SubsystemBase {
     private void setControl(EndEffectorSetpoint setpoint) {
         this.setpoint = setpoint;
         setRollerState(setpoint.rollerState());
-        setKicker(setpoint.kickerState());
+        // setKicker(setpoint.kickerState());
         setWrist(setpoint.wristSetpoint().getSetpoint());
     }
  
     private void setRollerState(RollerState rollerState) {
-        rollers.configSupplyCurrentLimit(rollerState.getCurrentLimitConfig());
-        rollers.set(ControlMode.PercentOutput, rollerState.getDutyCycle());
+        rollers.getConfigurator().apply(rollerState.getCurrentLimitConfig());
+        rollers.setControl(rollerRequest.withOutput(rollerState.getDutyCycle()));
     }
 
-    private void setKicker(KickerState kickerState) {
-        kicker.configSupplyCurrentLimit(kickerState.getCurrentLimitConfig());
-        kicker.set(ControlMode.PercentOutput, kickerState.getDutyCycle());
-    }
+    // private void setKicker(KickerState kickerState) {
+    //     kicker.configSupplyCurrentLimit(kickerState.getCurrentLimitConfig());
+    //     kicker.set(ControlMode.PercentOutput, kickerState.getDutyCycle());
+    // }
 
     private void setWrist(Angle setpoint) {
         wrist.setControl(wristRequest.withPosition(setpoint));
@@ -187,9 +208,7 @@ public class EndEffector extends SubsystemBase {
     private void refreshLogs() {
         BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         
-        BreakerLog.log("EndEffector/RollerMotor/SupplyCurrent", rollers.getSupplyCurrent());
-        BreakerLog.log("EndEffector/RollerMotor/StatorCurrent", rollers.getStatorCurrent());
-        BreakerLog.log("EndEffector/KickerMotor/SupplyCurrent", rollers.getSupplyCurrent());
+        BreakerLog.log("EndEffector/RollerMotor", rollers);
         
         BreakerLog.log("EndEffector/Wrist/Setpoint/Satisifed", isAtSetpoint());
         BreakerLog.log("EndEffector/Wrist/Angle", getWristAngle().in(Degrees));
@@ -204,7 +223,7 @@ public class EndEffector extends SubsystemBase {
     @Override
     public void periodic() {
         if (RobotState.isDisabled()) {
-            setControl(new EndEffectorSetpoint(new WristSetpoint(getWristAngle()), RollerState.NEUTRAL, KickerState.NEUTRAL));
+            setControl(new EndEffectorSetpoint(new WristSetpoint(getWristAngle()), RollerState.NEUTRAL));
         }
         
         if (logRefreshTimer.advanceIfElapsed(MiscConstants.kInfrequentLogRate)) {
@@ -215,8 +234,8 @@ public class EndEffector extends SubsystemBase {
         BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle()
        .in(Degrees) - setpoint.wristSetpoint.setpoint.in(Degrees)));
        
-        BreakerLog.log("EndEffector/RollerMotor/Output", rollers.getMotorOutputPercent());
-        BreakerLog.log("EndEffector/KickerMotor/Output", rollers.getMotorOutputPercent());
+        // BreakerLog.log("EndEffector/RollerMotor/Output", rollers.getMotorOutputPercent());
+        // BreakerLog.log("EndEffector/KickerMotor/Output", rollers.getMotorOutputPercent());
 
         // Color c = algaeSensor.getColor().toWpilibColor();
         // double cd = getColorDelta(c, kAlgaeColor);
@@ -236,8 +255,8 @@ public class EndEffector extends SubsystemBase {
         HOLD_ALGAE(0.15, kAlgaeHoldRollerCurrentLimitConfig),
         NEUTRAL(0.0, kNormalRollerCurrentLimitConfig);
         private double dutyCycleOut;
-        private SupplyCurrentLimitConfiguration currentLimitConfig;
-        private RollerState(double dutyCycleOut, SupplyCurrentLimitConfiguration currentLimitConfig) {
+        private CurrentLimitsConfigs currentLimitConfig;
+        private RollerState(double dutyCycleOut, CurrentLimitsConfigs currentLimitConfig) {
             this.dutyCycleOut = dutyCycleOut;
             this.currentLimitConfig = currentLimitConfig;
         }
@@ -246,7 +265,7 @@ public class EndEffector extends SubsystemBase {
             return dutyCycleOut;
         }
 
-        public SupplyCurrentLimitConfiguration getCurrentLimitConfig() {
+        public CurrentLimitsConfigs getCurrentLimitConfig() {
             return currentLimitConfig;
         }
     }
@@ -265,30 +284,30 @@ public class EndEffector extends SubsystemBase {
         }
     }
 
-    public static enum KickerState {
-        KICK(1.0, kNormalKickerCurrentLimitConfig),
-        INTAKE(1, kNormalKickerCurrentLimitConfig),
-        EXTAKE(-0.8, kNormalKickerCurrentLimitConfig),
-        HOLD(0.1, kAlgaeHoldKickerCurrentLimitConfig),
-        NEUTRAL(0.0, kNormalKickerCurrentLimitConfig);
+    // public static enum KickerState {
+    //     KICK(1.0, kNormalKickerCurrentLimitConfig),
+    //     INTAKE(1, kNormalKickerCurrentLimitConfig),
+    //     EXTAKE(-0.8, kNormalKickerCurrentLimitConfig),
+    //     HOLD(0.1, kAlgaeHoldKickerCurrentLimitConfig),
+    //     NEUTRAL(0.0, kNormalKickerCurrentLimitConfig);
 
-        private double dutyCycleOut;
-        private SupplyCurrentLimitConfiguration currentLimitConfig;
-        private KickerState(double dutyCycleOut, SupplyCurrentLimitConfiguration currentLimitConfig) {
-            this.dutyCycleOut = dutyCycleOut;
-            this.currentLimitConfig = currentLimitConfig;
-        }
+    //     private double dutyCycleOut;
+    //     private SupplyCurrentLimitConfiguration currentLimitConfig;
+    //     private KickerState(double dutyCycleOut, SupplyCurrentLimitConfiguration currentLimitConfig) {
+    //         this.dutyCycleOut = dutyCycleOut;
+    //         this.currentLimitConfig = currentLimitConfig;
+    //     }
 
-        public double getDutyCycle() {
-            return dutyCycleOut;
-        }
+    //     public double getDutyCycle() {
+    //         return dutyCycleOut;
+    //     }
         
-        public SupplyCurrentLimitConfiguration getCurrentLimitConfig() {
-            return currentLimitConfig;
-        }
+    //     public SupplyCurrentLimitConfiguration getCurrentLimitConfig() {
+    //         return currentLimitConfig;
+    //     }
 
 
-    }
+    // }
 
     public static class WristSetpoint {
         private Angle setpoint;
@@ -326,146 +345,126 @@ public class EndEffector extends SubsystemBase {
         
     }
 
-    public static record EndEffectorSetpoint(WristSetpoint wristSetpoint, RollerState rollerState, KickerState kickerState) {
+    public static record EndEffectorSetpoint(WristSetpoint wristSetpoint, RollerState rollerState) {
 
         public static final EndEffectorSetpoint STOW = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Rotations.of(0.45)), 
-                RollerState.NEUTRAL, 
-                KickerState.NEUTRAL
+                RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint EXTENDED_STOW = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Degrees.of(5)), 
-                RollerState.NEUTRAL, 
-                KickerState.NEUTRAL
+                RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_INTAKE = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Rotations.of(0.6)), 
-                RollerState.INTAKE, 
-                KickerState.INTAKE
+                RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_NEUTRAL = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Rotations.of(0.6)), 
-                RollerState.NEUTRAL, 
-                KickerState.NEUTRAL
+                RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE_NEUTRAL = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Degrees.of(-15)), 
-                RollerState.INTAKE, 
-                KickerState.INTAKE
+                RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Degrees.of(-15)), 
-                RollerState.INTAKE, 
-                KickerState.INTAKE
+                RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint ALGAE_HOLD_GROUND = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Degrees.of(-15)), 
-                RollerState.HOLD_ALGAE, 
-                KickerState.HOLD
+                RollerState.HOLD_ALGAE
         );
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(31)), 
-            RollerState.NEUTRAL, 
-            KickerState.NEUTRAL
+            RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(31)), 
-            RollerState.INTAKE, 
-            KickerState.INTAKE
+            RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint CLIMB = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(15)), 
-            RollerState.NEUTRAL, 
-            KickerState.NEUTRAL
+            RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L1_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-20)), 
-            RollerState.NEUTRAL, 
-            KickerState.NEUTRAL
+            RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L2_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32.0)), 
-            RollerState.NEUTRAL, 
-            KickerState.NEUTRAL
+            RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L2_L3_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(30)), 
-            RollerState.NEUTRAL, 
-            KickerState.NEUTRAL
+            RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L3_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32)), 
-            RollerState.NEUTRAL, 
-            KickerState.NEUTRAL
+            RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L4_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32)), 
-            RollerState.NEUTRAL, 
-            KickerState.NEUTRAL
+            RollerState.NEUTRAL
         );
 
         public static final EndEffectorSetpoint L1_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-20)), 
-            RollerState.EXTAKE_L1, 
-            KickerState.NEUTRAL
+            RollerState.EXTAKE_L1
         );
 
         public static final EndEffectorSetpoint L2_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32.0)), 
-            RollerState.EXTAKE, 
-            KickerState.NEUTRAL
+            RollerState.EXTAKE
         );
 
         public static final EndEffectorSetpoint L2_L3_INTAKE_ALGAE = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(30)), 
-            RollerState.INTAKE, 
-            KickerState.INTAKE
+            RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint L3_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32)), 
-            RollerState.EXTAKE, 
-            KickerState.NEUTRAL
+            RollerState.EXTAKE
         );
 
         public static final EndEffectorSetpoint L4_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32)), 
-            RollerState.EXTAKE, 
-            KickerState.NEUTRAL
+            RollerState.EXTAKE
         );
 
         public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
