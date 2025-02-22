@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.HolonomicSlewRateLimiter;
+import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
@@ -171,9 +172,9 @@ public class Superstructure extends SubsystemBase {
         return setMastState(MastState.STOW, true).andThen(intake.setState(IntakeState.STOW, false), indexer.setState(IndexerState.NEUTRAL));
     }
 
-    // public Command scoreOnReef(ReefPosition position) {
-
-    // }
+    public Command scoreOnReef(ReefPosition position) {
+        throw new UnsupportedOperationException();
+    }
 
 
     public boolean doesElevatorSetpointAllowEndEffectorFliping(ElevatorSetpoint setpoint) {
@@ -307,6 +308,10 @@ public class Superstructure extends SubsystemBase {
     public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {
         var streams = tipProtectionSystem.setStreams(linear, rotational);
         return drivetrain.getTeleopControlCommand(streams.getFirst().getY(), streams.getFirst().getX(), streams.getSecond(), config);
+    }
+
+    public Drivetrain getDrivetrain() {
+        return drivetrain;
     }
 
     @Override

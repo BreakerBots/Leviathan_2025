@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import choreo.auto.AutoFactory;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;

@@ -9,7 +9,7 @@ import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.superstructure.Superstructure.MastState;
 
-public class ReefPosition {
+public record ReefPosition(ReefLevel level, ReefBranch branch) {
     public static enum ReefLevel {
         L1(MastState.L1_NEUTRAL, MastState.L1_EXTAKE),
         L2(MastState.L2_NEUTRAL, MastState.L2_EXTAKE),
@@ -70,8 +70,4 @@ public class ReefPosition {
 
         }
     }
-
-    
-
-    
 }
