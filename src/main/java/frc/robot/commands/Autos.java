@@ -44,4 +44,40 @@ public class Autos {
 
         return routine.cmd();
     }
+
+    public Command start1Full() {
+        final var routine = autoFactory.newRoutine("Start1Full");
+
+        final var startToReefJ = routine.trajectory("Start 1 to Reef J");
+        final var reefJToCoralPS = routine.trajectory("Reef J to Coral PS");
+        final var coralPSToReefK = routine.trajectory("Coral PS to Reef K");
+        final var reefKToCoralPS = routine.trajectory("Reef K to Coral PS");
+        final var coralPSToReefL = routine.trajectory("Coral PS to Reef L");
+        final var reefLToCoralPS = routine.trajectory("Reef L to Coral PS");
+        final var coralPSToReefA = routine.trajectory("Coral PS to Reef A");
+        
+        
+        startToReefJ.done().onTrue(Commands.sequence( // note: scoreOnReef is not implemented
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.J)),
+            // superstructure.stowAll(), // scoreOnReef will stow
+            reefJToCoralPS.cmd()
+        ));
+                
+                
+        reefJToCoralPS.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer(),
+            coralPSToReefK.cmd()
+        ));
+
+        coralPSToReefK.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K))
+        ));
+
+        routine.active().onTrue(Commands.sequence(
+            startToReefJ.resetOdometry(),
+            startToReefJ.cmd()
+        ));
+
+        return routine.cmd();
+    }
 }
