@@ -59,7 +59,7 @@ public class Autos {
         
         startToReefJ.done().onTrue(Commands.sequence( // note: scoreOnReef is not implemented
             superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.J)),
-            // superstructure.stowAll(), // scoreOnReef will stow
+            // scoreOnReef should stow
             reefJToCoralPS.cmd()
         ));
                 
@@ -70,8 +70,25 @@ public class Autos {
         ));
 
         coralPSToReefK.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K))
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)),
+            reefKToCoralPS.cmd()
         ));
+
+        reefKToCoralPS.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer(),
+            coralPSToReefL.cmd()
+        ));
+
+        coralPSToReefL.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.L)),
+            reefLToCoralPS.cmd()
+        ));
+
+        reefLToCoralPS.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer(),
+            coralPSToReefA.cmd()
+        ));
+
 
         routine.active().onTrue(Commands.sequence(
             startToReefJ.resetOdometry(),
