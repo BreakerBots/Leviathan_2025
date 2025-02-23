@@ -237,7 +237,8 @@ public class Elevator extends SubsystemBase {
         private Distance tolerence;
         private LinearVelocity velocityTolerence;
         public ElevatorSetpoint(Distance height, Distance tolerence, LinearVelocity velocityTolerence) {
-            this.height = Meters.of(MathUtil.clamp(height.in(Meters), kMinHeight.in(Meters), kMaxHeight.in(Meters)));
+           // this.height = Meters.of(MathUtil.clamp(height.in(Meters), kMinHeight.in(Meters), kMaxHeight.in(Meters)));
+           this.height = height;
             this.tolerence = tolerence;
             this.velocityTolerence = velocityTolerence;
         }
@@ -272,7 +273,9 @@ public class Elevator extends SubsystemBase {
         public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0), Centimeters.of(4), kDefaultVelocityTolerence);
 
         public static final ElevatorSetpoint LOW_REEF_ALGAE = new ElevatorSetpoint(Meters.of(0.64));
-        public static final ElevatorSetpoint HIGH_REEF_ALGAE = new ElevatorSetpoint(Meters.of(1.05));
+        public static final ElevatorSetpoint HIGH_REEF_ALGAE = new ElevatorSetpoint(Meters.of(1.1));
+
+        public static final ElevatorSetpoint BARGE = new ElevatorSetpoint(kMaxHeight.plus(Inches.of(6)));
 
 
         private static final ElevatorSetpoint HOMEING = new ElevatorSetpoint(Meters.of(0.04));

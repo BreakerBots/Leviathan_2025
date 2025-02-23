@@ -50,8 +50,7 @@ public class RobotContainer {
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
   private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
 
-  private final SimpleClimb climb = new SimpleClimb(controller, buttonBoard.getRightButtons()
-  );
+  //private final SimpleClimb climb = new SimpleClimb();
 
 
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
@@ -106,6 +105,7 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
 
     controller.getButtonX().onTrue(elevator.home());
+    controller.getButtonB().onTrue(superstructure.reverseIntake());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure.intakeAlgaeFromReef(false));
     controller.getDPad().getRight().onTrue(superstructure.intakeAlgaeFromReef(true));
@@ -119,6 +119,7 @@ public class RobotContainer {
     buttonBoard.getLevelButtons().getL4Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4));
 
     buttonBoard.getRightButtons().getLowRightButton().onTrue(superstructure.scoreInProcessor());
+    buttonBoard.getRightButtons().getHighRightButton().onTrue(superstructure.scoreInBarge());
   }
 
   /**

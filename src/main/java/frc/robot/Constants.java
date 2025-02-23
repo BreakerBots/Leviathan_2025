@@ -151,15 +151,15 @@ public final class Constants {
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
 
     // All gains are in terms of rotor rotations and volts
-    public static final double kP = 1.5;//0.26
+    public static final double kP = 25;//0.26
     public static final double kI = 0;
-    public static final double kD = 0.12;
+    public static final double kD = 0.1;
     public static final double kS = 0;
-    public static final double kV = 0.35;
+    public static final double kV = 0.85;
     public static final double kA = 0.035;
-    public static final double kG = 0.7;
-    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(15);
-    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(25);
+    public static final double kG = 0.71;
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(30);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(40);
     // public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
 
 
@@ -275,7 +275,7 @@ public final class Constants {
 
 
     public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs().withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(Degrees.of(-32)).withReverseSoftLimitEnable(true);
-    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs().withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true);
+    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs().withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true).withForwardSoftLimitThreshold(Degrees.of(182)).withForwardSoftLimitEnable(true);
     public static final SoftwareLimitSwitchConfigs kNormalLimits =   new SoftwareLimitSwitchConfigs();
 
     public static final CurrentLimitsConfigs kWristCurrentLimits = new CurrentLimitsConfigs()
@@ -296,13 +296,13 @@ public final class Constants {
     public static final int kEndEffectorRollerID = 53;
     // public static final int kEndEffectorKickerID = 54;
 
-    public static final double kP = 35;
+    public static final double kP = 40;
     public static final double kI = 0;
-    public static final double kD = 2.5;
-    public static final double kV = 23.5;
+    public static final double kD = 0.5;
+    public static final double kV = 26;
     public static final double kS = 0;
-    public static final double kA = 0.85;
-    public static final double kG = 0.225;
+    public static final double kA = 1;
+    public static final double kG = 0.22;
 
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1.5);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);

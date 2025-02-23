@@ -151,6 +151,13 @@ public class Superstructure extends SubsystemBase {
         )).schedule()); 
     }
 
+    public Command reverseIntake() {
+        return intake.setState(IntakeState.EXTAKE, true).alongWith(indexer.setState(IndexerState.REVERSE)).andThen(
+            Commands.waitSeconds(1.0),
+            intake.setState(IntakeState.EXTENDED_NEUTRAL, false).alongWith(indexer.setState(IndexerState.NEUTRAL))
+        );
+    }
+
     public Command intakeCoralFromHumanPlayer() {
         return setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true).andThen(
             setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
@@ -184,6 +191,15 @@ public class Superstructure extends SubsystemBase {
         return setMastState(MastState.EXTAKE_ALGAE_PROCESSOR, false).andThen(
             Commands.waitSeconds(0.8),
             setMastState(MastState.PARTIAL_STOW, false)
+        );
+    }
+
+    public Command scoreInBarge() {
+        return setMastState(MastState.BARGE_NEUTRAL, true).andThen(
+            Commands.waitUntil(controller.getButtonA()),
+            setMastState(MastState.BARGE_EXTAKE, false),
+            Commands.waitSeconds(0.5),
+            setMastState(MastState.STOW, false)
         );
     }
 
@@ -301,6 +317,9 @@ public class Superstructure extends SubsystemBase {
         public static final MastState LOW_REEF_ALGAE_NEUTRAL = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_NEUTRAL);
         public static final MastState LOW_REEF_ALGAE_INTAKE = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_INTAKE);
         public static final MastState HOLD_ALGAE = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.HOLD_ALGAE);
+
+        public static final MastState BARGE_NEUTRAL = new MastState(ElevatorSetpoint.BARGE, EndEffectorSetpoint.BARGE_NEUTRAL);
+        public static final MastState BARGE_EXTAKE = new MastState(ElevatorSetpoint.BARGE, EndEffectorSetpoint.BARGE_EXTAKE);
 
         public static final MastState EXTAKE_ALGAE_PROCESSOR = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.EXTAKE_ALGAE_PROCESSOR);
 
