@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import choreo.auto.AutoFactory;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefPosition;
@@ -20,7 +21,18 @@ public class Autos {
     public static enum StartPosition {
         ONE,
         TWO,
-        THREE,
+        THREE;
+
+        public static StartPosition fromDriverStation() {
+            final var loc = DriverStation.getLocation();
+            final var i = loc.orElseThrow(); // maybe change this.
+            return switch (i) {
+                case 1 -> ONE;
+                case 2 -> TWO;
+                case 3 -> THREE;
+                default -> throw new IllegalStateException();
+            };
+        }
     }
 
     public Autos(Superstructure superstructure) {
@@ -127,7 +139,8 @@ public class Autos {
         final var ps2ToReefE = routine.trajectory("Coral PS2 to Reef E");
         final var reefEToPS2 = routine.trajectory("Reef E to Coral PS2");
         final var ps2ToReefD = routine.trajectory("Coral PS2 to Reef D");
-
+        // This is pretty repetitive, might be worth making some kind of builder for this
+        // after we verify that it works at all.
         startToG.done().onTrue(Commands.sequence(
             superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.G)),
             reefGToPS2.cmd()
@@ -166,7 +179,7 @@ public class Autos {
         return routine.cmd();
     }
 
-    // This autopath is a little strange IMO, however I couldn't think of any more interesting paths for coral.
+    // This autopath is really bad, but I couldn't think of any more interesting paths for coral.
     public Command start3ThenABC() {
         final var routine = autoFactory.newRoutine("Start3->ABC");
         
@@ -198,6 +211,55 @@ public class Autos {
         ));
 
         ps2ToReefC.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C))
+        ));
+
+        return routine.cmd();
+    }
+
+    public Command start3ThenGDCB() {
+        final var routine = autoFactory.newRoutine("Start3->GDCB");
+        
+        final var startToG = routine.trajectory("Start 3 to Reef G");
+
+        final var reefGToPS2 = routine.trajectory("Reef G to Coral PS2");
+        final var ps2ToReefD = routine.trajectory("Coral PS2 to Reef D");
+        final var reefDToPS2 = routine.trajectory("Reef D to Coral PS2");
+        final var ps2ToReefC = routine.trajectory("Coral PS2 to Reef C");
+        final var reefCToPS2 = routine.trajectory("Reef C to Coral PS2");
+        final var ps2ToReefB = routine.trajectory("Coral PS2 to Reef B");
+
+        startToG.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.A)),
+            reefGToPS2.cmd()
+        ));
+
+        reefGToPS2.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer(),
+            ps2ToReefD.cmd()
+        ));
+
+        ps2ToReefD.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.B)),
+            reefDToPS2.cmd()
+        ));
+
+        reefDToPS2.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer(),
+            ps2ToReefC.cmd()
+        ));
+
+        ps2ToReefC.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C)),
+            reefCToPS2.cmd()
+        ));
+
+        reefCToPS2.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer(),
+            ps2ToReefC.cmd()
+        ));
+
+        ps2ToReefB.done().onTrue(Commands.sequence(
             superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C))
         ));
 
