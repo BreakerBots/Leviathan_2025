@@ -30,6 +30,10 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
         }
     }
 
+    public static enum ReefAlgaeLevel {
+        
+    }
+
     public static enum ReefBranch {
         A(0, 0, true),
         B(0, 0, false),

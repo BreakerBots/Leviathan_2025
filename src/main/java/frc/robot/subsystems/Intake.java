@@ -49,7 +49,7 @@ public class Intake extends SubsystemBase{
         rollers = new TalonFX(IntakeConstants.kIntakeRollersMotorID, SuperstructureConstants.kSuperstructureCANBus);
         pivot = new TalonFX(IntakeConstants.kIntakePivotMotorID, SuperstructureConstants.kSuperstructureCANBus);
         encoder = BreakerCANCoderFactory.createCANCoder(IntakeConstants.kIntakeCANCoderID, SuperstructureConstants.kSuperstructureCANBus, 0.5, kPivotEncoderOffset, SensorDirectionValue.CounterClockwise_Positive);
-        coralSensor = BreakerDigitalSensor.fromDIO(0, true);
+        coralSensor = BreakerDigitalSensor.fromDIO(0, false);
         setpoint = IntakeState.STOW;
         pivotRequest = new MotionMagicVoltage(IntakePivotState.RETRACTED.getAngle());
         rollerRequest = new DutyCycleOut(RollerState.NEUTRAL.getDutyCycle());
@@ -140,6 +140,7 @@ public class Intake extends SubsystemBase{
         if (RobotState.isDisabled()) {
             setClosestNeutral();
         }
+        BreakerLog.log("Intake/HasCoral", hasCoral());
         BreakerLog.log("Intake/Rollers/Motor", rollers);
         BreakerLog.log("Intake/Rollers/State", setpoint.getRollerState().toString());
         BreakerLog.log("Intake/Pivot/Motor", pivot);
@@ -152,8 +153,12 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakeState {
         INTAKE(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED),
+        // RETRACTED_INTAKEING(IntakeRollerState.INTAKE, IntakePivotState.RETRACTED),
         EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED),
+
         EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
+
+
         CLIMB(IntakeRollerState.NEUTRAL, IntakePivotState.CLIMB),
         STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED),;
         private IntakeRollerState rollerState;
@@ -173,7 +178,10 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakeRollerState {
-        INTAKE(-0.35),
+        INTAKE(-0.45),
+        // INTAKE_ALGAE(0.5),
+        // HOLD_ALGAE(0.1),
+        // EXTAKE_ALGAE(-0.8),
         EXTAKE(1),
         NEUTRAL(0.0);
         private double dutyCycleOut;
@@ -188,7 +196,9 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakePivotState {
-        EXTENDED(Rotations.of(0.035)),
+        EXTENDED(Rotations.of(0.035).minus(Degrees.of(3))),
+        // ALGAE(Rotations.of(0.22)),
+        // ALGAE_HOLD(Rotations.of(0.34)),
         CLIMB(Degrees.of(45)),
         RETRACTED(Rotations.of(0.25));
 

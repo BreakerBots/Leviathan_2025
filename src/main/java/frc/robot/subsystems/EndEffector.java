@@ -255,7 +255,7 @@ public class EndEffector extends SubsystemBase {
         EXTAKE(-1.0, kNormalRollerCurrentLimitConfig),
         EXTAKE_L1(-0.5, kNormalRollerCurrentLimitConfig),
         INTAKE_ALGAE(0.75, kNormalRollerCurrentLimitConfig),
-        HOLD_ALGAE(0.15, kAlgaeHoldRollerCurrentLimitConfig),
+        HOLD_ALGAE(1, kAlgaeHoldRollerCurrentLimitConfig),
         NEUTRAL(0.0, kNormalRollerCurrentLimitConfig);
         private double dutyCycleOut;
         private CurrentLimitsConfigs currentLimitConfig;
@@ -364,13 +364,13 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_INTAKE = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(186)), 
+                new WristSetpoint(Degrees.of(195)), 
                 RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_NEUTRAL = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(186)), 
+                new WristSetpoint(Degrees.of(195)), 
                 RollerState.NEUTRAL
         );
 
@@ -422,12 +422,6 @@ public class EndEffector extends SubsystemBase {
             RollerState.NEUTRAL
         );
 
-        public static final EndEffectorSetpoint L2_L3_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(30)), 
-            RollerState.NEUTRAL
-        );
-
         public static final EndEffectorSetpoint L3_NEUTRAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32)), 
@@ -452,12 +446,6 @@ public class EndEffector extends SubsystemBase {
             RollerState.EXTAKE
         );
 
-        public static final EndEffectorSetpoint L2_L3_INTAKE_ALGAE = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(30)), 
-            RollerState.INTAKE
-        );
-
         public static final EndEffectorSetpoint L3_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-32)), 
@@ -469,6 +457,45 @@ public class EndEffector extends SubsystemBase {
             new WristSetpoint(Degrees.of(-32)), 
             RollerState.EXTAKE
         );
+
+        public static final EndEffectorSetpoint REEF_ALGAE_LOW_INTAKE = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(9)), 
+            RollerState.INTAKE_ALGAE
+        );
+
+
+        public static final EndEffectorSetpoint REEF_ALGAE_LOW_NEUTRAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(9)), 
+            RollerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint REEF_ALGAE_HIGH_INTAKE = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(25)), 
+            RollerState.INTAKE_ALGAE
+        );
+
+
+        public static final EndEffectorSetpoint REEF_ALGAE_HIGH_NEUTRAL = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(25)), 
+            RollerState.NEUTRAL
+        );
+
+        public static final EndEffectorSetpoint HOLD_ALGAE = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(25)), 
+            RollerState.HOLD_ALGAE
+        );
+
+        public static final EndEffectorSetpoint EXTAKE_ALGAE_PROCESSOR = 
+        new EndEffectorSetpoint(
+            new WristSetpoint(Degrees.of(25)), 
+            RollerState.EXTAKE
+        );
+
 
         public static EndEffectorFlipDirection getFlipDirection(Angle from, Angle to) {
             double f = from.in(Rotations);

@@ -285,8 +285,8 @@ public final class Constants {
       .withSupplyCurrentLimit(50)
       .withStatorCurrentLimitEnable(true);
 
-    public static final CurrentLimitsConfigs kNormalRollerCurrentLimitConfig = new CurrentLimitsConfigs().withStatorCurrentLimit(40).withSupplyCurrentLimit(30).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
-    public static final CurrentLimitsConfigs kAlgaeHoldRollerCurrentLimitConfig =new CurrentLimitsConfigs().withStatorCurrentLimit(10).withSupplyCurrentLimit(8).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
+    public static final CurrentLimitsConfigs kNormalRollerCurrentLimitConfig = new CurrentLimitsConfigs().withStatorCurrentLimit(60).withSupplyCurrentLimit(45).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
+    public static final CurrentLimitsConfigs kAlgaeHoldRollerCurrentLimitConfig = new CurrentLimitsConfigs().withStatorCurrentLimit(40).withSupplyCurrentLimit(35).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
     // public static final SupplyCurrentLimitConfiguration kNormalKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 60, 30, 0.2);new CurrentLimitsConfigs().withStatorCurrentLimit(30).withSupplyCurrentLimit(20).withSupplyCurrentLimitEnable(true).withStatorCurrentLimitEnable(true);
     // public static final SupplyCurrentLimitConfiguration kAlgaeHoldKickerCurrentLimitConfig = new SupplyCurrentLimitConfiguration(true, 15, 8, 0.5);
     

@@ -34,6 +34,7 @@ import frc.robot.subsystems.EndEffector.WristSetpoint;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.IntakePivotState;
 import frc.robot.subsystems.Intake.IntakeState;
 
 /** Add your docs here. */
@@ -145,8 +146,9 @@ public class Superstructure extends SubsystemBase {
                     .alongWith(
                         intake.setState(IntakeState.STOW, false),
                         indexer.setState(IndexerState.NEUTRAL))
-            
-        ); 
+            //TODO replace with proper subsys logic
+        ).finallyDo(() -> intake.setState(IntakeState.EXTENDED_NEUTRAL, false).alongWith(indexer.setState(IndexerState.NEUTRAL
+        )).schedule()); 
     }
 
     public Command intakeCoralFromHumanPlayer() {
@@ -167,6 +169,39 @@ public class Superstructure extends SubsystemBase {
             setMastState(MastState.STOW, false)
         );
     }
+
+    public Command intakeAlgaeFromReef(boolean isHigh) {
+        return setMastState(isHigh ? MastState.HIGH_REEF_ALGAE_NEUTRAL : MastState.LOW_REEF_ALGAE_NEUTRAL, true).andThen(
+            setMastState(isHigh ? MastState.HIGH_REEF_ALGAE_INTAKE : MastState.LOW_REEF_ALGAE_INTAKE, false),
+            Commands.waitUntil(controller.getButtonA()),
+            setMastState(MastState.HOLD_ALGAE, false)
+        );
+
+
+    }
+
+    public Command scoreInProcessor() {
+        return setMastState(MastState.EXTAKE_ALGAE_PROCESSOR, false).andThen(
+            Commands.waitSeconds(0.8),
+            setMastState(MastState.PARTIAL_STOW, false)
+        );
+    }
+
+    // public Command intakeAlgaeGround() {
+    //     return intake.setState(IntakeState.ALGAE_NEUTRAL, true).andThen(
+    //         intake.setState(IntakeState.INTAKE_ALGAE, false),
+    //         Commands.waitUntil(controller.getButtonA()),
+    //         intake.setState(IntakeState.HOLD_ALGAE_TRANS, true).withTimeout(3),
+    //         intake.setState(IntakeState.HOLD_ALGAE, false)
+    //     );
+    // }
+
+    // public Command scoreAlgaeProcessor() {
+    //     return intake.setState(IntakeState.EXTAKE_ALGAE, false).andThen(
+    //         Commands.waitSeconds(1.5),
+    //         intake.setState(IntakeState.ALGAE_NEUTRAL, false)
+    //     );
+    // }
 
     public Command stowAll() {
         return setMastState(MastState.STOW, true).andThen(intake.setState(IntakeState.STOW, false), indexer.setState(IndexerState.NEUTRAL));
@@ -259,9 +294,25 @@ public class Superstructure extends SubsystemBase {
         public static final MastState GROUND_CORAL_HANDOFF_PREP = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.STOW);
         public static final MastState GROUND_CORAL_HANDOFF_NEUTRAL = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.CORAL_GROUND_HANDOFF_NEUTRAL);
         public static final MastState GROUND_CORAL_HANDOFF_INTAKE = new MastState(ElevatorSetpoint.HANDOFF, EndEffectorSetpoint.CORAL_GROUND_HANDOFF_INTAKE);
+
+        public static final MastState HIGH_REEF_ALGAE_NEUTRAL = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_NEUTRAL);
+        public static final MastState HIGH_REEF_ALGAE_INTAKE = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_INTAKE);
+        public static final MastState LOW_REEF_ALGAE_NEUTRAL = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_NEUTRAL);
+        public static final MastState LOW_REEF_ALGAE_INTAKE = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_INTAKE);
+        public static final MastState HOLD_ALGAE = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.HOLD_ALGAE);
+
+        public static final MastState EXTAKE_ALGAE_PROCESSOR = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.EXTAKE_ALGAE_PROCESSOR);
+
+
     }
+
+    // public static enum IntexerState {
+    //     STOW
+    // }
     
- 
+    // public static record SuperstructureState(MastState mastState, ) {
+
+    // }
 
     // public static class SuperstructureState {
 

@@ -27,6 +27,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.SimpleClimb;
 import frc.robot.subsystems.superstructure.Superstructure;
 
 /**
@@ -49,7 +50,8 @@ public class RobotContainer {
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
   private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
 
-
+  private final SimpleClimb climb = new SimpleClimb(controller, buttonBoard.getRightButtons()
+  );
 
 
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
@@ -97,7 +99,7 @@ public class RobotContainer {
     driverOmega = controller.getRightThumbstick().getX()
             .clamp(1.0)
             .deadband(Constants.OperatorConstants.ROTATIONAL_DEADBAND, 1.0)
-            .map(new BreakerLinearizedConstrainedExponential(0.0, 3.0, true))
+            .map(new BreakerLinearizedConstrainedExponential(0.12, 5.5, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
     drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
@@ -105,6 +107,8 @@ public class RobotContainer {
 
     controller.getButtonX().onTrue(elevator.home());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
+    controller.getDPad().getLeft().onTrue(superstructure.intakeAlgaeFromReef(false));
+    controller.getDPad().getRight().onTrue(superstructure.intakeAlgaeFromReef(true));
     controller.getLeftBumper().onTrue(superstructure.intakeCoralFromGround());
     controller.getStartButton().onTrue(superstructure.intakeCoralFromHumanPlayer());
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
@@ -113,6 +117,8 @@ public class RobotContainer {
     buttonBoard.getLevelButtons().getL2Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));
     buttonBoard.getLevelButtons().getL3Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L3));
     buttonBoard.getLevelButtons().getL4Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4));
+
+    buttonBoard.getRightButtons().getLowRightButton().onTrue(superstructure.scoreInProcessor());
   }
 
   /**
