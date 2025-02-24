@@ -111,11 +111,11 @@ public class Autos {
             reefLToCoralPS.cmd()
         ));
 
+        
         reefLToCoralPS.done().onTrue(Commands.sequence(
             superstructure.intakeCoralFromHumanPlayer(),
             coralPSToReefA.cmd()
         ));
-
 
         routine.active().onTrue(Commands.sequence(
             startToReefJ.resetOdometry(),
@@ -286,6 +286,19 @@ public class Autos {
         routine.active().onTrue(Commands.sequence(
            trajectory.cmd(),
            superstructure.scoreOnReef(reefPosition)
+        ));
+
+        return routine;
+    }
+
+    private AutoRoutine runTrajectoryThenHumanPlayer(String traj) {
+        final var routine = autoFactory.newRoutine("human-player");
+
+        final var trajectory = routine.trajectory(traj);
+
+        routine.active().onTrue(Commands.sequence(
+           trajectory.cmd(),
+           superstructure.intakeCoralFromHumanPlayer()
         ));
 
         return routine;
