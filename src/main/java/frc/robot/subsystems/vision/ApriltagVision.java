@@ -138,10 +138,6 @@ public class ApriltagVision extends SubsystemBase {
                 drivetrain.addVisionMeasurement(estPos.poseEst.estimatedPose.toPose2d(), estPos.poseEst.timestampSeconds, estPos.stdDevs);
             }
 
-            if (estimatedPoses.size() > 0) {
-                BreakerLog.log("fsdfsdfs", estimatedPoses.get(0).poseEst.estimatedPose);
-            }
-
             estimatedPoses.clear();
 
     }
