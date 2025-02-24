@@ -6,17 +6,21 @@ package frc.robot.commands;
 
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
+import frc.robot.BreakerLib.physics.BreakerVector2;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.superstructure.Superstructure;
 
 /** Add your docs here. */
 public class Autos {
     private final Superstructure superstructure;
+    private final Drivetrain drivetrain;
     private final AutoFactory autoFactory;
 
     public static enum StartPosition {
@@ -38,6 +42,7 @@ public class Autos {
 
     public Autos(Superstructure superstructure) {
         this.superstructure = superstructure;
+        this.drivetrain = superstructure.getDrivetrain();
         autoFactory = superstructure.getDrivetrain().getAutoFactory();
     }
 
@@ -81,16 +86,16 @@ public class Autos {
         final var reefLToCoralPS = runTrajectoryThenHumanPlayer("Reef L to Coral PS");
         final var coralPSToReefA = runTrajectoryThenScore("Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A));
         // unfinished, idle() triggers when all trajectories are done, even if scoring isn't.
-        startToReefJ.idle().onTrue(Commands.sequence(
-            reefJToCoralPS.cmd(),
-            coralPSToReefK.cmd(),
-            reefKToCoralPS.cmd(),
-            coralPSToReefL.cmd(),
-            reefLToCoralPS.cmd(),
-            coralPSToReefA.cmd()
-        ));
 
-        return startToReefJ.cmd();
+        return Commands.sequence(
+            startToReefJ,
+            reefJToCoralPS,
+            coralPSToReefK,
+            reefKToCoralPS,
+            coralPSToReefL,
+            reefLToCoralPS,
+            coralPSToReefA
+        );
     }
 
     // public Command startAnywhereThenJKLA(StartPosition startPosition) {
@@ -304,31 +309,55 @@ public class Autos {
         return routine.cmd();
     }
 
-    private AutoRoutine runTrajectoryThenScore(String traj, ReefPosition reefPosition) {
+    private Command runTrajectoryThenScore(String traj, ReefPosition reefPosition) {
         final var routine = autoFactory.newRoutine("score");
 
         final var trajectory = routine.trajectory(traj);
 
         routine.active().onTrue(Commands.sequence(
             trajectory.resetOdometry(),
-            trajectory.cmd(),
-            superstructure.scoreOnReef(reefPosition)
+            trajectory.cmd()
         ));
 
-        return routine;
+        final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
+        final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
+        // not super happy with this solution.
+        return Commands.sequence(
+            routine.cmd(() -> {
+                final var pos = new BreakerVector2(superstructure.getDrivetrain().getLocalizer().getPose().getTranslation());
+                final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
+
+                return Math.abs(pos.getX() - finalPos.getX()) < 0.1
+                    && Math.abs(pos.getY() - finalPos.getY()) < 0.1
+                    && MathUtil.isNear(finalRot, rot, 0.1);
+
+            }),
+            superstructure.scoreOnReef(reefPosition)
+        );
     }
 
-    private AutoRoutine runTrajectoryThenHumanPlayer(String traj) {
+    private Command runTrajectoryThenHumanPlayer(String traj) {
         final var routine = autoFactory.newRoutine("human-player");
 
         final var trajectory = routine.trajectory(traj);
-        
+
+        final var intakeCmd = superstructure.intakeCoralFromHumanPlayer();
         routine.active().onTrue(Commands.sequence(
             trajectory.resetOdometry(),
-            trajectory.cmd(),
-            superstructure.intakeCoralFromHumanPlayer()
+            trajectory.cmd()
         ));
 
-        return routine;
+        final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
+        final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
+        return Commands.sequence(
+            routine.cmd(() -> {
+                final var pos = new BreakerVector2(drivetrain.getLocalizer().getPose().getTranslation());
+                final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
+                return Math.abs(pos.getX() - finalPos.getX()) < 0.1
+                    && Math.abs(pos.getY() - finalPos.getY()) < 0.1
+                    && MathUtil.isNear(finalRot, rot, 0.1);
+            }),
+            intakeCmd
+        );
     }
 }
