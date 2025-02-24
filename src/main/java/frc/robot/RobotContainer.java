@@ -5,6 +5,7 @@
 
 package frc.robot;
 
+import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.units.Units;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.Autos;
+import frc.robot.commands.Autos.StartPosition;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
@@ -130,6 +133,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
-    return null;
+    final var autos = new Autos(superstructure);
+    // return autos.startAnywhereThenJKLA(StartPosition.fromDriverStation());
+    return autos.start3ThenGDCB();
   }
 }

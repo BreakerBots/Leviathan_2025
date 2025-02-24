@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -126,7 +127,7 @@ public class Autos {
 
     public Command startThenGFED(StartPosition startPosition) { // I would like to put all these strings in a nice enum eventually to avoid typos, sounds like a job for the freshies.
         final var routine = autoFactory.newRoutine("Start2->GFED");
-        
+
         final var startToG = switch (startPosition) {
             case ONE -> routine.trajectory("Start 1 to Reef G");
             case TWO -> routine.trajectory("Start 2 to Reef G");
@@ -214,6 +215,11 @@ public class Autos {
             superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C))
         ));
 
+        routine.active().onTrue(Commands.sequence(
+            startToA.resetOdometry(),
+            startToA.cmd()
+        ));
+
         return routine.cmd();
     }
 
@@ -256,13 +262,32 @@ public class Autos {
 
         reefCToPS2.done().onTrue(Commands.sequence(
             superstructure.intakeCoralFromHumanPlayer(),
-            ps2ToReefC.cmd()
+            ps2ToReefB.cmd()
         ));
 
         ps2ToReefB.done().onTrue(Commands.sequence(
             superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C))
         ));
 
+        routine.active().onTrue(Commands.sequence(
+            startToG.resetOdometry(),
+            startToG.cmd()
+        ));
+
+
         return routine.cmd();
+    }
+
+    private AutoRoutine runTrajectoryThenScore(String traj, ReefPosition reefPosition) {
+        final var routine = autoFactory.newRoutine("score");
+
+        final var trajectory = routine.trajectory(traj);
+
+        routine.active().onTrue(Commands.sequence(
+           trajectory.cmd(),
+           superstructure.scoreOnReef(reefPosition)
+        ));
+
+        return routine;
     }
 }
