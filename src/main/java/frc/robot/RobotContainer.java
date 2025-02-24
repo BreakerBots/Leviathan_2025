@@ -5,8 +5,12 @@
 
 package frc.robot;
 
+<<<<<<< HEAD
 import static edu.wpi.first.units.Units.Degrees;
 
+=======
+import choreo.auto.AutoChooser;
+>>>>>>> 1987f814e4b17ab11a3438f8abb0e43299d97bc4
 import choreo.auto.AutoFactory;
 import dev.doglog.DogLogOptions;
 import edu.wpi.first.apriltag.AprilTag;
@@ -22,9 +26,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
+<<<<<<< HEAD
 import frc.robot.commands.AutoPilot;
 import frc.robot.commands.AutoPilot.ProfiledPIDControllerConfig;
 import frc.robot.commands.AutoPilot.NavToPoseConfig;
+=======
+import frc.robot.commands.Autos;
+import frc.robot.commands.Autos.StartPosition;
+>>>>>>> 1987f814e4b17ab11a3438f8abb0e43299d97bc4
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
@@ -161,6 +170,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
-    return null;
+    final var autos = new Autos(superstructure);
+    return autos.startAnywhereThenJKLA(StartPosition.fromDriverStation());
+    // return autos.start3ThenGDCB();
   }
 }
