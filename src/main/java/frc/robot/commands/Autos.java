@@ -8,6 +8,7 @@ import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefPosition;
@@ -74,9 +75,9 @@ public class Autos {
      */
     public Command startAnywhereThenJKLA(StartPosition startPosition) {
         final var startToReefJ = switch (startPosition) {
-            case ONE -> runTrajectoryThenScore("Start 1 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J));
-            case TWO -> runTrajectoryThenScore("Start 2 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J));
-            case THREE -> runTrajectoryThenScore("Start 3 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J));
+            case ONE -> runTrajectoryThenScore("Start 1 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
+            case TWO -> runTrajectoryThenScore("Start 2 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
+            case THREE -> runTrajectoryThenScore("Start 3 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
         };
 
         final var reefJToCoralPS = runTrajectoryThenHumanPlayer("Reef J to Coral PS");
@@ -310,26 +311,41 @@ public class Autos {
     }
 
     private Command runTrajectoryThenScore(String traj, ReefPosition reefPosition) {
+        return runTrajectoryThenScore(traj, reefPosition, false);
+    }
+
+    private Command runTrajectoryThenScore(String traj, ReefPosition reefPosition, boolean resetOdometry) {
         final var routine = autoFactory.newRoutine("score");
 
         final var trajectory = routine.trajectory(traj);
 
-        routine.active().onTrue(Commands.sequence(
-            trajectory.resetOdometry(),
-            trajectory.cmd()
-        ));
+        final var seq = resetOdometry
+            ? Commands.sequence(trajectory.resetOdometry(), trajectory.cmd())
+            : trajectory.cmd();
+
+        routine.active().onTrue(seq);
 
         final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
         final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
+        final var backupTimer = new Timer();
+        
         // not super happy with this solution.
         return Commands.sequence(
             routine.cmd(() -> {
+                if (backupTimer.advanceIfElapsed(0.2)) return true;
+
                 final var pos = new BreakerVector2(superstructure.getDrivetrain().getLocalizer().getPose().getTranslation());
                 final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
+                
+                final var dx = Math.abs(pos.getX() - finalPos.getX());
+                final var dy = Math.abs(pos.getY() - finalPos.getY());
+                final var dt = Math.abs(finalRot - rot);
 
-                return Math.abs(pos.getX() - finalPos.getX()) < 0.1
-                    && Math.abs(pos.getY() - finalPos.getY()) < 0.1
-                    && MathUtil.isNear(finalRot, rot, 0.1);
+                if (dx < 0.5 && dy < 0.5 && dt < 0.5 & !backupTimer.isRunning()) {
+                    backupTimer.start();
+                }
+
+                return dx < 0.1 && dy < 0.1 && dt < 0.1;
 
             }),
             superstructure.scoreOnReef(reefPosition)
@@ -349,13 +365,25 @@ public class Autos {
 
         final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
         final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
+        final var backupTimer = new Timer();
+
         return Commands.sequence(
             routine.cmd(() -> {
+                if (backupTimer.advanceIfElapsed(0.2)) return true;
+
                 final var pos = new BreakerVector2(drivetrain.getLocalizer().getPose().getTranslation());
                 final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
-                return Math.abs(pos.getX() - finalPos.getX()) < 0.1
-                    && Math.abs(pos.getY() - finalPos.getY()) < 0.1
-                    && MathUtil.isNear(finalRot, rot, 0.1);
+
+                final var dx = Math.abs(pos.getX() - finalPos.getX());
+                final var dy = Math.abs(pos.getY() - finalPos.getY());
+                final var dt = Math.abs(finalRot - rot);
+                
+                if (dx < 0.5 && dy < 0.5 && dt < 0.5 & !backupTimer.isRunning()) {
+                    backupTimer.start();
+                }
+                
+                return dx < 0.1 && dy < 0.1 && dt < 0.1;
+
             }),
             intakeCmd
         );
