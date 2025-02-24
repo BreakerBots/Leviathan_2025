@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.SimulationConstants;
 import frc.robot.HolonomicSlewRateLimiter;
 import frc.robot.ReefPosition;
+import frc.robot.Robot;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
@@ -165,6 +167,11 @@ public class Superstructure extends SubsystemBase {
     }
 
     public Command intakeCoralFromHumanPlayer() {
+        if (Robot.isSimulation()) return Commands.sequence(
+            Commands.print("Human Player"),
+            Commands.waitTime(SimulationConstants.kWaitTime)
+        );
+
         return setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true).andThen(
             setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
@@ -229,6 +236,10 @@ public class Superstructure extends SubsystemBase {
 
     // note: when this function is implemented, make sure to stow too once it scores.
     public Command scoreOnReef(ReefPosition position) {
+        if (Robot.isSimulation()) return Commands.sequence(
+            Commands.print("Scored on " + position),
+            Commands.waitTime(SimulationConstants.kWaitTime)
+        ); // for testing.
         throw new UnsupportedOperationException();
     }
 
