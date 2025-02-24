@@ -13,6 +13,8 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.epilogue.logging.EpilogueBackend;
 import edu.wpi.first.math.Matrix;
@@ -69,7 +71,18 @@ public class ApriltagVision extends SubsystemBase {
 
         photonPoseEstimator = new PhotonPoseEstimator(FieldConstants.kAprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, new Transform3d());
         estimatedPoses = new ArrayList<>();
+        stdDevCalculator = new BreakerPoseEstimationStandardDeviationCalculator(
+            VecBuilder.fill(2, 2, 10), 
+            VecBuilder.fill(0.5, 0.5, 1), 
+            3.5, 
+            6.5, 
+            5.0
+        );
         odometryHasBeenSeededCashed = false;
+    }
+ 
+    private double phoenixTimeToFPGA(double phoenixTime) {
+        return (Timer.getFPGATimestamp() - Utils.getCurrentTimeSeconds()) + phoenixTime;
     }
 
 
@@ -83,7 +96,7 @@ public class ApriltagVision extends SubsystemBase {
             if (odometryHasBeenSeededCashed) {
                 photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
                 photonPoseEstimator.setReferencePose(odometryRefPos);
-                photonPoseEstimator.addHeadingData(driveState.Timestamp, odometryRefPos.getRotation());
+                photonPoseEstimator.addHeadingData(phoenixTimeToFPGA(driveState.Timestamp), odometryRefPos.getRotation());
             } 
 
            
