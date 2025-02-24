@@ -38,33 +38,5 @@ public class Drivetrain extends BreakerSwerveDrivetrain {
     public DrivetrainKinematicLimits scale(double accelScalar, double velScalar) {
       return new DrivetrainKinematicLimits(linearVelocity.times(velScalar), linearAcceleration.times(accelScalar), angularVelocity.times(velScalar), angularAcceleration.times(accelScalar));
     }
-
-    public static class KinimaticLimitInterpolator implements Interpolator<DrivetrainKinematicLimits> {
-
-      public KinimaticLimitInterpolator() {}
-
-      @Override
-      public DrivetrainKinematicLimits interpolate(DrivetrainKinematicLimits startValue,
-          DrivetrainKinematicLimits endValue, double t) {
-        double lv = MathUtil.interpolate(startValue.linearVelocity().in(MetersPerSecond), endValue.linearVelocity().in(MetersPerSecond), t);
-        double la = MathUtil.interpolate(startValue.linearAcceleration().in(MetersPerSecondPerSecond), endValue.linearAcceleration().in(MetersPerSecondPerSecond), t);
-        double av = MathUtil.interpolate(startValue.angularVelocity().in(RadiansPerSecond), endValue.angularVelocity().in(RadiansPerSecond), t);
-        double aa = MathUtil.interpolate(startValue.angularAcceleration().in(RadiansPerSecondPerSecond), endValue.angularAcceleration().in(RadiansPerSecondPerSecond), t);
-        return new DrivetrainKinematicLimits(MetersPerSecond.of(lv), MetersPerSecondPerSecond.of(la), RadiansPerSecond.of(av), RadiansPerSecondPerSecond.of(aa));
-      }
-
-    }
-
-    public static class KinimaticLimitInverseInterpolator implements InverseInterpolator<DrivetrainKinematicLimits> {
-
-      public KinimaticLimitInverseInterpolator() {}
-
-      @Override
-      public double inverseInterpolate(DrivetrainKinematicLimits startValue, DrivetrainKinematicLimits endValue,
-          DrivetrainKinematicLimits q) {
-            return MathUtil.inverseInterpolate(startValue.linearVelocity().in(MetersPerSecond), endValue.linearVelocity().in(MetersPerSecond), q.linearVelocity().in(MetersPerSecond));
-      }
-
-    }
   }
 }

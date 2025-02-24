@@ -47,14 +47,13 @@ import org.opencv.osgi.OpenCVInterface;
 import static frc.robot.Constants.ApriltagVisionConstants.*;
 
 /** Add your docs here. */
-public class ApriltagVision implements Localizer {
+public class ApriltagVision extends SubsystemBase {
     private PhotonCamera[] cameras;
     private Transform3d[] camOffsets;
     private PhotonPoseEstimator photonPoseEstimator;
     private boolean odometryHasBeenSeededCashed;
     private ArrayList<BreakerEstimatedPose> estimatedPoses;
     private BreakerPoseEstimationStandardDeviationCalculator stdDevCalculator = new BreakerPoseEstimationStandardDeviationCalculator();
-    private SwerveDrivePoseEstimator poseEstimator;
     private Drivetrain drivetrain;
 
     public ApriltagVision(Drivetrain drivetrain) {
@@ -70,21 +69,15 @@ public class ApriltagVision implements Localizer {
 
         photonPoseEstimator = new PhotonPoseEstimator(FieldConstants.kAprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, new Transform3d());
         estimatedPoses = new ArrayList<>();
-        var driveState = drivetrain.getState();
-        poseEstimator = new SwerveDrivePoseEstimator(drivetrain.getKinematics(), driveState.RawHeading, driveState.ModulePositions, new Pose2d());
         odometryHasBeenSeededCashed = false;
     }
 
 
 
-
-
-    public void update() {
+        @Override
+        public void periodic() {
                     var driveState = drivetrain.getState();
-                    Pose2d odometryRefPos = new Pose2d();
-
-                poseEstimator.update(driveState.RawHeading, driveState.ModulePositions);
-                odometryRefPos = poseEstimator.getEstimatedPosition();
+                    Pose2d odometryRefPos = driveState.Pose;
 
 
             if (odometryHasBeenSeededCashed) {
@@ -107,7 +100,7 @@ public class ApriltagVision implements Localizer {
                        EstimatedRobotPose pos = posOpt.get();
                         List<PhotonTrackedTarget> targets = pos.targetsUsed;
                         if (!odometryHasBeenSeededCashed) {
-                            poseEstimator.resetPose(pos.estimatedPose.toPose2d());
+                            drivetrain.resetPose(pos.estimatedPose.toPose2d());
                             odometryHasBeenSeededCashed = true;
                         }
                         if (targets.size() == 1) {
@@ -142,18 +135,14 @@ public class ApriltagVision implements Localizer {
             sortByStandardDeviation(estimatedPoses);
 
             for (BreakerEstimatedPose estPos: estimatedPoses) {
-                poseEstimator.addVisionMeasurement(estPos.poseEst.estimatedPose.toPose2d(), estPos.poseEst.timestampSeconds, estPos.stdDevs);
+                drivetrain.addVisionMeasurement(estPos.poseEst.estimatedPose.toPose2d(), estPos.poseEst.timestampSeconds, estPos.stdDevs);
             }
 
             if (estimatedPoses.size() > 0) {
                 BreakerLog.log("fsdfsdfs", estimatedPoses.get(0).poseEst.estimatedPose);
             }
 
-            
             estimatedPoses.clear();
-            BreakerLog.log("dsds", poseEstimator.getEstimatedPosition());
-
-            drivetrain.resetPose(poseEstimator.getEstimatedPosition());
 
     }
 
@@ -226,47 +215,6 @@ public class ApriltagVision implements Localizer {
                 ? 0 
                 : (firstValue < secondValue ? -1 : 1);
         });
-    }
-
-    @Override
-    public TimestampedValue<Pose2d> getAtomicPose() {
-        return new TimestampedValue<Pose2d>(poseEstimator.getEstimatedPosition(), Timer.getTimestamp());
-    }
-
-
-
-
-
-    @Override
-    public Pose2d getPose() {
-        return poseEstimator.getEstimatedPosition();
-    }
-
-
-
-
-
-    @Override
-    public ChassisSpeeds getSpeeds() {
-        return new ChassisSpeeds();
-    }
-
-
-
-
-
-    @Override
-    public ChassisAccels getAccels() {
-       return new ChassisAccels();
-    }
-
-
-
-
-
-    @Override
-    public void resetPose(Pose2d newPose) {
-        poseEstimator.resetPose(newPose);
     }
     
 }
