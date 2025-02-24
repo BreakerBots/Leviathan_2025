@@ -16,20 +16,15 @@ import frc.robot.BreakerLib.util.math.OdometryFusion;
 
 /** Add your docs here. */
 public class Localization implements Localizer {
-    private GTSAM gtsam;
+    // private GTSAM gtsam;
     private ApriltagVision apriltagVision;
-    private DepthVision depthVision;
-    private OdometryFusion<SwerveModulePosition[]> fusedOdometry;
-    private Pair<Pose2d, Double> prevPoseFrontZED;
-    private Pair<Pose2d, Double> prevPoseBackZED;  
+    // private DepthVision depthVision;
+    // private OdometryFusion<SwerveModulePosition[]> fusedOdometry;
+    // private Pair<Pose2d, Double> prevPoseFrontZED;
+    // private Pair<Pose2d, Double> prevPoseBackZED;  
     public Localization() {
     }
 
-    private void fuseOdomety() {
-    
-
-
-    }
 
 
     @Override

@@ -5,8 +5,15 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import choreo.auto.AutoFactory;
 import dev.doglog.DogLogOptions;
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,6 +22,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoPilot;
+import frc.robot.commands.AutoPilot.ProfiledPIDControllerConfig;
+import frc.robot.commands.AutoPilot.NavToPoseConfig;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
@@ -22,6 +32,7 @@ import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.logging.BreakerLog.GitInfo;
 import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
 import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExponential;
+import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -29,6 +40,7 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SimpleClimb;
 import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.vision.ApriltagVision;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,6 +57,9 @@ public class RobotContainer {
   private final Indexer indexer = new Indexer();
   private final Elevator elevator = new Elevator();
   private final EndEffector endEffector = new EndEffector();
+  private final Climb climb = new Climb(drivetrain.getPigeon2());
+  private final ApriltagVision apriltagVision = new ApriltagVision(drivetrain);
+  private final AutoPilot ap = new AutoPilot(drivetrain, drivetrain.getLocalizer());
 
   private final BreakerXboxController controller =
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
@@ -54,7 +69,7 @@ public class RobotContainer {
 
 
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake, controller);
+  intake, climb, apriltagVision, controller);
 
 
   private BreakerInputStream driverX, driverY, driverOmega;
@@ -120,11 +135,27 @@ public class RobotContainer {
 
     buttonBoard.getRightButtons().getLowRightButton().onTrue(superstructure.scoreInProcessor());
     buttonBoard.getRightButtons().getHighRightButton().onTrue(superstructure.scoreInBarge());
+
+    buttonBoard.getRightButtons().getLowRightSwitch().onTrue(superstructure.climbOnDeepCage());
+    buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
+
+    var ntpc = new NavToPoseConfig(new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2)), 
+    new ChassisSpeeds(0.05, 0.05, 0.05), 
+    new ProfiledPIDControllerConfig(6,0,0.00, new TrapezoidProfile.Constraints(2.5, 5)),
+    new ProfiledPIDControllerConfig(6,0,0.00, new TrapezoidProfile.Constraints(2.5, 5)),
+    new ProfiledPIDControllerConfig(2.5,0,0, new TrapezoidProfile.Constraints(1, 15))
+    
+    );
+
+    controller.getButtonY().onTrue(ap.navigateToPose(new Pose2d(3.65, 5.08, Rotation2d.fromDegrees(122.5)), ntpc).andThen(
+      superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4)
+    ));
   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
+   * 
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {

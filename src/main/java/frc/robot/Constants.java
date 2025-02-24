@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import javax.print.attribute.standard.PrintQuality;
+
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -28,7 +30,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
@@ -64,6 +69,19 @@ public final class Constants {
     public static class MiscConstants {
         public static final int PDH_ID = 0;
         public static final double kInfrequentLogRate = 0.1;
+    }
+
+    public static class ApriltagVisionConstants {
+      public static final String kTopLeftCameraName = "topleft";
+      public static final String kTopRightCameraName = "topright";
+      public static final String kBottomLeftCameraName = "bottom_left";
+      public static final String kBottomRightCameraName = "bottom_right";
+
+      public static final Translation2d kTopLeftCameraTranslation = new Translation2d();
+      public static final Translation2d kTopRightCameraTranslation = new Translation2d();
+      public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(25), Degrees.of(-165).minus(Degrees.of(2.5))));
+      public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(25), Degrees.of(165).plus(Degrees.of(2.5))));
+      
     }
 
     public static class AutoPilotConstants {
@@ -322,25 +340,28 @@ public final class Constants {
     public static final int kClimbMotorID = 60;
     public static final int kClimbCoder = 61;
 
-    public static final double kClimbCoderAbsoluteSensorDiscontinuityPoint = 0;
-    public static final Angle kClimbCoderOffset = Radians.of(0);
-    public static final Angle kExtendedThreshold = Radian.of(0);
+    public static final double kClimbCoderAbsoluteSensorDiscontinuityPoint = 0.5;
+    public static final Angle kClimbCoderOffset = Rotations.of(-0.35400390625);
+    public static final Angle kExtendedThreshold = Degrees.of(8);
+    public static final Angle kStowThreshold = Degrees.of(8);
 
     public static final double kClimbMotionMagicAcceleration = 0;
     public static final double kClimbMotionMagicCruiseVelocity = 0;
 
-    public static final Rotation2d kClimbReverseLimit = Rotation2d.fromDegrees(0);
-    public static final Rotation2d kClimbForwardLimit = Rotation2d.fromDegrees(0);
+    
     public static final MechanismRatio kClimbGearRatio = new MechanismRatio(150,1);
     public static final CurrentLimitsConfigs kClimbCurrentLimits = new CurrentLimitsConfigs()
                                               .withStatorCurrentLimit(30)
                                               .withStatorCurrentLimitEnable(true)
                                               .withSupplyCurrentLimit(25)
                                               .withSupplyCurrentLimitEnable(true);
-    public static final Angle kClimbingPosition = Rotations.of(0);
-    public static final Angle kExtendedPosition = Rotations.of(0);
-    public static final Angle kStowPosition = Rotations.of(0);
+    public static final Angle kClimbingPosition = Rotations.of(0.145).minus(Degrees.of(35));
+    public static final Angle kExtendedPosition = Rotations.of(0.32);
+    public static final Angle kStowPosition = Rotations.of(0.2);
     public static final Angle kNeutralPosition = Rotations.of(0);
+
+    public static final Angle kClimbReverseLimit = kClimbingPosition.minus(Degrees.of(5));
+    public static final Angle kClimbForwardLimit = kExtendedPosition.plus(Degrees.of(5));
 
   }
 
@@ -517,8 +538,10 @@ public final class Constants {
     private static final boolean kFrontLeftSteerMotorInverted = true;
     private static final boolean kFrontLeftEncoderInverted = false;
 
-    private static final Distance kFrontLeftXPos = Inches.of(10.375); 
-    private static final Distance kFrontLeftYPos = Inches.of(10.375);
+    private static final double kBaseModuleDistance = 21.75/2;
+
+    private static final Distance kFrontLeftXPos = Inches.of(kBaseModuleDistance); 
+    private static final Distance kFrontLeftYPos = Inches.of(kBaseModuleDistance);
 
     // Front Right
     private static final int kFrontRightDriveMotorId = 12;
@@ -529,8 +552,8 @@ public final class Constants {
     private static final boolean kFrontRightSteerMotorInverted = true;
     private static final boolean kFrontRightEncoderInverted = false;
 
-    private static final Distance kFrontRightXPos = Inches.of(10.375);
-    private static final Distance kFrontRightYPos = Inches.of(-10.375); 
+    private static final Distance kFrontRightXPos = Inches.of(kBaseModuleDistance);
+    private static final Distance kFrontRightYPos = Inches.of(-kBaseModuleDistance); 
 
     // Back Left
     private static final int kBackLeftDriveMotorId = 14;
@@ -541,8 +564,8 @@ public final class Constants {
     private static final boolean kBackLeftSteerMotorInverted = true;
     private static final boolean kBackLeftEncoderInverted = false;
 
-    private static final Distance kBackLeftXPos = Inches.of(-10.375);
-    private static final Distance kBackLeftYPos = Inches.of(10.375);
+    private static final Distance kBackLeftXPos = Inches.of(-kBaseModuleDistance);
+    private static final Distance kBackLeftYPos = Inches.of(kBaseModuleDistance);
 
     // Back Right
     private static final int kBackRightDriveMotorId = 16;
@@ -553,8 +576,8 @@ public final class Constants {
     private static final boolean kBackRightSteerMotorInverted = true;
     private static final boolean kBackRightEncoderInverted = false;
 
-    private static final Distance kBackRightXPos = Inches.of(-10.375);
-    private static final Distance kBackRightYPos = Inches.of(-10.375);
+    private static final Distance kBackRightXPos = Inches.of(-kBaseModuleDistance);
+    private static final Distance kBackRightYPos = Inches.of(-kBaseModuleDistance);
 
 
     public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FrontLeft =

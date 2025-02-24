@@ -9,6 +9,7 @@ import static frc.robot.Constants.SuperstructureConstants.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,8 +35,10 @@ import frc.robot.subsystems.EndEffector.WristSetpoint;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Climb.ClimbState;
 import frc.robot.subsystems.Intake.IntakePivotState;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.vision.ApriltagVision;
 
 /** Add your docs here. */
 public class Superstructure extends SubsystemBase {
@@ -46,20 +49,23 @@ public class Superstructure extends SubsystemBase {
     private Climb climb;
     private BreakerXboxController controller;
     private Drivetrain drivetrain;
+    private ApriltagVision apriltagVision;
 
     private final TipProtectionSystem tipProtectionSystem;
 
 
     private HolonomicSlewRateLimiter limiter;
+    
 
-    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, BreakerXboxController controller) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, ApriltagVision apriltagVision, BreakerXboxController controller) {
         this.elevator = elevator;
         this.intake = intake;
         this.indexer = indexer;
         this.endEffector = endEffector;
         this.drivetrain = drivetrain;
-        // this.climb = climb;
+        this.climb = climb;
         this.controller = controller;
+        this.apriltagVision = apriltagVision;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
         // tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
@@ -142,7 +148,7 @@ public class Superstructure extends SubsystemBase {
                         intake.setState(IntakeState.INTAKE, false),
                         indexer.setState(IndexerState.INDEXING)),
                 Commands.waitUntil(endEffector::hasCoral),
-                setMastState(MastState.PARTIAL_STOW, false)
+                setMastState(MastState.STOW, false)
                     .alongWith(
                         intake.setState(IntakeState.STOW, false),
                         indexer.setState(IndexerState.NEUTRAL))
@@ -183,8 +189,6 @@ public class Superstructure extends SubsystemBase {
             Commands.waitUntil(controller.getButtonA()),
             setMastState(MastState.HOLD_ALGAE, false)
         );
-
-
     }
 
     public Command scoreInProcessor() {
@@ -228,6 +232,8 @@ public class Superstructure extends SubsystemBase {
         throw new UnsupportedOperationException();
     }
 
+    // public Command climb()
+
 
     public boolean doesElevatorSetpointAllowEndEffectorFliping(ElevatorSetpoint setpoint) {
         return setpoint.getHeight().in(Meters) < kMaxHeightForEndEffectorFullMotion.in(Meter);
@@ -268,6 +274,22 @@ public class Superstructure extends SubsystemBase {
         } else {
             elevator.forceStop(false);
         }
+    }
+
+    public Command climbOnDeepCage() {
+        return climb.setState(ClimbState.EXTENDED, true).alongWith(
+            setMastState(MastState.PARTIAL_STOW, true),
+            intake.setState(IntakeState.EXTENDED_NEUTRAL, false)
+        ).andThen(
+            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.RIGHT, 0.3)),
+            Commands.waitUntil(controller.getButtonA()),
+            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
+            climb.setState(ClimbState.CLIMBING, false)
+        );
+    }
+ 
+    public Command stowClimb() {
+        return climb.setState(ClimbState.STOW, true);
     }
 
     // public Command setSuperstructureState(SuperstructureState state, SuperstructureStateSuccessType successType) {
@@ -389,6 +411,7 @@ public class Superstructure extends SubsystemBase {
     public void periodic() {
         endEffectorSaftyCheck();
         tipProtectionSystem.update();
+        apriltagVision.update();
         // tipProtectionSystem.update();
     }
 }
