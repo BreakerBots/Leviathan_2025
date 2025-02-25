@@ -4,9 +4,12 @@
 
 package frc.robot.commands;
 
+import java.util.ArrayList;
+
 import choreo.auto.AutoFactory;
-import choreo.auto.AutoRoutine;
-import edu.wpi.first.math.MathUtil;
+import choreo.trajectory.SwerveSample;
+import choreo.trajectory.Trajectory;
+import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,6 +18,7 @@ import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.BreakerLib.physics.BreakerVector2;
+import frc.robot.BreakerLib.util.math.BreakerMath;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.superstructure.Superstructure;
 
@@ -23,6 +27,7 @@ public class Autos {
     private final Superstructure superstructure;
     private final Drivetrain drivetrain;
     private final AutoFactory autoFactory;
+    private boolean flippedHorizontally = false;
 
     public static enum StartPosition {
         ONE,
@@ -45,6 +50,15 @@ public class Autos {
         this.superstructure = superstructure;
         this.drivetrain = superstructure.getDrivetrain();
         autoFactory = superstructure.getDrivetrain().getAutoFactory();
+        setupChooser();
+    }
+
+    public Autos flip() { // TEMPORARY, also TODO: flip ReefPosition too!!!!
+        flippedHorizontally = true;
+        return this;
+    }
+
+    private void setupChooser() { // TODO
     }
 
     public Command testPath() {
@@ -273,7 +287,10 @@ public class Autos {
     private Command runTrajectoryThenScore(String traj, ReefPosition reefPosition, boolean resetOdometry) {
         final var routine = autoFactory.newRoutine("score");
 
-        final var trajectory = routine.trajectory(traj);
+        var trajectory = routine.trajectory(traj);
+        if (flippedHorizontally) {
+            trajectory = routine.trajectory(flipHorizontally(trajectory.getRawTrajectory()));
+        }
 
         final var seq = resetOdometry
             ? Commands.sequence(trajectory.resetOdometry(), trajectory.cmd())
@@ -295,13 +312,12 @@ public class Autos {
                 
                 final var dx = Math.abs(pos.getX() - finalPos.getX());
                 final var dy = Math.abs(pos.getY() - finalPos.getY());
-                final var dt = Math.abs(finalRot - rot);
 
-                if (dx < 0.5 && dy < 0.5 && dt < 0.5 & !backupTimer.isRunning()) {
+                if (dx < 0.5 && dy < 0.5 && BreakerMath.isAngleClose(finalRot, rot, 0.5) & !backupTimer.isRunning()) {
                     backupTimer.start();
                 }
 
-                return dx < 0.1 && dy < 0.1 && dt < 0.1;
+                return dx < 0.1 && dy < 0.1 && BreakerMath.isAngleClose(finalRot, rot, 0.1);
 
             }),
             superstructure.scoreOnReef(reefPosition)
@@ -311,7 +327,10 @@ public class Autos {
     private Command runTrajectoryThenHumanPlayer(String traj) {
         final var routine = autoFactory.newRoutine("human-player");
 
-        final var trajectory = routine.trajectory(traj);
+        var trajectory = routine.trajectory(traj);
+        if (flippedHorizontally) {
+            trajectory = routine.trajectory(flipHorizontally(trajectory.getRawTrajectory()));
+        }
 
         final var intakeCmd = superstructure.intakeCoralFromHumanPlayer();
         routine.active().onTrue(Commands.sequence(
@@ -332,16 +351,50 @@ public class Autos {
 
                 final var dx = Math.abs(pos.getX() - finalPos.getX());
                 final var dy = Math.abs(pos.getY() - finalPos.getY());
-                final var dt = Math.abs(finalRot - rot);
                 
-                if (dx < 0.5 && dy < 0.5 && dt < 0.5 & !backupTimer.isRunning()) {
+                if (dx < 0.5 && dy < 0.5 && BreakerMath.isAngleClose(finalRot, rot, 0.5) & !backupTimer.isRunning()) {
                     backupTimer.start();
                 }
 
-                return dx < 0.1 && dy < 0.1 && dt < 0.1;
+                return dx < 0.1 && dy < 0.1 && BreakerMath.isAngleClose(finalRot, rot, 0.1);
 
             }),
             intakeCmd
         );
+    }
+
+    private Trajectory<SwerveSample> flipHorizontally(Trajectory<SwerveSample> traj) {
+        final var flipped = new ArrayList<SwerveSample>();
+        for (final var state : traj.samples()) {
+            final var y = ChoreoAllianceFlipUtil.flipY(state.getPose().getY());
+            final var heading = (2 * Math.PI) - state.getPose().getRotation().getRadians();
+
+            var sample = new SwerveSample(
+                state.t, 
+                state.x, 
+                y, 
+                heading, 
+                state.vx, 
+                -state.vy, 
+                -state.omega, 
+                state.ax, 
+                -state.ay, 
+                -state.alpha, 
+                new double[] {
+                    state.moduleForcesX()[0],
+                    state.moduleForcesX()[1],
+                    state.moduleForcesX()[2],
+                    state.moduleForcesX()[3],
+                },
+                new double[] { // FIXME
+                    state.moduleForcesY()[0],
+                    state.moduleForcesY()[1],
+                    state.moduleForcesY()[2],
+                    state.moduleForcesY()[3],
+                });
+            flipped.add(sample);
+        }
+
+        return new Trajectory<SwerveSample>(traj.name(), flipped, traj.splits(), traj.events());
     }
 }

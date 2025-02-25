@@ -32,6 +32,7 @@ import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.BreakerLib.util.logging.Elastic;
 import frc.robot.BreakerLib.util.logging.BreakerLog.GitInfo;
 import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
 import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExponential;
@@ -68,12 +69,14 @@ public class RobotContainer {
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
   private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
 
+  
   //private final SimpleClimb climb = new SimpleClimb();
-
-
+  
+  
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
   intake, climb, apriltagVision, controller);
-
+  
+  private final Autos autos = new Autos(superstructure).flip();
 
   private BreakerInputStream driverX, driverY, driverOmega;
   
@@ -164,8 +167,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
-    final var autos = new Autos(superstructure);
     return autos.startThenJKLA(StartPosition.fromDriverStation());
+    // return autos.start3ThenABC();
     // return autos.startThenGFED(StartPosition.fromDriverStation());
     // return autos.start3ThenGDCB();
   }

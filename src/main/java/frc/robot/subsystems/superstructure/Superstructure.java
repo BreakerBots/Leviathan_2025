@@ -422,7 +422,7 @@ public class Superstructure extends SubsystemBase {
     public void periodic() {
         endEffectorSaftyCheck();
         tipProtectionSystem.update();
-        apriltagVision.update();
+        // apriltagVision.update();
         // tipProtectionSystem.update();
     }
 }

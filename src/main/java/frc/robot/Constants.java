@@ -67,7 +67,7 @@ import frc.robot.subsystems.Drivetrain.DrivetrainKinematicLimits;
 public final class Constants {
 
   public static class SimulationConstants {
-    public static Time kWaitTime = Seconds.of(0.5);
+    public static Time kWaitTime = Seconds.of(1.2);
   }
 
     public static class MiscConstants {

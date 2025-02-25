@@ -16,6 +16,10 @@ import frc.robot.BreakerLib.physics.BreakerVector3;
 /** BreakerLib math util class. */
 public class BreakerMath {
 
+    public static boolean isAngleClose(double desired, double actual, double tolerence) {
+        final var diff = Math.abs(desired - actual) % (2*Math.PI);
+        return diff < tolerence || diff > ((2*Math.PI)-tolerence);
+    }
 
     public static double getCircumferenceFromDiameter(double diameter) {
         return diameter * Math.PI;
