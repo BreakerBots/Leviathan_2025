@@ -176,7 +176,7 @@ public class Autos {
                 return dx < 0.1 && dy < 0.1 && BreakerMath.isAngleClose(finalRot, rot, 0.1);
 
             }),
-            superstructure.scoreOnReef(reefPosition)
+            superstructure.scoreOnReefAuton(reefPosition)
         );
     }
 
