@@ -8,6 +8,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,7 +48,7 @@ public class AutoPilot {
     private final Pose2d positionTolerance;
     private final ChassisSpeeds velocityTolerance;
 
-    private Pose2d error = Pose2d.kZero;
+    private Transform2d error = Transform2d.kZero;
     private SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric();
 
     private ProfiledPIDController xController;
@@ -66,7 +67,7 @@ public class AutoPilot {
       xController = fromConfig(config.xConfig);
       yController = fromConfig(config.yConfig);
       thetaController = fromConfig(config.thetaConfig);
-      thetaController.enableContinuousInput(0, Degrees.of(360.0).in(Radians));
+      thetaController.enableContinuousInput(-Math.PI, Math.PI);
       addRequirements(drivetrain);
     }
 
@@ -142,6 +143,8 @@ public class AutoPilot {
       request.VelocityY = yFB + yFF;
       request.RotationalRate = thetaFB + thetaFF;
       drivetrain.setControl(request);
+
+      error = currentPose.minus(goal);
 
       BreakerLog.log("NavToPose/xFB", xFB);
       BreakerLog.log("NavToPose/yFB", yFB);

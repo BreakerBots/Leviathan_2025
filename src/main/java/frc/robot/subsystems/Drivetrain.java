@@ -8,15 +8,21 @@ import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.DriveConstants.*;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.estimator.PoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain;
 public class Drivetrain extends BreakerSwerveDrivetrain {
-
+  private SwerveDrivePoseEstimator poseEstimator;
   /** Creates a new Drivetrain. */
   public Drivetrain() {
     super(DRIVETRAIN_CONSTANTS, FrontLeft, FrontRight, BackLeft, BackRight);
@@ -31,34 +37,6 @@ public class Drivetrain extends BreakerSwerveDrivetrain {
 
     public DrivetrainKinematicLimits scale(double accelScalar, double velScalar) {
       return new DrivetrainKinematicLimits(linearVelocity.times(velScalar), linearAcceleration.times(accelScalar), angularVelocity.times(velScalar), angularAcceleration.times(accelScalar));
-    }
-
-    public static class KinimaticLimitInterpolator implements Interpolator<DrivetrainKinematicLimits> {
-
-      public KinimaticLimitInterpolator() {}
-
-      @Override
-      public DrivetrainKinematicLimits interpolate(DrivetrainKinematicLimits startValue,
-          DrivetrainKinematicLimits endValue, double t) {
-        double lv = MathUtil.interpolate(startValue.linearVelocity().in(MetersPerSecond), endValue.linearVelocity().in(MetersPerSecond), t);
-        double la = MathUtil.interpolate(startValue.linearAcceleration().in(MetersPerSecondPerSecond), endValue.linearAcceleration().in(MetersPerSecondPerSecond), t);
-        double av = MathUtil.interpolate(startValue.angularVelocity().in(RadiansPerSecond), endValue.angularVelocity().in(RadiansPerSecond), t);
-        double aa = MathUtil.interpolate(startValue.angularAcceleration().in(RadiansPerSecondPerSecond), endValue.angularAcceleration().in(RadiansPerSecondPerSecond), t);
-        return new DrivetrainKinematicLimits(MetersPerSecond.of(lv), MetersPerSecondPerSecond.of(la), RadiansPerSecond.of(av), RadiansPerSecondPerSecond.of(aa));
-      }
-
-    }
-
-    public static class KinimaticLimitInverseInterpolator implements InverseInterpolator<DrivetrainKinematicLimits> {
-
-      public KinimaticLimitInverseInterpolator() {}
-
-      @Override
-      public double inverseInterpolate(DrivetrainKinematicLimits startValue, DrivetrainKinematicLimits endValue,
-          DrivetrainKinematicLimits q) {
-            return MathUtil.inverseInterpolate(startValue.linearVelocity().in(MetersPerSecond), endValue.linearVelocity().in(MetersPerSecond), q.linearVelocity().in(MetersPerSecond));
-      }
-
     }
   }
 }
