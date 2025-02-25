@@ -134,7 +134,8 @@ public class RobotContainer {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
     final var autos = new Autos(superstructure);
-    return autos.startAnywhereThenJKLA(StartPosition.fromDriverStation());
+    return autos.startThenJKLA(StartPosition.fromDriverStation());
+    // return autos.startThenGFED(StartPosition.fromDriverStation());
     // return autos.start3ThenGDCB();
   }
 }
