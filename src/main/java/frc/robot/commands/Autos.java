@@ -15,14 +15,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.BreakerLib.physics.BreakerVector2;
-import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.math.BreakerMath;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.superstructure.Superstructure;
@@ -265,12 +263,12 @@ public class Autos {
     }
 
     private ReefPosition flipReefPosition(ReefPosition reefPosition) {
-        final int offset = -5; // wrong
+        final int branch = reefPosition.branch().ordinal();
         final int last = ReefBranch.L.ordinal()+1;
-        final int unclamped = reefPosition.branch().ordinal() + offset; 
-        final int flipped = (((unclamped) % last)+last)%last;
+        int flipped = last - branch;
+        if (branch >= 6) flipped += 1;
+        else flipped -= 1;
 
-        System.out.println(reefPosition.branch());
         return new ReefPosition(reefPosition.level(), ReefBranch.values()[flipped]);
     }
 }
