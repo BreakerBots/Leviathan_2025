@@ -7,18 +7,27 @@ package frc.robot.subsystems.superstructure;
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.SuperstructureConstants.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.SimulationConstants;
 import frc.robot.HolonomicSlewRateLimiter;
 import frc.robot.ReefPosition;
 import frc.robot.Robot;
 import frc.robot.ReefPosition.ReefLevel;
+import frc.robot.commands.AutoPilot;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerRumbleType;
@@ -52,6 +61,7 @@ public class Superstructure extends SubsystemBase {
     private BreakerXboxController controller;
     private Drivetrain drivetrain;
     private ApriltagVision apriltagVision;
+    private AutoPilot autoPilot;
 
     private final TipProtectionSystem tipProtectionSystem;
 
@@ -59,7 +69,7 @@ public class Superstructure extends SubsystemBase {
     private HolonomicSlewRateLimiter limiter;
     
 
-    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, ApriltagVision apriltagVision, BreakerXboxController controller) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, ApriltagVision apriltagVision, AutoPilot autoPilot, BreakerXboxController controller) {
         this.elevator = elevator;
         this.intake = intake;
         this.indexer = indexer;
@@ -68,6 +78,7 @@ public class Superstructure extends SubsystemBase {
         this.climb = climb;
         this.controller = controller;
         this.apriltagVision = apriltagVision;
+        this.autoPilot = autoPilot;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
         // tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
@@ -162,7 +173,7 @@ public class Superstructure extends SubsystemBase {
     public Command reverseIntake() {
         return intake.setState(IntakeState.EXTAKE, true).alongWith(indexer.setState(IndexerState.REVERSE)).andThen(
             Commands.waitSeconds(1.0),
-            intake.setState(IntakeState.EXTENDED_NEUTRAL, false).alongWith(indexer.setState(IndexerState.NEUTRAL))
+            intake.setState(IntakeState.EXTENDED_NEUTRAL, false).alongWith(indexer.setState(IndexerState.NEUTRAL), setMastState(MastState.STOW, false))
         );
     }
 
@@ -235,12 +246,23 @@ public class Superstructure extends SubsystemBase {
     }
 
     // note: when this function is implemented, make sure to stow too once it scores.
-    public Command scoreOnReef(ReefPosition position) {
+    public Command scoreOnReefAuton(ReefPosition position) {
         if (Robot.isSimulation()) return Commands.sequence(
             Commands.print("Scored on " + position),
             Commands.waitTime(SimulationConstants.kWaitTime)
         ); // for testing.
         throw new UnsupportedOperationException();
+    }
+
+
+    public Command scoreOnReef(ReefPosition position) {
+        HashSet<Subsystem> reqs = new HashSet<>();
+        reqs.add(drivetrain);
+        return Commands.defer(
+            () -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig), reqs)
+            .andThen(
+                scoreOnReefManual(position.level())
+            );
     }
 
     // public Command climb()
@@ -422,7 +444,6 @@ public class Superstructure extends SubsystemBase {
     public void periodic() {
         endEffectorSaftyCheck();
         tipProtectionSystem.update();
-        // apriltagVision.update();
         // tipProtectionSystem.update();
     }
 }

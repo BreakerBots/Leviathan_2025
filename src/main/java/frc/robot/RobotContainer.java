@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.ReefPosition.ReefBranch;
+import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.AutoPilot;
 import frc.robot.commands.AutoPilot.ProfiledPIDControllerConfig;
 import frc.robot.commands.AutoPilot.NavToPoseConfig;
@@ -32,7 +34,6 @@ import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
-import frc.robot.BreakerLib.util.logging.Elastic;
 import frc.robot.BreakerLib.util.logging.BreakerLog.GitInfo;
 import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
 import frc.robot.BreakerLib.util.math.functions.BreakerLinearizedConstrainedExponential;
@@ -69,14 +70,12 @@ public class RobotContainer {
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
   private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
 
-  
   //private final SimpleClimb climb = new SimpleClimb();
-  
-  
+
+
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake, climb, apriltagVision, controller);
-  
-  private final Autos autos = new Autos(superstructure);
+  intake, climb, apriltagVision, ap, controller);
+
 
   private BreakerInputStream driverX, driverY, driverOmega;
   
@@ -134,28 +133,19 @@ public class RobotContainer {
     controller.getStartButton().onTrue(superstructure.intakeCoralFromHumanPlayer());
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
 
-    buttonBoard.getLevelButtons().getL1Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
-    buttonBoard.getLevelButtons().getL2Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));
-    buttonBoard.getLevelButtons().getL3Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L3));
-    buttonBoard.getLevelButtons().getL4Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4));
+    // buttonBoard.getLevelButtons().getL1Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
+    // buttonBoard.getLevelButtons().getL2Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));
+    // buttonBoard.getLevelButtons().getL3Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L3));
+    // buttonBoard.getLevelButtons().getL4Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4));
 
     buttonBoard.getRightButtons().getLowRightButton().onTrue(superstructure.scoreInProcessor());
     buttonBoard.getRightButtons().getHighRightButton().onTrue(superstructure.scoreInBarge());
 
+
     buttonBoard.getRightButtons().getLowRightSwitch().onTrue(superstructure.climbOnDeepCage());
     buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
 
-    var ntpc = new NavToPoseConfig(new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2)), 
-    new ChassisSpeeds(0.05, 0.05, 0.05), 
-    new ProfiledPIDControllerConfig(6,0,0.00, new TrapezoidProfile.Constraints(2.5, 5)),
-    new ProfiledPIDControllerConfig(6,0,0.00, new TrapezoidProfile.Constraints(2.5, 5)),
-    new ProfiledPIDControllerConfig(2.5,0,0, new TrapezoidProfile.Constraints(1, 15))
-    
-    );
-
-    controller.getButtonY().onTrue(ap.navigateToPose(new Pose2d(3.65, 5.08, Rotation2d.fromDegrees(122.5)), ntpc).andThen(
-      superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4)
-    ));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonK()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
   }
 
   /**
@@ -167,9 +157,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
-    // return autos.startThenJKLA(StartPosition.fromDriverStation());
-    // return autos.startThenGFED(StartPosition.fromDriverStation());
+    final var autos = new Autos(superstructure);
+    return autos.startAnywhereThenJKLA(StartPosition.fromDriverStation());
     // return autos.start3ThenGDCB();
-    return autos.getSelectedAuto();
   }
 }

@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.security.AllPermission;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -30,23 +32,19 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
         }
     }
 
-    public static enum ReefAlgaeLevel {
-        
-    }
-
     public static enum ReefBranch {
-        A(0, 0, true),
-        B(0, 0, false),
-        C(0, 0, true),
-        D(0, 0, false),
-        E(0, 0, true),
-        F(0, 0, false),
-        G(0, 0, true),
-        H(0, 0, false),
-        I(0, 0, true),
-        J(0, 0, false),
-        K(0, 0, true),
-        L(0, 0, false);
+        A(18, 0, true),
+        B(18, 0, false),
+        C(17, 0, true),
+        D(17, 0, false),
+        E(22, 0, true),
+        F(22, 0, false),
+        G(21, 0, true),
+        H(21, 0, false),
+        I(20, 0, true),
+        J(20, 0, false),
+        K(19, 0, true),
+        L(19, 0, false);
 
         private int blueReefFaceApriltagID, redReefFaceApriltagID;
         private boolean isLeft;
@@ -60,9 +58,9 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
             Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueReefFaceApriltagID : redReefFaceApriltagID).get().toPose2d();
 
             Translation2d allignOffsetRel = new Translation2d(
-                FieldConstants.kReefBranchOffsetFromFaceApriltag.getX() - AutoPilotConstants.kReefAutoAllignOffsetFromBranch.in(Units.Meters), 
-                isLeft ? FieldConstants.kReefBranchOffsetFromFaceApriltag.getY() : -FieldConstants.kReefBranchOffsetFromFaceApriltag.getY());
-            
+                (alliance == Alliance.Blue ? -1 : 1) * AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
+                (isLeft ? 1 : -1) * (alliance == Alliance.Blue ? -1 : 1) * FieldConstants.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters));
+
             Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
 
             Translation2d allignTrans = tagPose.getTranslation().plus(allignOffset);

@@ -29,6 +29,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -37,6 +38,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -54,6 +57,8 @@ import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.HeadingCompensatio
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.SetpointGenerationConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.MechanismRatio;
+import frc.robot.commands.AutoPilot.NavToPoseConfig;
+import frc.robot.commands.AutoPilot.ProfiledPIDControllerConfig;
 import frc.robot.subsystems.Drivetrain.DrivetrainKinematicLimits;
 
 /**
@@ -89,13 +94,22 @@ public final class Constants {
     }
 
     public static class AutoPilotConstants {
-      public static final Distance kReefAutoAllignOffsetFromBranch = Meters.of(0.8);
-      
-    }
+      public static final Distance kReefAutoAllignOffsetFromReefFace = Meters.of(0.45);
+
+      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(8, 0, 0, new Constraints(1.0, 2.0));
+      public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(2.5, 0, 0, new Constraints(2.0, 5.0));
+
+      public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
+        new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2)),
+        new ChassisSpeeds(0.01, 0.01, 0.05), 
+        kDefaultTranslationConfig, 
+        kDefaultTranslationConfig, 
+        kDefaultRotationConfig);
+      }
 
     public static class FieldConstants {
       public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-      public static final Translation2d kReefBranchOffsetFromFaceApriltag = new Translation2d();
+      public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(6.47);
       
     }
 
@@ -282,7 +296,7 @@ public final class Constants {
     public static final MechanismRatio kWristRatio = new MechanismRatio(240);//
 
     public static final double kWristDiscontinuityPoint = 0.75;
-    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(50
+    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(55
     );
 
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
