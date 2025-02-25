@@ -123,7 +123,7 @@ public class RobotContainer {
             .map(new BreakerLinearizedConstrainedExponential(0.12, 5.5, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
-    drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
+   // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
     drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
 
     controller.getButtonX().onTrue(elevator.home());
@@ -147,7 +147,18 @@ public class RobotContainer {
     buttonBoard.getRightButtons().getLowRightSwitch().onTrue(superstructure.climbOnDeepCage());
     buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
 
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonA()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.A)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonB()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.B)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonC()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonD()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.D)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonE()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.E)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonF()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.F)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonG()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.G)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonH()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.H)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonI()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.I)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonJ()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.J)));
     buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonK()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonL()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.L)));
   }
 
   /**

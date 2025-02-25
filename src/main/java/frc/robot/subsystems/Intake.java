@@ -178,7 +178,7 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakeRollerState {
-        INTAKE(-1),
+        INTAKE(-0.65),
         // INTAKE_ALGAE(0.5),
         // HOLD_ALGAE(0.1),
         // EXTAKE_ALGAE(-0.8),

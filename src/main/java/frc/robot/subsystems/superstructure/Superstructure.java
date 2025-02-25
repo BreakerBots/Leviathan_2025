@@ -260,6 +260,9 @@ public class Superstructure extends SubsystemBase {
         reqs.add(drivetrain);
         return Commands.defer(
             () -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig), reqs)
+            .alongWith(
+                setMastState(MastState.PARTIAL_STOW, false)
+            )
             .andThen(
                 scoreOnReefManual(position.level())
             );
