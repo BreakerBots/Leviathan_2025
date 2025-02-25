@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
@@ -12,6 +13,9 @@ import choreo.trajectory.Trajectory;
 import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefPosition;
@@ -27,6 +31,9 @@ public class Autos {
     private final Superstructure superstructure;
     private final Drivetrain drivetrain;
     private final AutoFactory autoFactory;
+
+    private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
+
     private boolean flippedHorizontally = false;
 
     public static enum StartPosition {
@@ -58,28 +65,15 @@ public class Autos {
         return this;
     }
 
-    private void setupChooser() { // TODO
+    public Command getSelectedAuto() {
+        return autoChooser.getSelected().get();
     }
 
-    public Command testPath() {
-        final var routine = autoFactory.newRoutine("testPath");
-        final var startTraj = routine.trajectory("Start 1 to Reef J");
-        final var toCoralPS = routine.trajectory("Reef J to Coral PS");
+    private void setupChooser() { // TODO
+        autoChooser.setDefaultOption("Start -> JKLA", () -> startThenJKLA(StartPosition.fromDriverStation()));
+        autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation()));
 
-        startTraj
-            .done()
-            .onTrue(Commands.sequence( // note: scoreOnReef is not implemented
-                superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.L)),
-                toCoralPS.cmd()
-            ));
-
-
-        routine.active().onTrue(Commands.sequence(
-            startTraj.resetOdometry(),
-            startTraj.cmd()
-        ));
-
-        return routine.cmd();
+        Shuffleboard.getTab("Autonomous").add(autoChooser);
     }
 
     /**

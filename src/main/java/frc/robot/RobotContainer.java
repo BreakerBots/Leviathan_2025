@@ -169,6 +169,7 @@ public class RobotContainer {
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
     // return autos.startThenJKLA(StartPosition.fromDriverStation());
     // return autos.startThenGFED(StartPosition.fromDriverStation());
-    return autos.start3ThenGDCB();
+    // return autos.start3ThenGDCB();
+    return autos.getSelectedAuto();
   }
 }
