@@ -76,7 +76,7 @@ public class RobotContainer {
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
   intake, climb, apriltagVision, controller);
   
-  private final Autos autos = new Autos(superstructure).flip();
+  private final Autos autos = new Autos(superstructure);
 
   private BreakerInputStream driverX, driverY, driverOmega;
   
@@ -167,9 +167,8 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
-    return autos.startThenJKLA(StartPosition.fromDriverStation());
-    // return autos.start3ThenABC();
+    // return autos.startThenJKLA(StartPosition.fromDriverStation());
     // return autos.startThenGFED(StartPosition.fromDriverStation());
-    // return autos.start3ThenGDCB();
+    return autos.start3ThenGDCB();
   }
 }

@@ -128,156 +128,18 @@ public class Autos {
             runTrajectoryThenHumanPlayer("Reef E to Coral PS2"),
             runTrajectoryThenScore("Coral PS2 to Reef D", new ReefPosition(ReefLevel.L4, ReefBranch.D))
         );
-        // final var routine = autoFactory.newRoutine("Start2->GFED");
-
-        // final var startToG = switch (startPosition) {
-        //     case ONE -> routine.trajectory("Start 1 to Reef G");
-        //     case TWO -> routine.trajectory("Start 2 to Reef G");
-        //     case THREE -> routine.trajectory("Start 3 to Reef G");
-        // };
-
-        // final var reefGToPS2 = routine.trajectory("Reef G to Coral PS2");
-        // final var ps2ToReefF = routine.trajectory("Coral PS2 to Reef F");
-        // final var reefFToPS2 = routine.trajectory("Reef F to Coral PS2");
-        // final var ps2ToReefE = routine.trajectory("Coral PS2 to Reef E");
-        // final var reefEToPS2 = routine.trajectory("Reef E to Coral PS2");
-        // final var ps2ToReefD = routine.trajectory("Coral PS2 to Reef D");
-        // // This is pretty repetitive, might be worth making some kind of builder for this
-        // // after we verify that it works at all.
-        // startToG.done().onTrue(Commands.sequence(
-        //     superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.G)),
-        //     reefGToPS2.cmd()
-        // ));
-
-        // reefGToPS2.done().onTrue(Commands.sequence(
-        //     superstructure.intakeCoralFromHumanPlayer(),
-        //     ps2ToReefF.cmd()
-        // ));
-
-        // ps2ToReefF.done().onTrue(Commands.sequence(
-        //     superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.F)),
-        //     reefFToPS2.cmd()
-        // ));
-
-        // reefFToPS2.done().onTrue(Commands.sequence(
-        //     superstructure.intakeCoralFromHumanPlayer(),
-        //     ps2ToReefE.cmd()
-        // ));
-
-        // ps2ToReefE.done().onTrue(Commands.sequence(
-        //     superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.E)),
-        //     reefEToPS2.cmd()
-        // ));
-
-        // reefEToPS2.done().onTrue(Commands.sequence(
-        //     superstructure.intakeCoralFromHumanPlayer(),
-        //     ps2ToReefD.cmd()
-        // ));
-
-        // routine.active().onTrue(Commands.sequence(
-        //     startToG.resetOdometry(),
-        //     startToG.cmd()
-        // ));
-
-        // return routine.cmd();
-    }
-
-    // This autopath is really bad, but I couldn't think of any more interesting paths for coral.
-    public Command start3ThenABC() {
-        final var routine = autoFactory.newRoutine("Start3->ABC");
-        
-        final var startToA = routine.trajectory("Start 3 to Reef A");
-
-        final var reefAToPS2 = routine.trajectory("Reef A to Coral PS2");
-        final var ps2ToReefB = routine.trajectory("Coral PS2 to Reef B");
-        final var reefBToPS2 = routine.trajectory("Reef B to Coral PS2");
-        final var ps2ToReefC = routine.trajectory("Coral PS2 to Reef C");
-
-        startToA.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.A)),
-            reefAToPS2.cmd()
-        ));
-
-        reefAToPS2.done().onTrue(Commands.sequence(
-            superstructure.intakeCoralFromHumanPlayer(),
-            ps2ToReefB.cmd()
-        ));
-
-        ps2ToReefB.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.B)),
-            reefBToPS2.cmd()
-        ));
-
-        reefBToPS2.done().onTrue(Commands.sequence(
-            superstructure.intakeCoralFromHumanPlayer(),
-            ps2ToReefC.cmd()
-        ));
-
-        ps2ToReefC.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C))
-        ));
-
-        routine.active().onTrue(Commands.sequence(
-            startToA.resetOdometry(),
-            startToA.cmd()
-        ));
-
-        return routine.cmd();
     }
 
     public Command start3ThenGDCB() {
-        final var routine = autoFactory.newRoutine("Start3->GDCB");
-        
-        final var startToG = routine.trajectory("Start 3 to Reef G");
-
-        final var reefGToPS2 = routine.trajectory("Reef G to Coral PS2");
-        final var ps2ToReefD = routine.trajectory("Coral PS2 to Reef D");
-        final var reefDToPS2 = routine.trajectory("Reef D to Coral PS2");
-        final var ps2ToReefC = routine.trajectory("Coral PS2 to Reef C");
-        final var reefCToPS2 = routine.trajectory("Reef C to Coral PS2");
-        final var ps2ToReefB = routine.trajectory("Coral PS2 to Reef B");
-
-        startToG.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.A)),
-            reefGToPS2.cmd()
-        ));
-
-        reefGToPS2.done().onTrue(Commands.sequence(
-            superstructure.intakeCoralFromHumanPlayer(),
-            ps2ToReefD.cmd()
-        ));
-
-        ps2ToReefD.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.B)),
-            reefDToPS2.cmd()
-        ));
-
-        reefDToPS2.done().onTrue(Commands.sequence(
-            superstructure.intakeCoralFromHumanPlayer(),
-            ps2ToReefC.cmd()
-        ));
-
-        ps2ToReefC.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C)),
-            reefCToPS2.cmd()
-        ));
-
-        reefCToPS2.done().onTrue(Commands.sequence(
-            superstructure.intakeCoralFromHumanPlayer(),
-            ps2ToReefB.cmd()
-        ));
-
-        ps2ToReefB.done().onTrue(Commands.sequence(
-            superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C))
-        ));
-
-        routine.active().onTrue(Commands.sequence(
-            startToG.resetOdometry(),
-            startToG.cmd()
-        ));
-
-
-        return routine.cmd();
+        return Commands.sequence(
+            runTrajectoryThenScore("Start 3 to Reef G", new ReefPosition(ReefLevel.L4, ReefBranch.G), true),
+            runTrajectoryThenHumanPlayer("Reef G to Coral PS2"),
+            runTrajectoryThenScore("Coral PS2 to Reef D", new ReefPosition(ReefLevel.L4, ReefBranch.D)),
+            runTrajectoryThenHumanPlayer("Reef D to Coral PS2"),
+            runTrajectoryThenScore("Coral PS2 to Reef C", new ReefPosition(ReefLevel.L4, ReefBranch.C)),
+            runTrajectoryThenHumanPlayer("Reef C to Coral PS2"),
+            runTrajectoryThenScore("Coral PS2 to Reef B", new ReefPosition(ReefLevel.L4, ReefBranch.B))
+        );
     }
 
     private Command runTrajectoryThenScore(String traj, ReefPosition reefPosition) {
