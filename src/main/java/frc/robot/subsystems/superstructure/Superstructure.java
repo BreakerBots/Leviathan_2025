@@ -247,11 +247,16 @@ public class Superstructure extends SubsystemBase {
 
     // note: when this function is implemented, make sure to stow too once it scores.
     public Command scoreOnReefAuton(ReefPosition position) {
-        if (Robot.isSimulation()) return Commands.sequence(
-            Commands.print("Scored on " + position),
-            Commands.waitTime(SimulationConstants.kWaitTime)
-        ); // for testing.
-        throw new UnsupportedOperationException();
+       return Commands.deferredProxy(
+            () -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
+            .alongWith(
+                setMastState(MastState.PARTIAL_STOW, false)
+            ).andThen(
+                setMastState(position.level().getNeutralMastState(), true),
+                setMastState(position.level().getExtakeMastState(), false),
+                new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
+                setMastState(MastState.STOW, false)
+            );
     }
 
 

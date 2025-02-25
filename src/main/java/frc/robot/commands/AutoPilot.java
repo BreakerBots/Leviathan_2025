@@ -148,13 +148,13 @@ public class AutoPilot {
 
       BreakerLog.log("NavToPose/xFB", xFB);
       BreakerLog.log("NavToPose/yFB", yFB);
-      BreakerLog.log("NavToPose/θFB", thetaFB);
+      BreakerLog.log("NavToPose/thetaFB", thetaFB);
       BreakerLog.log("NavToPose/xFF", xFF);
       BreakerLog.log("NavToPose/yFF", yFF);
-      BreakerLog.log("NavToPose/θFF", thetaFF);
+      BreakerLog.log("NavToPose/thetaFF", thetaFF);
       BreakerLog.log("NavToPose/xRequest", request.VelocityX);
       BreakerLog.log("NavToPose/yRequest", request.VelocityY);
-      BreakerLog.log("NavToPose/θRequest", request.RotationalRate);
+      BreakerLog.log("NavToPose/thetaRequest", request.RotationalRate);
       BreakerLog.log("NavToPose/Goal", goal);
     }
 

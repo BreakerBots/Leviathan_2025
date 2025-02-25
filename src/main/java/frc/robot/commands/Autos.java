@@ -155,29 +155,30 @@ public class Autos {
 
         routine.active().onTrue(seq);
 
-        final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
-        final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
-        final var backupTimer = new Timer();
+        // final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
+        // final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
+        // final var backupTimer = new Timer();
         
         // not super happy with this solution.
         return Commands.sequence(
             Commands.print(reefPosition.branch().toString()),
-            routine.cmd(() -> {
-                if (backupTimer.advanceIfElapsed(0.2)) return true;
+            // routine.cmd(() -> {
+            //     if (backupTimer.advanceIfElapsed(0.2)) return true;
 
-                final var pos = new BreakerVector2(superstructure.getDrivetrain().getLocalizer().getPose().getTranslation());
-                final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
+            //     final var pos = new BreakerVector2(superstructure.getDrivetrain().getLocalizer().getPose().getTranslation());
+            //     final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
                 
-                final var dx = Math.abs(pos.getX() - finalPos.getX());
-                final var dy = Math.abs(pos.getY() - finalPos.getY());
+            //     final var dx = Math.abs(pos.getX() - finalPos.getX());
+            //     final var dy = Math.abs(pos.getY() - finalPos.getY());
 
-                if (dx < 0.5 && dy < 0.5 && BreakerMath.isAngleClose(finalRot, rot, 0.5) & !backupTimer.isRunning()) {
-                    backupTimer.start();
-                }
+            //     if (dx < 0.5 && dy < 0.5 && BreakerMath.isAngleClose(finalRot, rot, 0.5) & !backupTimer.isRunning()) {
+            //         backupTimer.start();
+            //     }
 
-                return dx < 0.1 && dy < 0.1 && BreakerMath.isAngleClose(finalRot, rot, 0.1);
+            //     return dx < 0.1 && dy < 0.1 && BreakerMath.isAngleClose(finalRot, rot, 0.1);
 
-            }),
+            // }),
+            routine.cmd(),
             superstructure.scoreOnReefAuton(reefPosition)
         );
     }
@@ -196,27 +197,28 @@ public class Autos {
             trajectory.cmd()
         ));
 
-        final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
-        final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
-        final var backupTimer = new Timer();
+        // final var finalPos = new BreakerVector2(trajectory.getFinalPose().orElseThrow().getTranslation());
+        // final var finalRot = trajectory.getFinalPose().orElseThrow().getRotation().getRadians();
+        // final var backupTimer = new Timer();
 
         return Commands.sequence(
-            routine.cmd(() -> {
-                if (backupTimer.advanceIfElapsed(0.2)) return true;
+            // routine.cmd(() -> {
+            //     if (backupTimer.advanceIfElapsed(0.2)) return true;
 
-                final var pos = new BreakerVector2(drivetrain.getLocalizer().getPose().getTranslation());
-                final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
+            //     final var pos = new BreakerVector2(drivetrain.getLocalizer().getPose().getTranslation());
+            //     final var rot = drivetrain.getLocalizer().getPose().getRotation().getRadians();
 
-                final var dx = Math.abs(pos.getX() - finalPos.getX());
-                final var dy = Math.abs(pos.getY() - finalPos.getY());
+            //     final var dx = Math.abs(pos.getX() - finalPos.getX());
+            //     final var dy = Math.abs(pos.getY() - finalPos.getY());
                 
-                if (dx < 0.5 && dy < 0.5 && BreakerMath.isAngleClose(finalRot, rot, 0.5) & !backupTimer.isRunning()) {
-                    backupTimer.start();
-                }
+            //     if (dx < 0.5 && dy < 0.5 && BreakerMath.isAngleClose(finalRot, rot, 0.5) & !backupTimer.isRunning()) {
+            //         backupTimer.start();
+            //     }
 
-                return dx < 0.1 && dy < 0.1 && BreakerMath.isAngleClose(finalRot, rot, 0.1);
+            //     return dx < 0.1 && dy < 0.1 && BreakerMath.isAngleClose(finalRot, rot, 0.1);
 
-            }),
+            // }),
+            routine.cmd(),
             intakeCmd
         );
     }
