@@ -256,13 +256,15 @@ public class Superstructure extends SubsystemBase {
 
 
     public Command scoreOnReef(ReefPosition position) {
-        HashSet<Subsystem> reqs = new HashSet<>();
-        reqs.add(drivetrain);
-        return Commands.defer(
-            () -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig), reqs)
-            .alongWith(
-                setMastState(MastState.PARTIAL_STOW, false)
-            )
+        return Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.RIGHT, 0.3))
+            .andThen(
+                Commands.waitUntil(controller.getButtonA()),
+                Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
+                Commands.deferredProxy(
+            () -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
+                .alongWith(
+                    setMastState(MastState.PARTIAL_STOW, false)
+                ))
             .andThen(
                 scoreOnReefManual(position.level())
             );
@@ -326,6 +328,10 @@ public class Superstructure extends SubsystemBase {
  
     public Command stowClimb() {
         return climb.setState(ClimbState.STOW, true);
+    }
+
+    public boolean endEffectorHasCoral() {
+        return endEffector.hasCoral();
     }
 
     // public Command setSuperstructureState(SuperstructureState state, SuperstructureStateSuccessType successType) {

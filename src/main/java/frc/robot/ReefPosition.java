@@ -1,7 +1,9 @@
 package frc.robot;
 
 import java.security.AllPermission;
+import java.util.HashMap;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -69,6 +71,21 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
             
 
             return allignPose;
+
+        }
+
+        public static ReefBranch getClosest(Pose2d robotPose, Alliance alliance) {
+            Pair<ReefBranch, Double> closestBranchAndDist = null;
+            for (ReefBranch branch : ReefBranch.values()) {
+                var pose = branch.getAllignPose(alliance);
+                double dist = pose.getTranslation().getDistance(robotPose.getTranslation());
+                if (closestBranchAndDist == null) {
+                    closestBranchAndDist = new Pair<ReefPosition.ReefBranch,Double>(branch, dist);
+                } else if (closestBranchAndDist.getSecond() > dist) {
+                    closestBranchAndDist = new Pair<ReefPosition.ReefBranch,Double>(branch, dist);
+                }
+            }
+            return closestBranchAndDist.getFirst();
 
         }
     }

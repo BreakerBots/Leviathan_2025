@@ -117,12 +117,12 @@ public class Elevator extends SubsystemBase {
             Commands.runOnce(() -> setHomeingCurrents(true)),
             // set(ElevatorSetpoint.HOMEING, true).withTimeout(3),
             Commands.runOnce(() -> setVoltageOut(kHomeingVoltage)),
-            new TimedWaitUntilCommand(this::detectHome, 1)
+            new TimedWaitUntilCommand(this::detectHome, 0.8)
                 .andThen(() -> homeingFailedAlert.set(true))
                 .raceWith(Commands.waitSeconds(8)
                     .andThen(() -> homeingFailedAlert.set(true))),
             Commands.runOnce(() -> setVoltageOut(0.0)),
-            Commands.waitSeconds(0.3),
+            Commands.waitSeconds(0.2),
             Commands.runOnce(this::homePosition),
             Commands.runOnce(() -> setHomeingCurrents(false)),
             set(ElevatorSetpoint.STOW, false),
