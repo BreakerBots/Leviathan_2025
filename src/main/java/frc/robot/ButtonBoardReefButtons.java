@@ -1,7 +1,10 @@
 package frc.robot;
 
+import java.util.Optional;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ButtonBoardConstants;
 import frc.robot.ReefPosition.ReefBranch;
 
@@ -19,6 +22,8 @@ public class ButtonBoardReefButtons {
     private final JoystickButton reefKButton;
     private final JoystickButton reefLButton;
 
+    private final Trigger anyPressed;
+
     
     public ButtonBoardReefButtons(GenericHID hid) {
         reefAButton = new JoystickButton(hid, ButtonBoardConstants.REEF_A_BUTTON);
@@ -33,6 +38,8 @@ public class ButtonBoardReefButtons {
         reefJButton = new JoystickButton(hid, ButtonBoardConstants.REEF_J_BUTTON);
         reefKButton = new JoystickButton(hid, ButtonBoardConstants.REEF_K_BUTTON);
         reefLButton = new JoystickButton(hid, ButtonBoardConstants.REEF_L_BUTTON);
+
+        anyPressed = reefAButton.or(reefBButton).or(reefCButton).or(reefDButton).or(reefEButton).or(reefFButton).or(reefGButton).or(reefHButton).or(reefIButton).or(reefJButton).or(reefKButton).or(reefLButton);
     }
 
     public JoystickButton getReefButtonA() {
@@ -81,6 +88,19 @@ public class ButtonBoardReefButtons {
     
     public JoystickButton getReefButtonL() {
         return reefLButton;
+    }
+
+    public Trigger isAnyPressed() {
+        return anyPressed;
+    }
+
+    public Optional<ReefBranch> getSelectedBranch() {
+        for (ReefBranch branch : ReefBranch.values()) {
+            if (getButtonByBranch(branch).getAsBoolean()) {
+                return Optional.of(branch);
+            }
+        }
+        return Optional.empty();
     }
 
     public JoystickButton getButtonByBranch(ReefBranch branch) {

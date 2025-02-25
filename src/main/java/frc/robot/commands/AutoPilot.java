@@ -155,9 +155,7 @@ public class AutoPilot {
       BreakerLog.log("NavToPose/xRequest", request.VelocityX);
       BreakerLog.log("NavToPose/yRequest", request.VelocityY);
       BreakerLog.log("NavToPose/θRequest", request.RotationalRate);
-      BreakerLog.log("NavToPose/xProfiledPID", xController);
-      BreakerLog.log("NavToPose/yProfiledPID", yController);
-      BreakerLog.log("NavToPose/θProfiledPID", thetaController);
+      BreakerLog.log("NavToPose/Goal", goal);
     }
 
     // Called once the command ends or is interrupted.

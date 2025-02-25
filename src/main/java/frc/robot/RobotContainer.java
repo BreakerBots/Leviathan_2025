@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.ReefPosition.ReefBranch;
+import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.AutoPilot;
 import frc.robot.commands.AutoPilot.ProfiledPIDControllerConfig;
 import frc.robot.commands.AutoPilot.NavToPoseConfig;
@@ -72,7 +74,7 @@ public class RobotContainer {
 
 
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake, climb, apriltagVision, controller);
+  intake, climb, apriltagVision, ap, controller);
 
 
   private BreakerInputStream driverX, driverY, driverOmega;
@@ -131,28 +133,19 @@ public class RobotContainer {
     controller.getStartButton().onTrue(superstructure.intakeCoralFromHumanPlayer());
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
 
-    buttonBoard.getLevelButtons().getL1Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
-    buttonBoard.getLevelButtons().getL2Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));
-    buttonBoard.getLevelButtons().getL3Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L3));
-    buttonBoard.getLevelButtons().getL4Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4));
+    // buttonBoard.getLevelButtons().getL1Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
+    // buttonBoard.getLevelButtons().getL2Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));
+    // buttonBoard.getLevelButtons().getL3Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L3));
+    // buttonBoard.getLevelButtons().getL4Button().onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4));
 
     buttonBoard.getRightButtons().getLowRightButton().onTrue(superstructure.scoreInProcessor());
     buttonBoard.getRightButtons().getHighRightButton().onTrue(superstructure.scoreInBarge());
 
+
     buttonBoard.getRightButtons().getLowRightSwitch().onTrue(superstructure.climbOnDeepCage());
     buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
 
-    var ntpc = new NavToPoseConfig(new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2)), 
-    new ChassisSpeeds(0.05, 0.05, 0.05), 
-    new ProfiledPIDControllerConfig(6,0,0.00, new TrapezoidProfile.Constraints(2.5, 5)),
-    new ProfiledPIDControllerConfig(6,0,0.00, new TrapezoidProfile.Constraints(2.5, 5)),
-    new ProfiledPIDControllerConfig(2.5,0,0, new TrapezoidProfile.Constraints(1, 15))
-    
-    );
-
-    controller.getButtonY().onTrue(ap.navigateToPose(new Pose2d(3.65, 5.08, Rotation2d.fromDegrees(122.5)), ntpc).andThen(
-      superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L4)
-    ));
+    buttonBoard.getLevelButtons().getL4Button().and(buttonBoard.getReefButtons().getReefButtonK()).onTrue(superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
   }
 
   /**

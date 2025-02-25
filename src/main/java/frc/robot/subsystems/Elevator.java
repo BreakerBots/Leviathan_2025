@@ -273,7 +273,7 @@ public class Elevator extends SubsystemBase {
         public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0), Centimeters.of(4), kDefaultVelocityTolerence);
 
         public static final ElevatorSetpoint LOW_REEF_ALGAE = new ElevatorSetpoint(Meters.of(0.64));
-        public static final ElevatorSetpoint HIGH_REEF_ALGAE = new ElevatorSetpoint(Meters.of(1.1));
+        public static final ElevatorSetpoint HIGH_REEF_ALGAE = new ElevatorSetpoint(Meters.of(1.05));
 
         public static final ElevatorSetpoint BARGE = new ElevatorSetpoint(kMaxHeight.plus(Inches.of(6)));
 
