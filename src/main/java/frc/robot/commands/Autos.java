@@ -22,6 +22,7 @@ import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.BreakerLib.physics.BreakerVector2;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.math.BreakerMath;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.superstructure.Superstructure;
@@ -33,6 +34,7 @@ public class Autos {
     private final AutoFactory autoFactory;
 
     private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
+    private final SendableChooser<Boolean> flipChooser = new SendableChooser<>();
 
     private boolean flippedHorizontally = false;
 
@@ -60,20 +62,20 @@ public class Autos {
         setupChooser();
     }
 
-    public Autos flip() { // TEMPORARY, also TODO: flip ReefPosition too!!!!
-        flippedHorizontally = true;
-        return this;
-    }
-
     public Command getSelectedAuto() {
+        flippedHorizontally = flipChooser.getSelected();
         return autoChooser.getSelected().get();
     }
 
-    private void setupChooser() { // TODO
+    private void setupChooser() {
         autoChooser.setDefaultOption("Start -> JKLA", () -> startThenJKLA(StartPosition.fromDriverStation()));
         autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation()));
+        
+        flipChooser.setDefaultOption("No flip", false);
+        flipChooser.addOption("Flip", true);
 
         Shuffleboard.getTab("Autonomous").add(autoChooser);
+        Shuffleboard.getTab("Autonomous").add(flipChooser);
     }
 
     /**
@@ -141,6 +143,7 @@ public class Autos {
     }
 
     private Command runTrajectoryThenScore(String traj, ReefPosition reefPosition, boolean resetOdometry) {
+        reefPosition = doFlip(reefPosition);
         final var routine = autoFactory.newRoutine("score");
 
         var trajectory = routine.trajectory(traj);
@@ -160,6 +163,7 @@ public class Autos {
         
         // not super happy with this solution.
         return Commands.sequence(
+            Commands.print(reefPosition.branch().toString()),
             routine.cmd(() -> {
                 if (backupTimer.advanceIfElapsed(0.2)) return true;
 
@@ -242,7 +246,7 @@ public class Autos {
                     state.moduleForcesX()[2],
                     state.moduleForcesX()[3],
                 },
-                new double[] { // FIXME
+                new double[] { // FIXME... maybe?
                     state.moduleForcesY()[0],
                     state.moduleForcesY()[1],
                     state.moduleForcesY()[2],
@@ -252,5 +256,21 @@ public class Autos {
         }
 
         return new Trajectory<SwerveSample>(traj.name(), flipped, traj.splits(), traj.events());
+    }
+
+    private ReefPosition doFlip(ReefPosition reefPosition) {
+        return flippedHorizontally
+            ? flipReefPosition(reefPosition)
+            : reefPosition;
+    }
+
+    private ReefPosition flipReefPosition(ReefPosition reefPosition) {
+        final int offset = -5; // wrong
+        final int last = ReefBranch.L.ordinal()+1;
+        final int unclamped = reefPosition.branch().ordinal() + offset; 
+        final int flipped = (((unclamped) % last)+last)%last;
+
+        System.out.println(reefPosition.branch());
+        return new ReefPosition(reefPosition.level(), ReefBranch.values()[flipped]);
     }
 }
