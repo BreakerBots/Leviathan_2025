@@ -4,6 +4,7 @@ import static com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue.Blu
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotation;
 
 import java.io.ObjectInputFilter.Config;
 import java.lang.annotation.ElementType;
@@ -13,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -59,7 +61,7 @@ public class AutoPilot {
     private final Pose2d positionTolerance;
     private final ChassisSpeeds velocityTolerance;
 
-    private Transform2d error = Transform2d.kZero;
+    private Pose2d error = Pose2d.kZero;
     private SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric();
 
     private ProfiledPIDController xController;
@@ -158,14 +160,22 @@ public class AutoPilot {
       request.RotationalRate = thetaFB + thetaFF;
       drivetrain.setControl(request);
 
-      error = currentPose.minus(goal);
+      double ex = goal.getX() - currentPose.getX();
+      double ey = goal.getY() - currentPose.getY();
+      Rotation2d et = goal.getRotation().minus(currentPose.getRotation());
 
+<<<<<<< Updated upstream
       if (allowTrigPoseEst && error.getTranslation().getNorm() < ApriltagVisionConstants.kMaxTrigSolveTagDist.minus(Meters.of(0.5)).in(Meters)) {
         vision.setEstimationType(EstimationType.TRIG);
       } else {
         vision.setEstimationType(EstimationType.PNP);
       }
 
+=======
+      error = new Pose2d(ex, ey, et);
+
+      BreakerLog.log("NavToPose/CurrentPose", currentPose);
+>>>>>>> Stashed changes
       BreakerLog.log("NavToPose/xFB", xFB);
       BreakerLog.log("NavToPose/yFB", yFB);
       BreakerLog.log("NavToPose/thetaFB", thetaFB);
@@ -176,6 +186,7 @@ public class AutoPilot {
       BreakerLog.log("NavToPose/yRequest", request.VelocityY);
       BreakerLog.log("NavToPose/thetaRequest", request.RotationalRate);
       BreakerLog.log("NavToPose/Goal", goal);
+      BreakerLog.log("NavToPose/Error", error);
     }
 
     // Called once the command ends or is interrupted.
