@@ -225,10 +225,10 @@ public class Autos {
                     state.moduleForcesX()[3],
                 },
                 new double[] { // FIXME... maybe?
-                    state.moduleForcesY()[0],
-                    state.moduleForcesY()[1],
-                    state.moduleForcesY()[2],
-                    state.moduleForcesY()[3],
+                    -state.moduleForcesY()[0],
+                    -state.moduleForcesY()[1],
+                    -state.moduleForcesY()[2],
+                    -state.moduleForcesY()[3],
                 });
             flipped.add(sample);
         }
@@ -246,8 +246,9 @@ public class Autos {
         final int branch = reefPosition.branch().ordinal();
         final int last = ReefBranch.L.ordinal()+1;
         int flipped = last - branch;
-        if (branch >= 6) flipped += 1;
-        else flipped -= 1;
+
+        if (branch == 0) flipped = 1;
+        else flipped += 1;
 
         return new ReefPosition(reefPosition.level(), ReefBranch.values()[flipped]);
     }
