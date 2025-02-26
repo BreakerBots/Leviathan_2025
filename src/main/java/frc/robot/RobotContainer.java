@@ -67,7 +67,7 @@ public class RobotContainer {
   private final EndEffector endEffector = new EndEffector();
   private final Climb climb = new Climb(drivetrain.getPigeon2());
   private final ApriltagVision apriltagVision = new ApriltagVision(drivetrain);
-  private final AutoPilot ap = new AutoPilot(drivetrain, drivetrain.getLocalizer());
+  private final AutoPilot ap = new AutoPilot(drivetrain, apriltagVision, drivetrain.getLocalizer());
 
   private final BreakerXboxController controller =
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);

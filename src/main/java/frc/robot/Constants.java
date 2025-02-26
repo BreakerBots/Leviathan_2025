@@ -108,6 +108,7 @@ public final class Constants {
       public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
 
       public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
+        true,
         new Pose2d(0.01, 0.01, Rotation2d.fromDegrees(2)),
         new ChassisSpeeds(0.001, 0.001, 0.005), 
         kDefaultTranslationConfig, 
