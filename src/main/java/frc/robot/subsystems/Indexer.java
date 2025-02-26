@@ -12,12 +12,12 @@ import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 
 public class Indexer extends SubsystemBase {
-    private TalonFXS indexer;
+    private TalonFX indexer;
     private IndexerState currentState = IndexerState.NEUTRAL;
     private DutyCycleOut dutyCycleOut;
 
     public Indexer() {
-        indexer = new TalonFXS(IndexerConstants.kIndexerMotorID, SuperstructureConstants.kSuperstructureCANBus);
+        indexer = new TalonFX(IndexerConstants.kIndexerMotorID, SuperstructureConstants.kSuperstructureCANBus);
         dutyCycleOut = new DutyCycleOut(0);
     }
 

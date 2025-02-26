@@ -192,7 +192,7 @@ public class Superstructure extends SubsystemBase {
 
     public Command scoreOnReefManual(ReefLevel level) {
         return setMastState(level.getNeutralMastState(), true).andThen(
-            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.RIGHT, 0.3)),
+            Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.8)),
             Commands.waitUntil(controller.getButtonA()),
             Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
             setMastState(level.getExtakeMastState(), false),
@@ -264,7 +264,7 @@ public class Superstructure extends SubsystemBase {
 
 
     public Command scoreOnReef(ReefPosition position) {
-        return Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.RIGHT, 0.3))
+        return Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.8))
             .andThen(
                 Commands.waitUntil(controller.getButtonA()),
                 Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),

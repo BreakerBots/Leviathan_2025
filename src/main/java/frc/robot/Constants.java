@@ -375,7 +375,7 @@ public final class Constants {
                                               .withSupplyCurrentLimitEnable(true);
     public static final Angle kClimbingPosition = Rotations.of(0.145).minus(Degrees.of(35));
     public static final Angle kExtendedPosition = Rotations.of(0.32);
-    public static final Angle kStowPosition = Rotations.of(0.2);
+    public static final Angle kStowPosition = Rotations.of(0.145);
     public static final Angle kNeutralPosition = Rotations.of(0);
 
     public static final Angle kClimbReverseLimit = kClimbingPosition.minus(Degrees.of(5));
