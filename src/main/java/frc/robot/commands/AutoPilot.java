@@ -5,9 +5,12 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotation;
+<<<<<<< Updated upstream
 
 import java.io.ObjectInputFilter.Config;
 import java.lang.annotation.ElementType;
+=======
+>>>>>>> Stashed changes
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -165,12 +168,18 @@ public class AutoPilot {
       Rotation2d et = goal.getRotation().minus(currentPose.getRotation());
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       if (allowTrigPoseEst && error.getTranslation().getNorm() < ApriltagVisionConstants.kMaxTrigSolveTagDist.minus(Meters.of(0.5)).in(Meters)) {
         vision.setEstimationType(EstimationType.TRIG);
       } else {
         vision.setEstimationType(EstimationType.PNP);
       }
 
+=======
+      error = new Pose2d(ex, ey, et);
+
+      BreakerLog.log("NavToPose/CurrentPose", currentPose);
+>>>>>>> Stashed changes
 =======
       error = new Pose2d(ex, ey, et);
 
