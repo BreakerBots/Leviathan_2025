@@ -16,6 +16,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import com.ctre.phoenix6.Utils;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.epilogue.Logged.Strategy;
 import edu.wpi.first.epilogue.logging.EpilogueBackend;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -32,6 +33,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N5;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -55,8 +57,11 @@ public class ApriltagVision extends SubsystemBase {
     private PhotonPoseEstimator photonPoseEstimator;
     private boolean odometryHasBeenSeededCashed;
     private ArrayList<BreakerEstimatedPose> estimatedPoses;
-    private BreakerPoseEstimationStandardDeviationCalculator stdDevCalculator = new BreakerPoseEstimationStandardDeviationCalculator();
+    private BreakerPoseEstimationStandardDeviationCalculator stdDevCalculator;
+    private BreakerPoseEstimationStandardDeviationCalculator stdDevCalculatorTrig;
     private Drivetrain drivetrain;
+
+    private EstimationType estimationType = EstimationType.PNP;
 
     public ApriltagVision(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
@@ -74,7 +79,7 @@ public class ApriltagVision extends SubsystemBase {
         stdDevCalculator = new BreakerPoseEstimationStandardDeviationCalculator(
             VecBuilder.fill(2, 2, 10), 
             VecBuilder.fill(0.5, 0.5, 1), 
-            3.5, 
+            4.5, 
             6.5, 
             5.0
         );
@@ -85,7 +90,9 @@ public class ApriltagVision extends SubsystemBase {
         return (Timer.getFPGATimestamp() - Utils.getCurrentTimeSeconds()) + phoenixTime;
     }
 
-
+        public void setEstimationType(EstimationType type) {
+            estimationType = type;
+        }
 
         @Override
         public void periodic() {
@@ -97,53 +104,17 @@ public class ApriltagVision extends SubsystemBase {
                 photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_REFERENCE_POSE);
                 photonPoseEstimator.setReferencePose(odometryRefPos);
                 photonPoseEstimator.addHeadingData(phoenixTimeToFPGA(driveState.Timestamp), odometryRefPos.getRotation());
+            } else {
+                photonPoseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
             } 
 
-           
-
-            for (int i = 0; i < cameras.length; i++) {
-                var cam = cameras[i];
-                
-                var allResults = cam.getAllUnreadResults();
-                if (allResults.size() > 0) {
-                    var latestResult = allResults.get(0);
-                    photonPoseEstimator.setRobotToCameraTransform(camOffsets[i]);
-                    Optional<EstimatedRobotPose> posOpt = photonPoseEstimator.update(latestResult,cam.getCameraMatrix(), cam.getDistCoeffs());
-                    if (posOpt.isPresent()) {
-                       EstimatedRobotPose pos = posOpt.get();
-                        List<PhotonTrackedTarget> targets = pos.targetsUsed;
-                        if (!odometryHasBeenSeededCashed) {
-                            drivetrain.resetPose(pos.estimatedPose.toPose2d());
-                            odometryHasBeenSeededCashed = true;
-                        }
-                        if (targets.size() == 1) {
-                            PhotonTrackedTarget tgt = targets.get(0);
-                            if (tgt.getPoseAmbiguity() >= 0.15) {
-                                continue;
-                            }
-                            
-                            final Pose3d actual = pos.estimatedPose;
-                            final double fieldBorderMargin = 0.5;
-                            final double zMargin = 0.75;
-
-                            if (actual.getX() < -fieldBorderMargin
-                                || actual.getX() > Constants.FieldConstants.kAprilTagFieldLayout.getFieldLength() + fieldBorderMargin
-                                || actual.getY() < -fieldBorderMargin
-                                || actual.getY() >  Constants.FieldConstants.kAprilTagFieldLayout.getFieldWidth() + fieldBorderMargin
-                                || actual.getZ() < -zMargin
-                                || actual.getZ() > zMargin) {
-                                    continue;
-                            }
-                        }  
-                        Matrix<N3, N1> devs = stdDevCalculator.apply(pos);   
-                        if (devs.get(0, 0) > 15 || devs.get(1, 0) > 15 || devs.get(2, 0) > 15) {
-                            continue;
-                        }
-                        BreakerLog.log("ApriltagVision/RawEsts/" + cam.getName(), pos.estimatedPose);
-                        estimatedPoses.add(new BreakerEstimatedPose(pos, devs));
-                    }
-                }
+            if (estimationType == EstimationType.PNP) {
+                photonPoseEstimator.setPrimaryStrategy(PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR);
+            } else {
+                photonPoseEstimator.setPrimaryStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
             }
+
+            estimatePose();
 
             sortByStandardDeviation(estimatedPoses);
 
@@ -155,9 +126,75 @@ public class ApriltagVision extends SubsystemBase {
 
     }
 
-    public static record BreakerEstimatedPose(EstimatedRobotPose poseEst, Matrix<N3, N1> stdDevs) {
+    private void estimatePose() {
+        for (int i = 0; i < cameras.length; i++) {
+            var cam = cameras[i];
+            
+            var allResults = cam.getAllUnreadResults();
+            if (allResults.size() > 0) {
+                var latestResult = allResults.get(0);
+                photonPoseEstimator.setRobotToCameraTransform(camOffsets[i]);
+                Optional<EstimatedRobotPose> posOpt = photonPoseEstimator.update(latestResult,cam.getCameraMatrix(), cam.getDistCoeffs());
+                if (posOpt.isPresent()) {
+                   EstimatedRobotPose pos = posOpt.get();
+                    List<PhotonTrackedTarget> targets = pos.targetsUsed;
+                    if (!odometryHasBeenSeededCashed) {
+                        drivetrain.resetPose(pos.estimatedPose.toPose2d());
+                        odometryHasBeenSeededCashed = true;
+                    }
+                    if (targets.size() == 1) {
+                        PhotonTrackedTarget tgt = targets.get(0);
+                        if (tgt.getPoseAmbiguity() >= 0.25 && pos.strategy != PoseStrategy.PNP_DISTANCE_TRIG_SOLVE) {
+                            continue;
+                        }
+                        
+                        final Pose3d actual = pos.estimatedPose;
+                        final double fieldBorderMargin = 0.5;
+                        final double zMargin = 0.75;
 
+                        if (actual.getX() < -fieldBorderMargin
+                            || actual.getX() > Constants.FieldConstants.kAprilTagFieldLayout.getFieldLength() + fieldBorderMargin
+                            || actual.getY() < -fieldBorderMargin
+                            || actual.getY() >  Constants.FieldConstants.kAprilTagFieldLayout.getFieldWidth() + fieldBorderMargin
+                            || actual.getZ() < -zMargin
+                            || actual.getZ() > zMargin) {
+                                continue;
+                        }
+                    } 
+                    Matrix<N3, N1> devs = null;
+                    if (pos.strategy == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE)  {
+                        devs = calculateTrigDevs(pos, latestResult);
+                    } else {   
+                        devs = stdDevCalculator.apply(pos);   
+                    }
+                   
+                    if (devs.get(0, 0) > 15 || devs.get(1, 0) > 15) {
+                        continue;
+                    }
+                    BreakerLog.log("ApriltagVision/RawEsts/" + cam.getName(), pos.estimatedPose);
+                    estimatedPoses.add(new BreakerEstimatedPose(pos, devs));
+                }
+            }
+        }
     }
+
+    private Matrix<N3, N1> calculateTrigDevs(EstimatedRobotPose est, PhotonPipelineResult result) {
+        PhotonTrackedTarget tgt = result.getBestTarget();
+        Optional<Pose3d> tagPoseOpt = FieldConstants.kAprilTagFieldLayout.getTagPose(tgt.fiducialId);
+        if (tagPoseOpt.isPresent()) {
+            Pose2d tagPose = tagPoseOpt.get().toPose2d();
+            double dist = tagPose.getTranslation().getDistance(est.estimatedPose.getTranslation().toTranslation2d());
+            if (dist > kMaxTrigSolveTagDist.in(Units.Meters)) {
+                return VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+            }
+            return kTrigBaseStdDevs.times(1 + (dist * dist / kTrigDevScaleFactor));
+        } else {
+            return VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
+        }
+        
+    }
+
+    public static record BreakerEstimatedPose(EstimatedRobotPose poseEst, Matrix<N3, N1> stdDevs) {}
 
     
     public static class BreakerPoseEstimationStandardDeviationCalculator implements Function<EstimatedRobotPose, Matrix<N3, N1>> {
@@ -224,6 +261,11 @@ public class ApriltagVision extends SubsystemBase {
                 ? 0 
                 : (firstValue < secondValue ? -1 : 1);
         });
+    }
+
+    public enum EstimationType {
+        PNP,
+        TRIG
     }
     
 }

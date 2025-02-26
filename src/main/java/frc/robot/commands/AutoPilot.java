@@ -2,10 +2,15 @@ package frc.robot.commands;
 
 import static com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue.BlueAlliance;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+
+import java.io.ObjectInputFilter.Config;
+import java.lang.annotation.ElementType;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -15,14 +20,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain;
 import frc.robot.BreakerLib.util.Localizer;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.Constants.ApriltagVisionConstants;
+import frc.robot.subsystems.vision.ApriltagVision;
+import frc.robot.subsystems.vision.ApriltagVision.EstimationType;
 
 public class AutoPilot {
   private BreakerSwerveDrivetrain drivetrain;
   private Localizer localizer;
+  private ApriltagVision vision;
 
-  public AutoPilot(BreakerSwerveDrivetrain drivetrain, Localizer localizer) {
+  public AutoPilot(BreakerSwerveDrivetrain drivetrain, ApriltagVision apriltagVision, Localizer localizer) {
     this.drivetrain = drivetrain;
     this.localizer = localizer;
+    vision = apriltagVision;
   }
 
   public record ProfiledPIDControllerConfig(double kP, double kI, double kD, TrapezoidProfile.Constraints constraints) {
@@ -32,6 +42,7 @@ public class AutoPilot {
   }
 
   public record NavToPoseConfig(
+      boolean allowTrigPoseEst,
       Pose2d positionTolerance,
       ChassisSpeeds velocityTolerance,
       ProfiledPIDControllerConfig xConfig,
@@ -55,6 +66,8 @@ public class AutoPilot {
     private ProfiledPIDController yController;
     private ProfiledPIDController thetaController;
 
+    private boolean allowTrigPoseEst;
+
     private ProfiledPIDController fromConfig(ProfiledPIDControllerConfig config) {
       return new ProfiledPIDController(config.kP, config.kI, config.kD, config.constraints);
     }
@@ -68,6 +81,7 @@ public class AutoPilot {
       yController = fromConfig(config.yConfig);
       thetaController = fromConfig(config.thetaConfig);
       thetaController.enableContinuousInput(-Math.PI, Math.PI);
+      allowTrigPoseEst = config.allowTrigPoseEst;
       addRequirements(drivetrain);
     }
 
@@ -145,6 +159,12 @@ public class AutoPilot {
       drivetrain.setControl(request);
 
       error = currentPose.minus(goal);
+
+      if (allowTrigPoseEst && error.getTranslation().getNorm() < ApriltagVisionConstants.kMaxTrigSolveTagDist.minus(Meters.of(0.5)).in(Meters)) {
+        vision.setEstimationType(EstimationType.TRIG);
+      } else {
+        vision.setEstimationType(EstimationType.PNP);
+      }
 
       BreakerLog.log("NavToPose/xFB", xFB);
       BreakerLog.log("NavToPose/yFB", yFB);

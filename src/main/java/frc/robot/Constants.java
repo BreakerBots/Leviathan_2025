@@ -29,6 +29,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -39,6 +41,8 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
@@ -90,6 +94,10 @@ public final class Constants {
       public static final Translation2d kTopRightCameraTranslation = new Translation2d();
       public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(25), Degrees.of(-165).minus(Degrees.of(2.5))));
       public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(25), Degrees.of(165).plus(Degrees.of(2.5))));
+      
+      public static final Distance kMaxTrigSolveTagDist = Meters.of(2.5);
+      public static final Matrix<N3, N1> kTrigBaseStdDevs = VecBuilder.fill(0.5, 0.5, 15);
+      public static final double kTrigDevScaleFactor = 5;
       
     }
 
