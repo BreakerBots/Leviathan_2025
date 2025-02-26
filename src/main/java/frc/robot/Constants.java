@@ -104,12 +104,12 @@ public final class Constants {
     public static class AutoPilotConstants {
       public static final Distance kReefAutoAllignOffsetFromReefFace = Meters.of(0.45);
 
-      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(8, 0, 0, new Constraints(1.0, 2.0));
-      public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(2.5, 0, 0, new Constraints(2.0, 5.0));
+      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(9.5, 0, 0, new Constraints(1.0, 3.0));
+      public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
 
       public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
-        new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2)),
-        new ChassisSpeeds(0.01, 0.01, 0.05), 
+        new Pose2d(0.01, 0.01, Rotation2d.fromDegrees(2)),
+        new ChassisSpeeds(0.001, 0.001, 0.005), 
         kDefaultTranslationConfig, 
         kDefaultTranslationConfig, 
         kDefaultRotationConfig);
@@ -398,7 +398,7 @@ public final class Constants {
 
   public static class AutoConstants {
     public static final PIDConstants TRANSLATION_PID = new PIDConstants(7.5, 0, 0.8);
-    public static final PIDConstants ROTATION_PID = new PIDConstants(1.5, 0,1);
+    public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0,0);
     public static final ChoreoConfig CHOREO_CONFIG = new ChoreoConfig().withTranslationPID(TRANSLATION_PID).withRotationPID(ROTATION_PID);
   }
 

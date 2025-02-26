@@ -83,55 +83,74 @@ public class Autos {
      * Reef J -> K -> L -> A, each time it will also visit the Coral Player Station
      * to restock on Coral.
      */
-    // public Command startThenJKLA(StartPosition startPosition) {
-    //     final var routine = autoFactory.newRoutine("JKLA");
-
-    //     final var startToReefJ = routine.trajectory("Start 1 to Reef J");
-    //     final var reefJToCoralPS = routine.trajectory("Reef J to Coral PS");
-    //     // final var coralPSToReefK = routine.trajectory("Start 1 to Reef J");
-    //     // final var reefKToCoralPS = routine.trajectory("Start 1 to Reef J");
-    //     // final var coralPSToReefL = routine.trajectory("Start 1 to Reef J");
-
-    //     startToReefJ.done().onTrue(Commands.sequence(
-    //         superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.J)),
-    //         reefJToCoralPS.cmd().asProxy()
-    //     ));
-
-    //     routine.active().onTrue(Commands.sequence(
-    //         startToReefJ.resetOdometry(),
-    //         startToReefJ.cmd()
-    //     ));
-
-    //     return routine.cmd();
-    // }
     public Command startThenJKLA(StartPosition startPosition) {
         final var routine = autoFactory.newRoutine("JKLA");
-        final var startToReefJ = switch (startPosition) {
-            case ONE -> runTrajectoryThenScore(routine, "Start 1 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
-            case TWO -> runTrajectoryThenScore(routine, "Start 2 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
-            case THREE -> runTrajectoryThenScore(routine, "Start 3 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
-        };
 
-        final var reefJToCoralPS = runTrajectoryThenHumanPlayer(routine, "Reef J to Coral PS");
-        final var coralPSToReefK = runTrajectoryThenScore(routine, "Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K));
-        final var reefKToCoralPS = runTrajectoryThenHumanPlayer(routine, "Reef K to Coral PS");
-        final var coralPSToReefL = runTrajectoryThenScore(routine, "Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L));
-        final var reefLToCoralPS = runTrajectoryThenHumanPlayer(routine, "Reef L to Coral PS");
-        final var coralPSToReefA = runTrajectoryThenScore(routine, "Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A));
+        final var startToReefJ = routine.trajectory("Start 1 to Reef J");
+        final var reefJToCoralPS = routine.trajectory("Reef J to Coral PS");
+        final var coralPSToReefK = routine.trajectory("Coral PS to Reef K");
+        final var reefKToCoralPS = routine.trajectory("Reef K to Coral PS");
+        final var coralPSToReefL = routine.trajectory("Coral PS to Reef L");
+
+        startToReefJ.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.J)).asProxy(),
+            reefJToCoralPS.cmd().asProxy()
+        ));
+
+        reefJToCoralPS.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer().asProxy(),
+            coralPSToReefK.cmd().asProxy()
+        ));
+
+        coralPSToReefK.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.K)),
+            reefKToCoralPS.cmd().asProxy()
+        ));
+
+        reefKToCoralPS.done().onTrue(Commands.sequence(
+            superstructure.intakeCoralFromHumanPlayer().asProxy(),
+            coralPSToReefL.cmd().asProxy()
+        ));
+
+        coralPSToReefL.done().onTrue(Commands.sequence(
+            superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.L))
+        ));
 
         routine.active().onTrue(Commands.sequence(
-            startToReefJ,
-            reefJToCoralPS,
-            coralPSToReefK,
-            reefKToCoralPS,
-            coralPSToReefL,
-            reefLToCoralPS,
-            coralPSToReefA
-            
+            startToReefJ.resetOdometry().asProxy(),
+            startToReefJ.cmd().asProxy()
         ));
 
         return routine.cmd();
     }
+    // public Command startThenJKLA(StartPosition startPosition) {
+    //     final var routine = autoFactory.newRoutine("JKLA");
+    //     final var startToReefJ = switch (startPosition) {
+    //         case ONE -> runTrajectoryThenScore(routine, "Start 1 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
+    //         case TWO -> runTrajectoryThenScore(routine, "Start 2 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
+    //         case THREE -> runTrajectoryThenScore(routine, "Start 3 to Reef J", new ReefPosition(ReefLevel.L4, ReefBranch.J), true);
+    //     };
+
+    //     final var reefJToCoralPS = runTrajectoryThenHumanPlayer(routine, "Reef J to Coral PS");
+    //     final var coralPSToReefK = runTrajectoryThenScore(routine, "Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K));
+    //     final var reefKToCoralPS = runTrajectoryThenHumanPlayer(routine, "Reef K to Coral PS");
+    //     final var coralPSToReefL = runTrajectoryThenScore(routine, "Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L));
+    //     final var reefLToCoralPS = runTrajectoryThenHumanPlayer(routine, "Reef L to Coral PS");
+    //     final var coralPSToReefA = runTrajectoryThenScore(routine, "Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A));
+
+    //     routine.active().onTrue(Commands.sequence(
+    //         startToReefJ,
+    //         reefJToCoralPS,
+    //         coralPSToReefK,
+    //         reefKToCoralPS,
+    //         coralPSToReefL,
+    //         reefLToCoralPS,
+    //         coralPSToReefA
+            
+    //     ));
+
+    //     return routine.cmd();
+    // }
 
     public Command startThenGFED(StartPosition startPosition) { // I would like to put all these strings in a nice enum eventually to avoid typos, sounds like a job for the freshies.
         final var routine = autoFactory.newRoutine("GFED");
@@ -186,7 +205,7 @@ public class Autos {
             trajectory = routine.trajectory(flipHorizontally(trajectory.getRawTrajectory()));
         }
         
-        return trajectory.resetOdometry().onlyIf(() -> resetOdometry).asProxy().andThen(trajectory.cmd().asProxy().andThen(superstructure.scoreOnReefAuton(reefPosition)));
+        return trajectory.resetOdometry().onlyIf(() -> resetOdometry).asProxy().andThen(trajectory.cmd().asProxy().andThen(superstructure.scoreOnReefAuton(reefPosition).asProxy()));
     }
 
     private Command runTrajectoryThenHumanPlayer(AutoRoutine routine, String traj) {
@@ -197,7 +216,7 @@ public class Autos {
         }
 
 
-        return trajectory.cmd().asProxy().andThen(superstructure.intakeCoralFromHumanPlayer());
+        return trajectory.cmd().asProxy().andThen(superstructure.intakeCoralFromHumanPlayer().asProxy());
 
     }
 
