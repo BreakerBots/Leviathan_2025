@@ -58,7 +58,6 @@ public class ApriltagVision extends SubsystemBase {
     private boolean odometryHasBeenSeededCashed;
     private ArrayList<BreakerEstimatedPose> estimatedPoses;
     private BreakerPoseEstimationStandardDeviationCalculator stdDevCalculator;
-    private BreakerPoseEstimationStandardDeviationCalculator stdDevCalculatorTrig;
     private Drivetrain drivetrain;
 
     private EstimationType estimationType = EstimationType.PNP;
@@ -71,7 +70,7 @@ public class ApriltagVision extends SubsystemBase {
         // PhotonCamera topRightCam = new PhotonCamera(kTopRightCameraName);
         PhotonCamera bottomRightCam = new PhotonCamera(kBottomRightCameraName);
 
-        cameras = new PhotonCamera[] {/*topLeftCam, topRightCam,*/ bottomLeftCam, bottomRightCam};
+        cameras = new PhotonCamera[] {/*topLeftCam, topRightCam, */bottomLeftCam, bottomRightCam};
         camOffsets = new Transform3d[] {kBottomLeftCameraTransform, kBottomRightCameraTransform};
 
         photonPoseEstimator = new PhotonPoseEstimator(FieldConstants.kAprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, new Transform3d());
@@ -134,7 +133,8 @@ public class ApriltagVision extends SubsystemBase {
             if (allResults.size() > 0) {
                 var latestResult = allResults.get(0);
                 photonPoseEstimator.setRobotToCameraTransform(camOffsets[i]);
-                Optional<EstimatedRobotPose> posOpt = photonPoseEstimator.update(latestResult,cam.getCameraMatrix(), cam.getDistCoeffs());
+                Optional<EstimatedRobotPose> posOpt = photonPoseEstimator.update(latestResult, cam.getCameraMatrix(), cam.getDistCoeffs());
+                BreakerLog.log("fsdfsd", posOpt.isPresent());
                 if (posOpt.isPresent()) {
                    EstimatedRobotPose pos = posOpt.get();
                     List<PhotonTrackedTarget> targets = pos.targetsUsed;
@@ -143,23 +143,23 @@ public class ApriltagVision extends SubsystemBase {
                         odometryHasBeenSeededCashed = true;
                     }
                     if (targets.size() == 1) {
-                        PhotonTrackedTarget tgt = targets.get(0);
-                        if (tgt.getPoseAmbiguity() >= 0.25 && pos.strategy != PoseStrategy.PNP_DISTANCE_TRIG_SOLVE) {
-                            continue;
-                        }
+                        // PhotonTrackedTarget tgt = targets.get(0);
+                        // if (tgt.getPoseAmbiguity() >= 0.25) {
+                        //     continue;
+                        // }
                         
-                        final Pose3d actual = pos.estimatedPose;
-                        final double fieldBorderMargin = 0.5;
-                        final double zMargin = 0.75;
+                        // final Pose3d actual = pos.estimatedPose;
+                        // final double fieldBorderMargin = 0.5;
+                        // final double zMargin = 0.75;
 
-                        if (actual.getX() < -fieldBorderMargin
-                            || actual.getX() > Constants.FieldConstants.kAprilTagFieldLayout.getFieldLength() + fieldBorderMargin
-                            || actual.getY() < -fieldBorderMargin
-                            || actual.getY() >  Constants.FieldConstants.kAprilTagFieldLayout.getFieldWidth() + fieldBorderMargin
-                            || actual.getZ() < -zMargin
-                            || actual.getZ() > zMargin) {
-                                continue;
-                        }
+                        // if (actual.getX() < -fieldBorderMargin
+                        //     || actual.getX() > Constants.FieldConstants.kAprilTagFieldLayout.getFieldLength() + fieldBorderMargin
+                        //     || actual.getY() < -fieldBorderMargin
+                        //     || actual.getY() >  Constants.FieldConstants.kAprilTagFieldLayout.getFieldWidth() + fieldBorderMargin
+                        //     || actual.getZ() < -zMargin
+                        //     || actual.getZ() > zMargin) {
+                        //         continue;
+                        // }
                     } 
                     Matrix<N3, N1> devs = null;
                     if (pos.strategy == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE)  {

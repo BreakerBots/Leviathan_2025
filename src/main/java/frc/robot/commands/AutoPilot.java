@@ -195,6 +195,7 @@ public class AutoPilot {
       request.VelocityY = 0;
       request.RotationalRate = 0;
       drivetrain.setControl(request);
+      vision.setEstimationType(EstimationType.PNP);
     }
 
     // Returns true when the command should end.

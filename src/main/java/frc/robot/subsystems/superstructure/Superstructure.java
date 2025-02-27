@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.SimulationConstants;
@@ -186,6 +187,7 @@ public class Superstructure extends SubsystemBase {
         return setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true).andThen(
             setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
+            new WaitCommand(0.1),
             setMastState(MastState.PARTIAL_STOW, false)
         );
     }

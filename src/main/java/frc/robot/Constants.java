@@ -92,8 +92,8 @@ public final class Constants {
 
       public static final Translation2d kTopLeftCameraTranslation = new Translation2d();
       public static final Translation2d kTopRightCameraTranslation = new Translation2d();
-      public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(25), Degrees.of(-165).minus(Degrees.of(2.5))));
-      public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(25), Degrees.of(165).plus(Degrees.of(2.5))));
+      public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(-24),Degrees.of(-165).plus(Degrees.of(5))));//10.425 //Degrees.of(-165).minus(Degrees.of(2.5))//25
+      public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(-24), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
       
       public static final Distance kMaxTrigSolveTagDist = Meters.of(2.5);
       public static final Matrix<N3, N1> kTrigBaseStdDevs = VecBuilder.fill(0.5, 0.5, 15);
@@ -102,15 +102,15 @@ public final class Constants {
     }
 
     public static class AutoPilotConstants {
-      public static final Distance kReefAutoAllignOffsetFromReefFace = Meters.of(0.45);
+      public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(24);
 
-      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(9.5, 0, 0, new Constraints(1.0, 3.0));
+      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(5.5, 0, 0, new Constraints(1.0, 1.5));
       public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
 
       public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
         true,
         new Pose2d(0.01, 0.01, Rotation2d.fromDegrees(2)),
-        new ChassisSpeeds(0.001, 0.001, 0.005), 
+        new ChassisSpeeds(0.01, 0.01, 0.01), 
         kDefaultTranslationConfig, 
         kDefaultTranslationConfig, 
         kDefaultRotationConfig);

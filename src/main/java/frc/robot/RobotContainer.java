@@ -49,6 +49,7 @@ import frc.robot.subsystems.ScoreOnReefScheduler;
 import frc.robot.subsystems.SimpleClimb;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.vision.ApriltagVision;
+import frc.robot.subsystems.vision.ApriltagVision.EstimationType;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -153,6 +154,8 @@ public class RobotContainer {
 
     buttonBoard.getRightButtons().getLowRightSwitch().onTrue(superstructure.climbOnDeepCage());
     buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
+
+    controller.getButtonY().onTrue(Commands.runOnce(() -> apriltagVision.setEstimationType(EstimationType.TRIG)));
 
     //scoreOnReefScheduler.bind();
 
