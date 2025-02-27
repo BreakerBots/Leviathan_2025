@@ -247,6 +247,23 @@ public class Superstructure extends SubsystemBase {
         );
     }
 
+    public Command intakeCoralFromGroundForL1() {
+        return intake.setState(IntakeState.EXTENDED_NEUTRAL, true).andThen(
+            intake.setState(IntakeState.INTAKE, false),
+            Commands.waitUntil(intake::hasCoral),
+            intake.setState(IntakeState.STOW, false)
+        );
+    }
+
+    public Command extakeCoralL1() {
+        return intake.setState(IntakeState.STOW, true).andThen(
+            intake.setState(IntakeState.RETRACTED_EXTAKEING, false),
+            Commands.waitUntil(() -> !intake.hasCoral()),
+            Commands.waitSeconds(0.5),
+            intake.setState(IntakeState.STOW, false)
+        );
+    }
+
     // public Command intakeAlgaeGround() {
     //     return intake.setState(IntakeState.ALGAE_NEUTRAL, true).andThen(
     //         intake.setState(IntakeState.INTAKE_ALGAE, false),

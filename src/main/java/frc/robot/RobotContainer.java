@@ -136,7 +136,7 @@ public class RobotContainer {
     Trigger manualOverride = buttonBoard.getRightButtons().getHighRightSwitch();
 
     controller.getButtonX().onTrue(elevator.home());
-    controller.getButtonB().onTrue(superstructure.reverseIntake());
+    // controller.getButtonB().onTrue(superstructure.reverseIntake());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure.intakeAlgaeFromReef(false));
     controller.getDPad().getRight().onTrue(superstructure.intakeAlgaeFromReef(true));
@@ -156,10 +156,12 @@ public class RobotContainer {
     buttonBoard.getRightButtons().getLowRightSwitch().onTrue(superstructure.climbOnDeepCage());
     buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
 
-    controller.getButtonY().onTrue(Commands.runOnce(() -> apriltagVision.setEstimationType(EstimationType.TRIG)));
+    // controller.getButtonY().onTrue(Commands.runOnce(() -> apriltagVision.setEstimationType(EstimationType.TRIG)));
 
     //scoreOnReefScheduler.bind();
 
+    controller.getButtonB().onTrue(superstructure.intakeCoralFromGroundForL1());
+    controller.getButtonY().onTrue(superstructure.extakeCoralL1());
 
     Trigger reefA = buttonBoard.getReefButtons().getReefButtonA();
     Trigger reefB = buttonBoard.getReefButtons().getReefButtonB();

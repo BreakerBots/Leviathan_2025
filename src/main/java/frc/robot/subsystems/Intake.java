@@ -153,7 +153,7 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakeState {
         INTAKE(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED),
-        // RETRACTED_INTAKEING(IntakeRollerState.INTAKE, IntakePivotState.RETRACTED),
+        RETRACTED_EXTAKEING(IntakeRollerState.EXTAKE, IntakePivotState.RETRACTED),
         EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED),
 
         EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
