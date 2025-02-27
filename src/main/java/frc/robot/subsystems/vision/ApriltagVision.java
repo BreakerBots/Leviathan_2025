@@ -131,48 +131,49 @@ public class ApriltagVision extends SubsystemBase {
             
             var allResults = cam.getAllUnreadResults();
             if (allResults.size() > 0) {
-                var latestResult = allResults.get(0);
                 photonPoseEstimator.setRobotToCameraTransform(camOffsets[i]);
-                Optional<EstimatedRobotPose> posOpt = photonPoseEstimator.update(latestResult, cam.getCameraMatrix(), cam.getDistCoeffs());
-                BreakerLog.log("fsdfsd", posOpt.isPresent());
-                if (posOpt.isPresent()) {
-                   EstimatedRobotPose pos = posOpt.get();
-                    List<PhotonTrackedTarget> targets = pos.targetsUsed;
-                    if (!odometryHasBeenSeededCashed) {
-                        drivetrain.resetPose(pos.estimatedPose.toPose2d());
-                        odometryHasBeenSeededCashed = true;
-                    }
-                    if (targets.size() == 1) {
-                        // PhotonTrackedTarget tgt = targets.get(0);
-                        // if (tgt.getPoseAmbiguity() >= 0.25) {
-                        //     continue;
-                        // }
-                        
-                        // final Pose3d actual = pos.estimatedPose;
-                        // final double fieldBorderMargin = 0.5;
-                        // final double zMargin = 0.75;
+                for (var result : allResults) {
+                    Optional<EstimatedRobotPose> posOpt = photonPoseEstimator.update(result, cam.getCameraMatrix(), cam.getDistCoeffs());
+                    BreakerLog.log("fsdfsd", posOpt.isPresent());
+                    if (posOpt.isPresent()) {
+                    EstimatedRobotPose pos = posOpt.get();
+                        List<PhotonTrackedTarget> targets = pos.targetsUsed;
+                        if (!odometryHasBeenSeededCashed) {
+                            drivetrain.resetPose(pos.estimatedPose.toPose2d());
+                            odometryHasBeenSeededCashed = true;
+                        }
+                        if (targets.size() == 1) {
+                            PhotonTrackedTarget tgt = targets.get(0);
+                            if (tgt.getPoseAmbiguity() >= 0.20 && estimationType == EstimationType.PNP) {
+                                continue;
+                            }
+                            
+                            final Pose3d actual = pos.estimatedPose;
+                            final double fieldBorderMargin = 0.5;
+                            final double zMargin = 0.75;
 
-                        // if (actual.getX() < -fieldBorderMargin
-                        //     || actual.getX() > Constants.FieldConstants.kAprilTagFieldLayout.getFieldLength() + fieldBorderMargin
-                        //     || actual.getY() < -fieldBorderMargin
-                        //     || actual.getY() >  Constants.FieldConstants.kAprilTagFieldLayout.getFieldWidth() + fieldBorderMargin
-                        //     || actual.getZ() < -zMargin
-                        //     || actual.getZ() > zMargin) {
-                        //         continue;
-                        // }
-                    } 
-                    Matrix<N3, N1> devs = null;
-                    if (pos.strategy == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE)  {
-                        devs = calculateTrigDevs(pos, latestResult);
-                    } else {   
-                        devs = stdDevCalculator.apply(pos);   
+                            if (actual.getX() < -fieldBorderMargin
+                                || actual.getX() > Constants.FieldConstants.kAprilTagFieldLayout.getFieldLength() + fieldBorderMargin
+                                || actual.getY() < -fieldBorderMargin
+                                || actual.getY() >  Constants.FieldConstants.kAprilTagFieldLayout.getFieldWidth() + fieldBorderMargin
+                                || actual.getZ() < -zMargin
+                                || actual.getZ() > zMargin) {
+                                    continue;
+                            }
+                        } 
+                        Matrix<N3, N1> devs = null;
+                        if (pos.strategy == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE)  {
+                            devs = calculateTrigDevs(pos, result);
+                        } else {   
+                            devs = stdDevCalculator.apply(pos);   
+                        }
+                    
+                        if (devs.get(0, 0) > 15 || devs.get(1, 0) > 15) {
+                            continue;
+                        }
+                        BreakerLog.log("ApriltagVision/RawEsts/" + cam.getName(), pos.estimatedPose);
+                        estimatedPoses.add(new BreakerEstimatedPose(pos, devs));
                     }
-                   
-                    if (devs.get(0, 0) > 15 || devs.get(1, 0) > 15) {
-                        continue;
-                    }
-                    BreakerLog.log("ApriltagVision/RawEsts/" + cam.getName(), pos.estimatedPose);
-                    estimatedPoses.add(new BreakerEstimatedPose(pos, devs));
                 }
             }
         }
