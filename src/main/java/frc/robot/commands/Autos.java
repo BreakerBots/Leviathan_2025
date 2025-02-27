@@ -33,7 +33,7 @@ public class Autos {
 
         public static StartPosition fromDriverStation() {
             final var loc = DriverStation.getLocation();
-            final var i = loc.orElseThrow(); // maybe change this.
+            final var i = loc.orElse(1); // maybe change this.
             return switch (i) {
                 case 1 -> ONE;
                 case 2 -> TWO;

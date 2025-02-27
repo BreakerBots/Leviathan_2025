@@ -11,6 +11,7 @@ import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.subsystems.superstructure.Superstructure;
@@ -47,14 +48,13 @@ public class TrajectoryBuilder {
     }
 
     public TrajectoryBuilder runThenHP(String traj) {
-
         var trajectory = routine.trajectory(traj);
         if (flippedHorizontally) {
             trajectory = routine.trajectory(flipHorizontally(trajectory.getRawTrajectory()));
         }
-
-
-        final var cmd = superstructure.intakeCoralFromHumanPlayer().asProxy();
+        
+        final var station = flipCoralHumanPlayerStation(hpToString(traj));
+        final var cmd = superstructure.intakeCoralFromHumanPlayerAligned(station).asProxy();
         trajectories.add(new Pair<>(trajectory, cmd));
 
         return this;
@@ -134,5 +134,18 @@ public class TrajectoryBuilder {
         ));
 
         return routine.cmd();
+    }
+
+    private CoralHumanPlayerStation hpToString(String traj) {
+        if (traj.contains("Coral PS2")) return CoralHumanPlayerStation.LOWER;
+        else return CoralHumanPlayerStation.UPPER;
+    }
+
+    private CoralHumanPlayerStation flipCoralHumanPlayerStation(CoralHumanPlayerStation pos) {
+        if (!flippedHorizontally) return pos;
+        return switch (pos) {
+            case UPPER -> CoralHumanPlayerStation.LOWER;
+            case LOWER -> CoralHumanPlayerStation.UPPER;
+        };
     }
 }

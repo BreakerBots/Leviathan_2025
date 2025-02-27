@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.SimulationConstants;
+import frc.robot.CoralHumanPlayerStation;
 import frc.robot.HolonomicSlewRateLimiter;
 import frc.robot.ReefPosition;
 import frc.robot.Robot;
@@ -189,6 +190,12 @@ public class Superstructure extends SubsystemBase {
             Commands.waitUntil(endEffector::hasCoral),
             new WaitCommand(0.1),
             setMastState(MastState.PARTIAL_STOW, false)
+        );
+    }
+
+    public Command intakeCoralFromHumanPlayerAligned(CoralHumanPlayerStation pos) {
+        return Commands.deferredProxy(
+            () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
         );
     }
 
