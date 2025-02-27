@@ -4,30 +4,21 @@
 
 package frc.robot.commands;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import choreo.auto.AutoFactory;
-import choreo.auto.AutoRoutine;
-import choreo.auto.AutoTrajectory;
-import choreo.trajectory.SwerveSample;
-import choreo.trajectory.Trajectory;
-import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
-import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.superstructure.Superstructure;
 
 /** Add your docs here. */
 public class Autos {
     private final Superstructure superstructure;
-    private final Drivetrain drivetrain;
     private final AutoFactory autoFactory;
 
     private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
@@ -57,7 +48,6 @@ public class Autos {
 
     public Autos(Superstructure superstructure) {
         this.superstructure = superstructure;
-        this.drivetrain = superstructure.getDrivetrain();
         autoFactory = superstructure.getDrivetrain().getAutoFactory();
         setupChooser();
     }
@@ -97,7 +87,7 @@ public class Autos {
             .runThenHP("Reef K to Coral PS")
             .runThenScore("Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
             .runThenHP("Reef L to Coral PS")
-            .runThenScore("Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.L))
+            .runThenScore("Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A))
             .build();
     }
     // public Command startThenJKLA(StartPosition startPosition) {
@@ -223,84 +213,5 @@ public class Autos {
     //         runTrajectoryThenHumanPlayer(routine, "Reef C to Coral PS2").cmd(),
     //         runTrajectoryThenScore(routine, "Coral PS2 to Reef B", new ReefPosition(ReefLevel.L4, ReefBranch.B)).cmd()
     //     );
-    // }
-
-    private Command runTrajectoryThenScore(AutoRoutine routine, String traj, ReefPosition reefPosition) {
-        return runTrajectoryThenScore(routine, traj, reefPosition, false);
-    }
-
-    private Command runTrajectoryThenScore(AutoRoutine routine, String traj, ReefPosition reefPosition, boolean resetOdometry) {
-        reefPosition = doFlip(reefPosition);
-
-        var trajectory = routine.trajectory(traj);
-        if (flippedHorizontally) {
-            trajectory = routine.trajectory(flipHorizontally(trajectory.getRawTrajectory()));
-        }
-        
-        return trajectory.resetOdometry().onlyIf(() -> resetOdometry).asProxy().andThen(trajectory.cmd().asProxy().andThen(superstructure.scoreOnReefAuton(reefPosition).asProxy()));
-    }
-
-    private Command runTrajectoryThenHumanPlayer(AutoRoutine routine, String traj) {
-
-        var trajectory = routine.trajectory(traj);
-        if (flippedHorizontally) {
-            trajectory = routine.trajectory(flipHorizontally(trajectory.getRawTrajectory()));
-        }
-
-
-        return trajectory.cmd().asProxy().andThen(superstructure.intakeCoralFromHumanPlayer().asProxy());
-
-    }
-
-    private Trajectory<SwerveSample> flipHorizontally(Trajectory<SwerveSample> traj) {
-        final var flipped = new ArrayList<SwerveSample>();
-        for (final var state : traj.samples()) {
-            final var y = ChoreoAllianceFlipUtil.flipY(state.getPose().getY());
-            final var heading = (2 * Math.PI) - state.getPose().getRotation().getRadians();
-
-            var sample = new SwerveSample(
-                state.t, 
-                state.x, 
-                y, 
-                heading, 
-                state.vx, 
-                -state.vy, 
-                -state.omega, 
-                state.ax, 
-                -state.ay, 
-                -state.alpha, 
-                new double[] {
-                    state.moduleForcesX()[0],
-                    state.moduleForcesX()[1],
-                    state.moduleForcesX()[2],
-                    state.moduleForcesX()[3],
-                },
-                new double[] { // FIXME... maybe?
-                    -state.moduleForcesY()[0],
-                    -state.moduleForcesY()[1],
-                    -state.moduleForcesY()[2],
-                    -state.moduleForcesY()[3],
-                });
-            flipped.add(sample);
-        }
-
-        return new Trajectory<SwerveSample>(traj.name(), flipped, traj.splits(), traj.events());
-    }
-
-    private ReefPosition doFlip(ReefPosition reefPosition) {
-        return flippedHorizontally
-            ? flipReefPosition(reefPosition)
-            : reefPosition;
-    }
-
-    private ReefPosition flipReefPosition(ReefPosition reefPosition) {
-        final int branch = reefPosition.branch().ordinal();
-        final int last = ReefBranch.L.ordinal()+1;
-        int flipped = last - branch;
-
-        if (branch == 0) flipped = 1;
-        else flipped += 1;
-
-        return new ReefPosition(reefPosition.level(), ReefBranch.values()[flipped]);
-    }
+    // }s
 }
