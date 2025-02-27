@@ -109,8 +109,8 @@ public final class Constants {
 
       public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
         true,
-        new Pose2d(0.01, 0.01, Rotation2d.fromDegrees(2)),
-        new ChassisSpeeds(0.01, 0.01, 0.01), 
+        new Pose2d(0.015, 0.015, Rotation2d.fromDegrees(2)),
+        new ChassisSpeeds(0.05, 0.05, 0.01), 
         kDefaultTranslationConfig, 
         kDefaultTranslationConfig, 
         kDefaultRotationConfig);

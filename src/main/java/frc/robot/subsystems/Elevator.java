@@ -264,8 +264,8 @@ public class Elevator extends SubsystemBase {
         }
 
         public static final ElevatorSetpoint L1 = new ElevatorSetpoint(Meters.of(0.6));
-        public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.87));
-        public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.87).plus(Inches.of(15.75)));
+        public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.9));
+        public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.9).plus(Inches.of(15.75)));
         public static final ElevatorSetpoint L4 = new ElevatorSetpoint(kMaxHeight.minus(Centimeters.of(5)));
         public static final ElevatorSetpoint HUMAN_PLAYER = new ElevatorSetpoint(Meters.of(0.45));
         public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.06), Centimeters.of(2), kDefaultVelocityTolerence);
