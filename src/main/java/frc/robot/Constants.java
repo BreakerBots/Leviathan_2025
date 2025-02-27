@@ -92,8 +92,8 @@ public final class Constants {
 
       public static final Translation2d kTopLeftCameraTranslation = new Translation2d();
       public static final Translation2d kTopRightCameraTranslation = new Translation2d();
-      public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(-24),Degrees.of(-165).plus(Degrees.of(5))));//10.425 //Degrees.of(-165).minus(Degrees.of(2.5))//25
-      public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761)), new Rotation3d(Degrees.of(0), Degrees.of(-24), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
+      public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-24),Degrees.of(-165).plus(Degrees.of(5))));//10.425 //Degrees.of(-165).minus(Degrees.of(2.5))//25
+      public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-24), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
       
       public static final Distance kMaxTrigSolveTagDist = Meters.of(2.5);
       public static final Matrix<N3, N1> kTrigBaseStdDevs = VecBuilder.fill(0.5, 0.5, 15);
