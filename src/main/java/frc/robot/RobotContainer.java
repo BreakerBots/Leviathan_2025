@@ -80,9 +80,9 @@ public class RobotContainer {
   
   
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake, climb, apriltagVision, ap, controller);
+  intake, climb, apriltagVision, ap, controller, buttonBoard);
 
-  private final ScoreOnReefScheduler scoreOnReefScheduler = new ScoreOnReefScheduler(buttonBoard, superstructure);
+  // private final ScoreOnReefScheduler scoreOnReefScheduler = new ScoreOnReefScheduler(buttonBoard, superstructure);
   
   private final Autos autos = new Autos(superstructure);
 
@@ -136,12 +136,22 @@ public class RobotContainer {
     Trigger manualOverride = buttonBoard.getRightButtons().getHighRightSwitch();
 
     controller.getButtonX().onTrue(elevator.home());
-    // controller.getButtonB().onTrue(superstructure.reverseIntake());
+    controller.getButtonB().onTrue(superstructure.reverseIntake());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure.intakeAlgaeFromReef(false));
     controller.getDPad().getRight().onTrue(superstructure.intakeAlgaeFromReef(true));
     controller.getLeftBumper().onTrue(superstructure.intakeCoralFromGround());
-    controller.getStartButton().onTrue(superstructure.intakeCoralFromHumanPlayer());
+    controller.getStartButton()
+    .onTrue(
+      Commands.deferredProxy(
+        () -> superstructure.intakeCoralFromHumanPlayerAligned(
+          CoralHumanPlayerStation.getClosest(
+            drivetrain.getLocalizer().getPose(), 
+            DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+          )
+        )
+      )
+    );
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
 
     buttonBoard.getLevelButtons().getL1Button().and(manualOverride).onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
@@ -160,7 +170,7 @@ public class RobotContainer {
 
     //scoreOnReefScheduler.bind();
 
-    controller.getButtonB().onTrue(superstructure.intakeCoralFromGroundForL1());
+    controller.getRightBumper().onTrue(superstructure.intakeCoralFromGroundForL1());
     controller.getButtonY().onTrue(superstructure.extakeCoralL1());
 
     Trigger reefA = buttonBoard.getReefButtons().getReefButtonA();

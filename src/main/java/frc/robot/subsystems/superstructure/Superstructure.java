@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.SimulationConstants;
+import frc.robot.ButtonBoard;
 import frc.robot.CoralHumanPlayerStation;
 import frc.robot.HolonomicSlewRateLimiter;
 import frc.robot.ReefPosition;
@@ -64,6 +66,7 @@ public class Superstructure extends SubsystemBase {
     private Drivetrain drivetrain;
     private ApriltagVision apriltagVision;
     private AutoPilot autoPilot;
+    private ButtonBoard buttonBoard;
 
     private final TipProtectionSystem tipProtectionSystem;
 
@@ -71,7 +74,7 @@ public class Superstructure extends SubsystemBase {
     private HolonomicSlewRateLimiter limiter;
     
 
-    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, ApriltagVision apriltagVision, AutoPilot autoPilot, BreakerXboxController controller) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, ApriltagVision apriltagVision, AutoPilot autoPilot, BreakerXboxController controller, ButtonBoard buttonBoard) {
         this.elevator = elevator;
         this.intake = intake;
         this.indexer = indexer;
@@ -81,6 +84,7 @@ public class Superstructure extends SubsystemBase {
         this.controller = controller;
         this.apriltagVision = apriltagVision;
         this.autoPilot = autoPilot;
+        this.buttonBoard = buttonBoard;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
         // tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
@@ -202,6 +206,7 @@ public class Superstructure extends SubsystemBase {
 
         return Commands.deferredProxy(
             () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+                .onlyWhile(() -> !buttonBoard.getRightButtons().getHighRightSwitch().getAsBoolean() || RobotState.isAutonomous())
                 .alongWith(setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true)
                 .andThen(
                     setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
@@ -220,7 +225,7 @@ public class Superstructure extends SubsystemBase {
             setMastState(level.getExtakeMastState(), false),
             new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
             setMastState(MastState.STOW, false)
-        );
+        ).finallyDo(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0));
     }
 
     public Command intakeAlgaeFromReef(boolean isHigh) {
@@ -314,7 +319,9 @@ public class Superstructure extends SubsystemBase {
                 ))
             .andThen(
                 scoreOnReefManual(position.level())
-            );
+            )
+            .finallyDo(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0))
+            .onlyWhile(() -> !buttonBoard.getRightButtons().getHighRightSwitch().getAsBoolean());
     }
 
     // public Command climb()
@@ -370,7 +377,7 @@ public class Superstructure extends SubsystemBase {
             Commands.waitUntil(controller.getButtonA()),
             Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
             climb.setState(ClimbState.CLIMBING, false)
-        );
+        ).finallyDo(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0));
     }
  
     public Command stowClimb() {

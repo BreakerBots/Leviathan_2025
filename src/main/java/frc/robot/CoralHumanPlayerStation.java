@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meter;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -32,9 +33,15 @@ public enum CoralHumanPlayerStation {
         Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueTag : redTag).get().toPose2d();
         
         final var pos = new BreakerVector2(tagPose.getTranslation());
-        final Distance offset = Meter.of(1.2);
+        final Distance offset = Inches.of(26);
 
         final var finalTranslation = pos.plus(new BreakerVector2(tagPose.getRotation(), offset.in(Meter)));
         return new Pose2d(finalTranslation.getAsTranslation(), tagPose.getRotation());
+    }
+
+    public static CoralHumanPlayerStation getClosest(Pose2d robotPose, Alliance alliance) {
+        double upperDistance = robotPose.getTranslation().getDistance(UPPER.getAlignPose(alliance).getTranslation()); 
+        double lowerDistance = robotPose.getTranslation().getDistance(LOWER.getAlignPose(alliance).getTranslation());
+        return upperDistance < lowerDistance ? UPPER : LOWER;
     }
 }
