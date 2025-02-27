@@ -58,7 +58,7 @@ public class TrajectoryBuilder {
         }
         
         final var station = flipCoralHumanPlayerStation(hpToString(traj));
-        final var cmd = superstructure.intakeCoralFromHumanPlayerAligned(station).asProxy();
+        final var cmd = superstructure.intakeCoralFromHumanPlayer().asProxy();
         trajectories.add(new Pair<>(trajectory, cmd));
 
         return this;

@@ -67,11 +67,11 @@ public class ApriltagVision extends SubsystemBase {
 
         // PhotonCamera topLeftCam = new PhotonCamera(kTopLeftCameraName);
         PhotonCamera bottomLeftCam = new PhotonCamera(kBottomLeftCameraName);
-        // PhotonCamera topRightCam = new PhotonCamera(kTopRightCameraName);
+        PhotonCamera topRightCam = new PhotonCamera(kTopRightCameraName);
         PhotonCamera bottomRightCam = new PhotonCamera(kBottomRightCameraName);
 
-        cameras = new PhotonCamera[] {/*topLeftCam, topRightCam, */bottomLeftCam, bottomRightCam};
-        camOffsets = new Transform3d[] {kBottomLeftCameraTransform, kBottomRightCameraTransform};
+        cameras = new PhotonCamera[] {/*topLeftCam,*/ topRightCam, bottomLeftCam, bottomRightCam};
+        camOffsets = new Transform3d[] {kTopRightCameraTransform, kBottomLeftCameraTransform, kBottomRightCameraTransform};
 
         photonPoseEstimator = new PhotonPoseEstimator(FieldConstants.kAprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, new Transform3d());
         estimatedPoses = new ArrayList<>();

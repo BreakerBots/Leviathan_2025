@@ -251,16 +251,16 @@ public class Superstructure extends SubsystemBase {
         return intake.setState(IntakeState.EXTENDED_NEUTRAL, true).andThen(
             intake.setState(IntakeState.INTAKE, false),
             Commands.waitUntil(intake::hasCoral),
-            intake.setState(IntakeState.STOW, false)
+            intake.setState(IntakeState.L1_NEUTRAL, false)
         );
     }
 
     public Command extakeCoralL1() {
-        return intake.setState(IntakeState.STOW, true).andThen(
-            intake.setState(IntakeState.RETRACTED_EXTAKEING, false),
+        return intake.setState(IntakeState.L1_NEUTRAL, true).andThen(
+            intake.setState(IntakeState.L1_EXTAKE, false),
             Commands.waitUntil(() -> !intake.hasCoral()),
             Commands.waitSeconds(0.5),
-            intake.setState(IntakeState.STOW, false)
+            intake.setState(IntakeState.L1_NEUTRAL, false)
         );
     }
 
@@ -363,7 +363,7 @@ public class Superstructure extends SubsystemBase {
 
     public Command climbOnDeepCage() {
         return climb.setState(ClimbState.EXTENDED, true).alongWith(
-            setMastState(MastState.PARTIAL_STOW, true),
+            setMastState(MastState.CLIMB, true),
             intake.setState(IntakeState.EXTENDED_NEUTRAL, false)
         ).andThen(
             Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.RIGHT, 0.3)),
@@ -433,6 +433,8 @@ public class Superstructure extends SubsystemBase {
         public static final MastState BARGE_EXTAKE = new MastState(ElevatorSetpoint.BARGE, EndEffectorSetpoint.BARGE_EXTAKE);
 
         public static final MastState EXTAKE_ALGAE_PROCESSOR = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.EXTAKE_ALGAE_PROCESSOR);
+
+        public static final MastState CLIMB = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.CLIMB);
 
 
     }

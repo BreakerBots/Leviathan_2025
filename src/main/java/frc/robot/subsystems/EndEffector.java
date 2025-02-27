@@ -406,7 +406,7 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint CLIMB = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(15)), 
+            new WristSetpoint(Degrees.of(70)), 
             RollerState.NEUTRAL
         );
 

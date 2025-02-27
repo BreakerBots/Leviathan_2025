@@ -153,14 +153,15 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakeState {
         INTAKE(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED),
-        RETRACTED_EXTAKEING(IntakeRollerState.EXTAKE, IntakePivotState.RETRACTED),
         EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED),
 
         EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
 
+        L1_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.L1),
+        L1_EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.L1),
 
         CLIMB(IntakeRollerState.NEUTRAL, IntakePivotState.CLIMB),
-        STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED),;
+        STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED);
         private IntakeRollerState rollerState;
         private IntakePivotState pivotState;
         private IntakeState(IntakeRollerState rollerState, IntakePivotState pivotState) {
@@ -178,7 +179,7 @@ public class Intake extends SubsystemBase{
     }
 
     public static enum IntakeRollerState {
-        INTAKE(-0.65),
+        INTAKE(-0.8),
         // INTAKE_ALGAE(0.5),
         // HOLD_ALGAE(0.1),
         // EXTAKE_ALGAE(-0.8),
@@ -200,7 +201,9 @@ public class Intake extends SubsystemBase{
         // ALGAE(Rotations.of(0.22)),
         // ALGAE_HOLD(Rotations.of(0.34)),
         CLIMB(Degrees.of(45)),
-        RETRACTED(Rotations.of(0.25));
+        RETRACTED(Rotations.of(0.25)),
+        L1(Rotations.of(0.3));
+
 
         private Angle angle;
         private IntakePivotState(Angle angle) {

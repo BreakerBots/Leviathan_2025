@@ -49,7 +49,7 @@ public class Climb extends SubsystemBase {
         this.imu = imu;
         climbMotor = new TalonFX(kClimbMotorID, SuperstructureConstants.kSuperstructureCANBus);
         climbEncoder = BreakerCANCoderFactory.createCANCoder(kClimbCoder,SuperstructureConstants.kSuperstructureCANBus, kClimbCoderAbsoluteSensorDiscontinuityPoint, kClimbCoderOffset, SensorDirectionValue.Clockwise_Positive);
-        pid = new PIDController(400,0, 0);
+        pid = new PIDController(200,0, 0);
         setupConfigs();
     }
     

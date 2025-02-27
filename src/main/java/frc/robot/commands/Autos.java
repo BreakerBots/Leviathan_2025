@@ -105,10 +105,10 @@ public class Autos {
             .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
             .runThenHP("Reef J to Coral PS")
             .runThenScore("Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K))
-            .runThenHP("Reef K to Coral PS")
-            .runThenScore("Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
-            .runThenHP("Reef L to Coral PS")
-            .runThenScore("Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A))
+            // .runThenHP("Reef K to Coral PS")
+            // .runThenScore("Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
+            // .runThenHP("Reef L to Coral PS")
+            // .runThenScore("Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A))
             .build();
     }
     // public Command startThenJKLA(StartPosition startPosition) {

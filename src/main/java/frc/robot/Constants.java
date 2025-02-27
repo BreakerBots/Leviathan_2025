@@ -85,13 +85,13 @@ public final class Constants {
     }
 
     public static class ApriltagVisionConstants {
-      public static final String kTopLeftCameraName = "topleft";
-      public static final String kTopRightCameraName = "topright";
+      public static final String kTopLeftCameraName = "top_left";
+      public static final String kTopRightCameraName = "top_right";
       public static final String kBottomLeftCameraName = "bottom_left";
       public static final String kBottomRightCameraName = "bottom_right";
 
-      public static final Translation2d kTopLeftCameraTranslation = new Translation2d();
-      public static final Translation2d kTopRightCameraTranslation = new Translation2d();
+      public static final Transform3d kTopLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-9.48),Inches.of(10.54),Inches.of(37.486).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-15),Degrees.of(145)));
+      public static final Transform3d kTopRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-9.48),Inches.of(-10.54),Inches.of(37.486).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-15),Degrees.of(-145)));
       public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-24),Degrees.of(-165).plus(Degrees.of(5))));//10.425 //Degrees.of(-165).minus(Degrees.of(2.5))//25
       public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-24), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
       
@@ -104,12 +104,12 @@ public final class Constants {
     public static class AutoPilotConstants {
       public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(24);
 
-      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(5.5, 0, 0, new Constraints(1.0, 1.5));
+      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(5, 0.001, 0, new Constraints(1.0, 1.5));
       public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
 
       public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
         true,
-        new Pose2d(0.015, 0.015, Rotation2d.fromDegrees(2)),
+        new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2.5)),
         new ChassisSpeeds(0.05, 0.05, 0.01), 
         kDefaultTranslationConfig, 
         kDefaultTranslationConfig, 
@@ -399,7 +399,7 @@ public final class Constants {
 
   public static class AutoConstants {
     public static final PIDConstants TRANSLATION_PID = new PIDConstants(7.5, 0, 0.8);
-    public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0,0);
+    public static final PIDConstants ROTATION_PID = new PIDConstants(4.5, 0,0);
     public static final ChoreoConfig CHOREO_CONFIG = new ChoreoConfig().withTranslationPID(TRANSLATION_PID).withRotationPID(ROTATION_PID);
   }
 
