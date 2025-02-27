@@ -3,6 +3,8 @@ package frc.robot.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import choreo.Choreo;
+import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import choreo.trajectory.SwerveSample;

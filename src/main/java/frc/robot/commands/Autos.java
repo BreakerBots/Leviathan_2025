@@ -6,12 +6,14 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import choreo.Choreo;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.ReefPosition;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.subsystems.superstructure.Superstructure;
@@ -50,11 +52,21 @@ public class Autos {
         this.superstructure = superstructure;
         autoFactory = superstructure.getDrivetrain().getAutoFactory();
         setupChooser();
+        cachePaths();
     }
 
     public Command getSelectedAuto() {
         flippedHorizontally = flipChooser.getSelected();
         return autoChooser.getSelected().get();
+    }
+
+    public void cachePaths() {
+        BreakerLog.log("Autos/Caching", "in progress");
+        final var trajs = Choreo.availableTrajectories();
+        for (final var traj : trajs) {
+            autoFactory.cache().loadTrajectory(traj);
+        }
+        BreakerLog.log("Autos/Caching", "done");
     }
 
     private void setupChooser() {
