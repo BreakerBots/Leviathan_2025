@@ -108,6 +108,7 @@ public class TrajectoryBuilder {
     private ReefPosition flipReefPosition(ReefPosition reefPosition) {
         final int branch = reefPosition.branch().ordinal();
         final int last = ReefBranch.L.ordinal()+1;
+        
         int flipped = last - branch;
 
         if (branch == 0) flipped = 1;

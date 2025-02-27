@@ -61,7 +61,7 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
 
             Translation2d allignOffsetRel = new Translation2d(
                 (alliance == Alliance.Blue ? -1 : -1) * AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
-                (isLeft ? 1 : -1) * (alliance == Alliance.Blue ? -1 : 1) * FieldConstants.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters));
+                (isLeft ? 1 : -1) * (alliance == Alliance.Blue ? -1 : -1) * FieldConstants.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters));
 
             Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
 
