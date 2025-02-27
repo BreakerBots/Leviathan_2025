@@ -11,6 +11,8 @@ import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
 import choreo.util.ChoreoAllianceFlipUtil;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.CoralHumanPlayerStation;
@@ -106,6 +108,7 @@ public class TrajectoryBuilder {
     private ReefPosition flipReefPosition(ReefPosition reefPosition) {
         final int branch = reefPosition.branch().ordinal();
         final int last = ReefBranch.L.ordinal()+1;
+        
         int flipped = last - branch;
 
         if (branch == 0) flipped = 1;
@@ -144,10 +147,12 @@ public class TrajectoryBuilder {
     }
 
     private CoralHumanPlayerStation flipCoralHumanPlayerStation(CoralHumanPlayerStation pos) {
+        final var alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+        if (alliance == Alliance.Red) {
+            if (flippedHorizontally) return pos;
+            return pos.swap();
+        }
         if (!flippedHorizontally) return pos;
-        return switch (pos) {
-            case UPPER -> CoralHumanPlayerStation.LOWER;
-            case LOWER -> CoralHumanPlayerStation.UPPER;
-        };
+        return pos.swap();
     }
 }

@@ -34,7 +34,6 @@ import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.Constants.SuperstructureConstants;
 import frc.robot.subsystems.superstructure.Superstructure;
 
-/** The Climb subsystem consisting of a winch and a fork. 🍴**/
 public class Climb extends SubsystemBase {
     private TalonFX climbMotor;
     private CANcoder climbEncoder;

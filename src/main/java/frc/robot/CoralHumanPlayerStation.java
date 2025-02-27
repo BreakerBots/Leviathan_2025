@@ -21,6 +21,13 @@ public enum CoralHumanPlayerStation {
         this.redTag = redTag;
     }
 
+    public CoralHumanPlayerStation swap() {
+        return switch (this) {
+            case UPPER -> CoralHumanPlayerStation.LOWER;
+            case LOWER -> CoralHumanPlayerStation.UPPER;
+        };
+    }
+
     public Pose2d getAlignPose(Alliance alliance) {
         Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueTag : redTag).get().toPose2d();
         

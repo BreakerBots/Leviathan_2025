@@ -72,12 +72,21 @@ public class Autos {
     private void setupChooser() {
         autoChooser.setDefaultOption("Start -> JKLA", () -> startThenJKLA(StartPosition.fromDriverStation()));
         autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation()));
+        autoChooser.addOption("Start Low -> GFED", () -> startLowThenGFED(StartPosition.fromDriverStation()));
+        autoChooser.addOption("Mid -> H", () -> startCenterThenH());
         
         flipChooser.setDefaultOption("No flip", false);
         flipChooser.addOption("Flip", true);
 
         Shuffleboard.getTab("Autonomous").add(autoChooser);
         Shuffleboard.getTab("Autonomous").add(flipChooser);
+    }
+
+    public Command startCenterThenH() {
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("Mid->H"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore("Mid to Reef H", new ReefPosition(ReefLevel.L4, ReefBranch.H))
+            .build();
     }
 
     /**
@@ -170,6 +179,25 @@ public class Autos {
 
     //     return routine.cmd();
     // }
+
+    // NON-DRY CODE! cleanup when i have time :)
+    public Command startLowThenGFED(StartPosition startPosition) {
+        final var start = switch (startPosition) {
+            case ONE -> "Start 4 to Reef G";
+            case TWO -> "Start 5 to Reef G";
+            case THREE -> "Start 6 to Reef G";
+        };
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("GFED"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.G))
+            .runThenHP("Reef G to Coral PS2")
+            .runThenScore("Coral PS2 to Reef F", new ReefPosition(ReefLevel.L4, ReefBranch.F))
+            .runThenHP("Reef F to Coral PS2")
+            .runThenScore("Coral PS2 to Reef E", new ReefPosition(ReefLevel.L4, ReefBranch.E))
+            .runThenHP("Reef E to Coral PS2")
+            .runThenScore("Coral PS2 to Reef D", new ReefPosition(ReefLevel.L4, ReefBranch.D))
+            .build();
+    }
 
     public Command startThenGFED(StartPosition startPosition) { // I would like to put all these strings in a nice enum eventually to avoid typos, sounds like a job for the freshies.
         final var start = switch (startPosition) {

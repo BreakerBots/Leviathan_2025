@@ -194,8 +194,21 @@ public class Superstructure extends SubsystemBase {
     }
 
     public Command intakeCoralFromHumanPlayerAligned(CoralHumanPlayerStation pos) {
+        if (Robot.isSimulation()) {
+            return Commands.deferredProxy(() -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+                .andThen(Commands.waitTime(SimulationConstants.kWaitTime))
+            );
+        }
+
         return Commands.deferredProxy(
             () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+                .alongWith(setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true)
+                .andThen(
+                    setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
+                    Commands.waitUntil(endEffector::hasCoral),
+                    new WaitCommand(0.1),
+                    setMastState(MastState.PARTIAL_STOW, false)
+                ))
         );
     }
 
@@ -257,10 +270,10 @@ public class Superstructure extends SubsystemBase {
     // note: when this function is implemented, make sure to stow too once it scores.
     public Command scoreOnReefAuton(ReefPosition position) {
         if (Robot.isSimulation()) {
-            return Commands.deferredProxy(() -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig).andThen(Commands.waitTime(SimulationConstants.kWaitTime)));
+            return Commands.deferredProxy(() -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig).andThen(Commands.waitTime(SimulationConstants.kWaitTime)));
         }
        return Commands.deferredProxy(
-            () -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
+            () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
             .alongWith(
                 setMastState(MastState.PARTIAL_STOW, false)
             ).andThen(
@@ -278,7 +291,7 @@ public class Superstructure extends SubsystemBase {
                 Commands.waitUntil(controller.getButtonA()),
                 Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
                 Commands.deferredProxy(
-            () -> autoPilot.navigateToPose(position.branch().getAllignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
+            () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
                 .alongWith(
                     setMastState(MastState.PARTIAL_STOW, false)
                 ))
