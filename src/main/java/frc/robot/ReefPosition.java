@@ -35,18 +35,18 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
     }
 
     public static enum ReefBranch {
-        A(18, 0, !true),
-        B(18, 0, !false),
-        C(17, 0, !true),
-        D(17, 0, !false),
-        E(22, 0, !true),
-        F(22, 0, !false),
-        G(21, 0, !true),
-        H(21, 0, !false),
-        I(20, 0, !true),
-        J(20, 0, !false),
-        K(19, 0, !true),
-        L(19, 0, !false);
+        A(18, 7, !true),
+        B(18, 7, !false),
+        C(17, 8, !true),
+        D(17, 8, !false),
+        E(22, 9, !true),
+        F(22, 9, !false),
+        G(21, 10, !true),
+        H(21, 10, !false),
+        I(20, 11, !true),
+        J(20, 11, !false),
+        K(19, 6, !true),
+        L(19, 6, !false);
 
         private int blueReefFaceApriltagID, redReefFaceApriltagID;
         private boolean isLeft;
