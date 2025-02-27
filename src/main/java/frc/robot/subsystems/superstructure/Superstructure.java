@@ -194,8 +194,21 @@ public class Superstructure extends SubsystemBase {
     }
 
     public Command intakeCoralFromHumanPlayerAligned(CoralHumanPlayerStation pos) {
+        if (Robot.isSimulation()) {
+            return Commands.deferredProxy(() -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+                .andThen(Commands.waitTime(SimulationConstants.kWaitTime))
+            );
+        }
+
         return Commands.deferredProxy(
             () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+                .alongWith(setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true)
+                .andThen(
+                    setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
+                    Commands.waitUntil(endEffector::hasCoral),
+                    new WaitCommand(0.1),
+                    setMastState(MastState.PARTIAL_STOW, false)
+                ))
         );
     }
 
