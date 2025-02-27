@@ -56,11 +56,11 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
             this.isLeft = isLeft;
         }
 
-        public Pose2d getAllignPose(Alliance alliance) {
+        public Pose2d getAlignPose(Alliance alliance) {
             Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueReefFaceApriltagID : redReefFaceApriltagID).get().toPose2d();
 
             Translation2d allignOffsetRel = new Translation2d(
-                (alliance == Alliance.Blue ? -1 : 1) * AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
+                (alliance == Alliance.Blue ? -1 : -1) * AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
                 (isLeft ? 1 : -1) * (alliance == Alliance.Blue ? -1 : 1) * FieldConstants.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters));
 
             Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
@@ -77,7 +77,7 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
         public static ReefBranch getClosest(Pose2d robotPose, Alliance alliance) {
             Pair<ReefBranch, Double> closestBranchAndDist = null;
             for (ReefBranch branch : ReefBranch.values()) {
-                var pose = branch.getAllignPose(alliance);
+                var pose = branch.getAlignPose(alliance);
                 double dist = pose.getTranslation().getDistance(robotPose.getTranslation());
                 if (closestBranchAndDist == null) {
                     closestBranchAndDist = new Pair<ReefPosition.ReefBranch,Double>(branch, dist);

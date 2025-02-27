@@ -73,12 +73,20 @@ public class Autos {
         autoChooser.setDefaultOption("Start -> JKLA", () -> startThenJKLA(StartPosition.fromDriverStation()));
         autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation()));
         autoChooser.addOption("Start Low -> GFED", () -> startLowThenGFED(StartPosition.fromDriverStation()));
+        autoChooser.addOption("Mid -> H", () -> startCenterThenH());
         
         flipChooser.setDefaultOption("No flip", false);
         flipChooser.addOption("Flip", true);
 
         Shuffleboard.getTab("Autonomous").add(autoChooser);
         Shuffleboard.getTab("Autonomous").add(flipChooser);
+    }
+
+    public Command startCenterThenH() {
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("Mid->H"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore("Mid to Reef H", new ReefPosition(ReefLevel.L4, ReefBranch.H))
+            .build();
     }
 
     /**
