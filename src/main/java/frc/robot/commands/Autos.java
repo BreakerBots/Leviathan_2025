@@ -35,7 +35,7 @@ public class Autos {
 
         public static StartPosition fromDriverStation() {
             final var loc = DriverStation.getLocation();
-            final var i = loc.orElse(1); // maybe change this.
+            final var i = loc.orElse(1);
             return switch (i) {
                 case 1 -> ONE;
                 case 2 -> TWO;
@@ -70,10 +70,13 @@ public class Autos {
     }
 
     private void setupChooser() {
-        autoChooser.setDefaultOption("Start -> JKLA", () -> startThenJKLA(StartPosition.fromDriverStation()));
-        autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation()));
+        autoChooser.setDefaultOption("Start -> JK", () -> startThenJKLA(StartPosition.fromDriverStation()));
+        // autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation())); // weird path
         autoChooser.addOption("Start Low -> GFED", () -> startLowThenGFED(StartPosition.fromDriverStation()));
         autoChooser.addOption("Mid -> H", () -> startCenterThenH());
+        autoChooser.addOption("Start 1 -> L", this::start1ThenL);
+        autoChooser.addOption("Start 3 -> I", this::start3TThenI);
+        autoChooser.addOption("Start 3 -> G", this::start3TThenG);
         
         flipChooser.setDefaultOption("No flip", false);
         flipChooser.addOption("Flip", true);
@@ -86,6 +89,27 @@ public class Autos {
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("Mid->H"))
             .setFlipped(flippedHorizontally)
             .runThenScore("Mid to Reef H", new ReefPosition(ReefLevel.L4, ReefBranch.H))
+            .build();
+    }
+
+    public Command start1ThenL() {
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("L"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore("Start 1 to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
+            .build();
+    }
+
+    public Command start3TThenI() {
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("I"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore("Start 3 to Reef I", new ReefPosition(ReefLevel.L4, ReefBranch.I))
+            .build();
+    }
+
+    public Command start3TThenG() {
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("I"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore("Start 3 to Reef G", new ReefPosition(ReefLevel.L4, ReefBranch.G))
             .build();
     }
 
