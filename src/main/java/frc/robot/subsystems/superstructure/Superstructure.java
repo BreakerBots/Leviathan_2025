@@ -205,7 +205,7 @@ public class Superstructure extends SubsystemBase {
         }
 
         return Commands.deferredProxy(
-            () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+            () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), RobotState.isAutonomous() ? AutoPilotConstants.kAutoNavToPoseConfig : AutoPilotConstants.kDefaultNavToPoseConfig)
                 .onlyWhile(() -> !buttonBoard.getRightButtons().getHighRightSwitch().getAsBoolean() || RobotState.isAutonomous())
                 .alongWith(setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true)
                 .andThen(
@@ -295,11 +295,10 @@ public class Superstructure extends SubsystemBase {
             return Commands.deferredProxy(() -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig).andThen(Commands.waitTime(SimulationConstants.kWaitTime)));
         }
        return Commands.deferredProxy(
-            () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
+            () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kAutoNavToPoseConfig))
             .alongWith(
-                setMastState(MastState.PARTIAL_STOW, false)
+                setMastState(position.level().getNeutralMastState(), true)
             ).andThen(
-                setMastState(position.level().getNeutralMastState(), true),
                 setMastState(position.level().getExtakeMastState(), false),
                 new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
                 setMastState(MastState.STOW, false)

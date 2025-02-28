@@ -104,17 +104,28 @@ public final class Constants {
     public static class AutoPilotConstants {
       public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(24);
 
-      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(5, 0.001, 0, new Constraints(1.0, 1.5));
+      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(4.5, 0.001, 0, new Constraints(1.0, 1.5));
       public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
 
       public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
         true,
-        new Pose2d(0.02, 0.02, Rotation2d.fromDegrees(2.5)),
-        new ChassisSpeeds(0.05, 0.05, 0.01), 
+        new Pose2d(0.025, 0.025, Rotation2d.fromDegrees(2)),
+        new ChassisSpeeds(0.15, 0.15, 0.015), 
         kDefaultTranslationConfig, 
         kDefaultTranslationConfig, 
         kDefaultRotationConfig);
-      }
+
+      public static final  ProfiledPIDControllerConfig kAutoTranslationConfig = new ProfiledPIDControllerConfig(4.4, 0.001, 0, new Constraints(2.5, 3));
+      public static final  ProfiledPIDControllerConfig kAutoRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
+
+      public static final NavToPoseConfig kAutoNavToPoseConfig = new NavToPoseConfig(
+        true,
+        new Pose2d(0.025, 0.025, Rotation2d.fromDegrees(2)),
+        new ChassisSpeeds(0.15, 0.15, 0.015), 
+        kAutoTranslationConfig, 
+        kAutoTranslationConfig, 
+        kAutoRotationConfig);
+    }
 
     public static class FieldConstants {
       public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
