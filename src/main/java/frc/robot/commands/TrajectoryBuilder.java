@@ -57,7 +57,7 @@ public class TrajectoryBuilder {
             trajectory = routine.trajectory(flipHorizontally(trajectory.getRawTrajectory()));
         }
         
-        final var station = flipCoralHumanPlayerStation(hpToString(traj));
+        final var station = flipCoralHumanPlayerStation(stringToHp(traj));
         final var cmd = superstructure.intakeCoralFromHumanPlayerAligned(station).asProxy();
         trajectories.add(new Pair<>(trajectory, cmd));
 
@@ -141,7 +141,7 @@ public class TrajectoryBuilder {
         return routine.cmd();
     }
 
-    private CoralHumanPlayerStation hpToString(String traj) {
+    private CoralHumanPlayerStation stringToHp(String traj) {
         if (traj.contains("Coral PS2")) return CoralHumanPlayerStation.LOWER;
         else return CoralHumanPlayerStation.UPPER;
     }

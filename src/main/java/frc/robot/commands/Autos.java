@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import choreo.Choreo;
 import choreo.auto.AutoFactory;
+import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -57,16 +58,24 @@ public class Autos {
 
     public Command getSelectedAuto() {
         flippedHorizontally = flipChooser.getSelected();
+        BreakerLog.log("Autos/flippedH", flippedHorizontally);
         return autoChooser.getSelected().get();
     }
 
     public void cachePaths() {
+        final var startTime = MathSharedStore.getTimestamp();
         BreakerLog.log("Autos/Caching", "in progress");
         final var trajs = Choreo.availableTrajectories();
+        BreakerLog.log("Autos/TotalTrajectories", trajs.length);
+        int fails = 0;
         for (final var traj : trajs) {
-            autoFactory.cache().loadTrajectory(traj);
+            final var res = autoFactory.cache().loadTrajectory(traj);
+            if (res.isEmpty()) fails += 1;
         }
+        final var elapsed = MathSharedStore.getTimestamp() - startTime;
         BreakerLog.log("Autos/Caching", "done");
+        BreakerLog.log("Autos/FailedCaches", fails);
+        BreakerLog.log("Autos/CacheTime", elapsed);
     }
 
     private void setupChooser() {
