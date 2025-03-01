@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ReefPosition;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.ReefPosition.ReefBranch;
@@ -89,6 +90,7 @@ public class Autos {
         autoChooser.addOption("Start 1 -> L", this::start1ThenL);
         autoChooser.addOption("Start 3 -> I", this::start3TThenI);
         autoChooser.addOption("Start 3 -> G", this::start3TThenG);
+        autoChooser.addOption("Nothing", Commands::none);
         
         flipChooser.setDefaultOption("No flip", false);
         flipChooser.addOption("Flip", true);

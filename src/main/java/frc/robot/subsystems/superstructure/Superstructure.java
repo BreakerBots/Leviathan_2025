@@ -14,6 +14,10 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -36,6 +40,7 @@ import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerRumbleType;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
+import frc.robot.BreakerLib.physics.BreakerVector2;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.commands.TimedWaitUntilCommand;
 import frc.robot.subsystems.Climb;
@@ -292,7 +297,11 @@ public class Superstructure extends SubsystemBase {
     // note: when this function is implemented, make sure to stow too once it scores.
     public Command scoreOnReefAuton(ReefPosition position) {
         if (Robot.isSimulation()) {
-            return Commands.deferredProxy(() -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig).andThen(Commands.waitTime(SimulationConstants.kWaitTime)));
+            return Commands.deferredProxy(() -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+                .andThen(
+                    Commands.waitTime(SimulationConstants.kWaitTime),
+                    Commands.defer(() -> forwardFromCurrentPosition(Meters.of(1)), Set.of(drivetrain))
+                ));
         }
        return Commands.deferredProxy(
             () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kAutoNavToPoseConfig))
@@ -301,8 +310,17 @@ public class Superstructure extends SubsystemBase {
             ).andThen(
                 setMastState(position.level().getExtakeMastState(), false),
                 new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
+                Commands.defer(() -> forwardFromCurrentPosition(Meters.of(1)), Set.of(drivetrain)),
                 setMastState(MastState.STOW, false)
             );
+    }
+
+    private Command forwardFromCurrentPosition(Distance distance) {
+        final var currentPos = new BreakerVector2(drivetrain.getLocalizer().getPose().getTranslation());
+        final var desiredAngle = drivetrain.getLocalizer().getPose().getRotation();
+        final var desiredPos = currentPos.plus(new BreakerVector2(desiredAngle, distance.in(Meter)));
+        
+        return autoPilot.navigateToPose(new Pose2d(desiredPos.getAsTranslation(), drivetrain.getLocalizer().getPose().getRotation()), AutoPilotConstants.kAutoNavToPoseConfig);
     }
 
 
@@ -431,8 +449,8 @@ public class Superstructure extends SubsystemBase {
 
         public static final MastState HIGH_REEF_ALGAE_NEUTRAL = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_NEUTRAL);
         public static final MastState HIGH_REEF_ALGAE_INTAKE = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_INTAKE);
-        public static final MastState LOW_REEF_ALGAE_NEUTRAL = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_NEUTRAL);
-        public static final MastState LOW_REEF_ALGAE_INTAKE = new MastState(ElevatorSetpoint.HIGH_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_HIGH_INTAKE);
+        public static final MastState LOW_REEF_ALGAE_NEUTRAL = new MastState(ElevatorSetpoint.LOW_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_LOW_NEUTRAL);
+        public static final MastState LOW_REEF_ALGAE_INTAKE = new MastState(ElevatorSetpoint.LOW_REEF_ALGAE, EndEffectorSetpoint.REEF_ALGAE_LOW_INTAKE);
         public static final MastState HOLD_ALGAE = new MastState(ElevatorSetpoint.STOW, EndEffectorSetpoint.HOLD_ALGAE);
 
         public static final MastState BARGE_NEUTRAL = new MastState(ElevatorSetpoint.BARGE, EndEffectorSetpoint.BARGE_NEUTRAL);

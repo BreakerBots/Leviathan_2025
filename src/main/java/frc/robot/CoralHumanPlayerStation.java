@@ -34,7 +34,7 @@ public enum CoralHumanPlayerStation {
         
         final var pos = new BreakerVector2(tagPose.getTranslation());
         final Distance backupOffset = Inches.of(26);
-        final Distance sideOffset = Inches.of(16);
+        final Distance sideOffset = Inches.of(2);
 
         final var offsetVec = new BreakerVector2(tagPose.getRotation(), backupOffset.in(Meter))
             .plus(new BreakerVector2(tagPose.getRotation().plus(Rotation2d.fromRadians(Math.PI/2.0)), sideOffset.in(Meter)));
