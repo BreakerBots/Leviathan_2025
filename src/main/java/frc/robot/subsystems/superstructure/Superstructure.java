@@ -114,30 +114,35 @@ public class Superstructure extends SubsystemBase {
             boolean canEndEffectorFlip = canEndEffectorFlip();
             boolean doesSetpointAllowFlipping = doesElevatorSetpointAllowEndEffectorFliping(elevatorSetpoint);
 
-            if ((canEndEffectorFlip && doesSetpointAllowFlipping) || flipDirection == EndEffectorFlipDirection.NONE) { // never flip restricted during travle or we dont flip
-    
-                cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
-    
-            } else if ((canEndEffectorFlip && !doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.FRONT_TO_BACK) {//We can flip now but wont be able to after moving the elevator
-                cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(
-                    Commands.waitUntil(() -> isEndEffectorSafe()).andThen(
+            boolean isSimulation = Robot.isSimulation();
+
+            if (!isSimulation)  {
+                if ((canEndEffectorFlip && doesSetpointAllowFlipping) || flipDirection == EndEffectorFlipDirection.NONE) { // never flip restricted during travle or we dont flip
+        
+                    cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
+        
+                } else if ((canEndEffectorFlip && !doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.FRONT_TO_BACK) {//We can flip now but wont be able to after moving the elevator
+                    cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(
+                        Commands.waitUntil(() -> isEndEffectorSafe()).andThen(
+                            elevator.set(elevatorSetpoint, waitForSuccess)
+                        )
+                    );
+        
+                } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {//we arnt able to flip now but will be able to after moving the elevator
+                    var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(25))), endEffectorSetpoint.rollerState());
+                    cmd = endEffector.set(intermedairySP, false)
+                    .andThen(
+                        Commands.waitUntil(() -> canEndEffectorFlip()),
+                        endEffector.set(endEffectorSetpoint, waitForSuccess)
+                    ).alongWith(
                         elevator.set(elevatorSetpoint, waitForSuccess)
-                    )
-                );
-    
-            } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {//we arnt able to flip now but will be able to after moving the elevator
-                var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(25))), endEffectorSetpoint.rollerState());
-                cmd = endEffector.set(intermedairySP, false)
-                .andThen(
-                    Commands.waitUntil(() -> canEndEffectorFlip()),
-                    endEffector.set(endEffectorSetpoint, waitForSuccess)
-                ).alongWith(
-                    elevator.set(elevatorSetpoint, waitForSuccess)
-                );
+                    );
+                } else {
+                    cmd = Commands.print("INVALID SUPERSTRUCT SETPOINT COMMANDED");
+                }
             } else {
-                cmd = Commands.print("INVALID SUPERSTRUCT SETPOINT COMMANDED");
+                cmd = Commands.waitSeconds(0.5);
             }
-    
             cmd.initialize();
         }
 
@@ -296,21 +301,21 @@ public class Superstructure extends SubsystemBase {
 
     // note: when this function is implemented, make sure to stow too once it scores.
     public Command scoreOnReefAuton(ReefPosition position) {
-        if (Robot.isSimulation()) {
-            return Commands.deferredProxy(() -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
-                .andThen(
-                    Commands.waitTime(SimulationConstants.kWaitTime),
-                    Commands.defer(() -> forwardFromCurrentPosition(Meters.of(1)), Set.of(drivetrain))
-                ));
-        }
+        // if (Robot.isSimulation()) {
+        //     return Commands.deferredProxy(() -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+        //         .andThen(
+        //             Commands.waitTime(SimulationConstants.kWaitTime),
+        //             Commands.defer(() -> forwardFromCurrentPosition(Meters.of(1)), Set.of(drivetrain))
+        //         ));
+        // }
        return Commands.deferredProxy(
             () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kAutoNavToPoseConfig))
             .alongWith(
                 setMastState(position.level().getNeutralMastState(), true)
             ).andThen(
                 setMastState(position.level().getExtakeMastState(), false),
-                new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15),
-                Commands.defer(() -> forwardFromCurrentPosition(Meters.of(1)), Set.of(drivetrain)),
+                new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15).withTimeout(3),
+                Commands.deferredProxy(() -> forwardFromCurrentPosition(Meters.of(1))),
                 setMastState(MastState.STOW, false)
             );
     }
@@ -320,21 +325,20 @@ public class Superstructure extends SubsystemBase {
         final var desiredAngle = drivetrain.getLocalizer().getPose().getRotation();
         final var desiredPos = currentPos.plus(new BreakerVector2(desiredAngle, distance.in(Meter)));
         
-        return autoPilot.navigateToPose(new Pose2d(desiredPos.getAsTranslation(), drivetrain.getLocalizer().getPose().getRotation()), AutoPilotConstants.kAutoNavToPoseConfig);
+        return autoPilot.navigateToPose(new Pose2d(desiredPos.getAsTranslation(), drivetrain.getLocalizer().getPose().getRotation()), AutoPilotConstants.kAutoNavToPoseConfig).asProxy();
     }
 
 
     public Command scoreOnReef(ReefPosition position) {
-        return Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.8))
+        return Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.3))
             .andThen(
-                Commands.waitUntil(controller.getButtonA()),
-                Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
                 Commands.deferredProxy(
             () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
                 .alongWith(
                     setMastState(MastState.PARTIAL_STOW, false)
                 ))
             .andThen(
+                Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
                 scoreOnReefManual(position.level())
             )
             .finallyDo(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0))
