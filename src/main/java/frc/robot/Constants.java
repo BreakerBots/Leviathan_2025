@@ -379,7 +379,7 @@ public final class Constants {
     public static final int kClimbCoder = 61;
 
     public static final double kClimbCoderAbsoluteSensorDiscontinuityPoint = 0.5;
-    public static final Angle kClimbCoderOffset = Rotations.of(-0.35400390625);
+    public static final Angle kClimbCoderOffset = Rotations.of(0.30810546875);
     public static final Angle kExtendedThreshold = Degrees.of(8);
     public static final Angle kStowThreshold = Degrees.of(8);
 
@@ -395,7 +395,7 @@ public final class Constants {
                                               .withSupplyCurrentLimitEnable(true);
     public static final Angle kClimbingPosition = Rotations.of(0.145).minus(Degrees.of(35));
     public static final Angle kExtendedPosition = Rotations.of(0.32);
-    public static final Angle kStowPosition = Rotations.of(0.145);
+    public static final Angle kStowPosition = Rotations.of(0.16);
     public static final Angle kNeutralPosition = Rotations.of(0);
 
     public static final Angle kClimbReverseLimit = kClimbingPosition.minus(Degrees.of(5));

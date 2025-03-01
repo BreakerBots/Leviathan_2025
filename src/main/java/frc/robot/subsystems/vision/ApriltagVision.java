@@ -76,7 +76,7 @@ public class ApriltagVision extends SubsystemBase {
         photonPoseEstimator = new PhotonPoseEstimator(FieldConstants.kAprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, new Transform3d());
         estimatedPoses = new ArrayList<>();
         stdDevCalculator = new BreakerPoseEstimationStandardDeviationCalculator(
-            VecBuilder.fill(2, 2, 10), 
+            VecBuilder.fill(3.5, 3.5, 10), 
             VecBuilder.fill(0.5, 0.5, 1), 
             4.5, 
             6.5, 
@@ -144,7 +144,7 @@ public class ApriltagVision extends SubsystemBase {
                         }
                         if (targets.size() == 1) {
                             PhotonTrackedTarget tgt = targets.get(0);
-                            if (tgt.getPoseAmbiguity() >= 0.20 && estimationType == EstimationType.PNP) {
+                            if (tgt.getPoseAmbiguity() >= 0.15 && estimationType == EstimationType.PNP) {
                                 continue;
                             }
                             

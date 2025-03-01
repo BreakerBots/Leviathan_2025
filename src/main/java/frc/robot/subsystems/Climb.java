@@ -49,7 +49,7 @@ public class Climb extends SubsystemBase {
         this.imu = imu;
         climbMotor = new TalonFX(kClimbMotorID, SuperstructureConstants.kSuperstructureCANBus);
         climbEncoder = BreakerCANCoderFactory.createCANCoder(kClimbCoder,SuperstructureConstants.kSuperstructureCANBus, kClimbCoderAbsoluteSensorDiscontinuityPoint, kClimbCoderOffset, SensorDirectionValue.Clockwise_Positive);
-        pid = new PIDController(200,0, 0);
+        pid = new PIDController(200,0, 0.5);
         setupConfigs();
     }
     
@@ -62,6 +62,7 @@ public class Climb extends SubsystemBase {
         // climbConfig.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled;
         // climbConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
         // climbConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.FusedCANcoder;
+
         // climbConfig.ExternalFeedback.FeedbackRemoteSensorID = kClimbCoder;
         // climbConfig.ExternalFeedback.RotorToSensorRatio = kClimbGearRatio.getRatioToOne();
         // climbConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
@@ -73,7 +74,7 @@ public class Climb extends SubsystemBase {
 
         climbConfig.CurrentLimits = kClimbCurrentLimits;
         climbConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        climbConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // var magicConfig = new MotionMagicConfigs();
         // magicConfig.MotionMagicAcceleration = kClimbMotionMagicAcceleration;

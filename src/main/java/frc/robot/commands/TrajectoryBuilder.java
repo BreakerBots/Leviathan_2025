@@ -42,7 +42,7 @@ public class TrajectoryBuilder {
         final var trajectory = loadTrajectory(traj);
 
         final var cmd = switch (reefPosition.level()) {
-            case L1 -> superstructure.extakeCoralL1();
+            case L1 -> superstructure.extakeCoralL1(); // FIXME, doesn't align
             default -> superstructure.scoreOnReefAuton(reefPosition).asProxy();
         };
 
