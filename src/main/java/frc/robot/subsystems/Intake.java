@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.SuperstructureConstants;
+import frc.robot.Robot;
 import frc.robot.BreakerLib.sensors.BreakerDigitalSensor;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
@@ -93,6 +94,7 @@ public class Intake extends SubsystemBase{
     }
 
     public Command setState(IntakeState state, boolean waitForSuccess) {
+        if (Robot.isSimulation()) return Commands.runOnce(() -> setStateFunc(state), this).andThen(Commands.waitSeconds(0.2));
         return Commands.runOnce(() -> setStateFunc(state), this).andThen(Commands.waitUntil(() -> atSetpoint() || !waitForSuccess));
     }
 

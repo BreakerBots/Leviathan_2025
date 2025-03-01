@@ -80,9 +80,14 @@ public class Autos {
     }
 
     private void setupChooser() {
-        autoChooser.setDefaultOption("Start2 -> JK", () -> startThenJKLA(StartPosition.TWO));
+        autoChooser.setDefaultOption("Start6 -> F", this::start6ThenF);
+        autoChooser.addOption("Start2 -> JK", () -> startThenJKLA(StartPosition.TWO));
         autoChooser.addOption("Start1 -> JK", () -> startThenJKLA(StartPosition.ONE));
         autoChooser.addOption("Start3 -> JK", () -> startThenJKLA(StartPosition.THREE));
+
+        autoChooser.addOption("L1 Start1 -> JK", () -> startThenJKGroundForL1(StartPosition.ONE));
+        autoChooser.addOption("L1 Start2 -> JK", () -> startThenJKGroundForL1(StartPosition.TWO));
+        autoChooser.addOption("L1 Start3 -> JK", () -> startThenJKGroundForL1(StartPosition.THREE));
         // autoChooser.setDefaultOption("Start -> JK", () -> startThenJKLA(StartPosition.fromDriverStation()));
         // autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation())); // weird path
         // autoChooser.addOption("Start Low -> GFED", () -> startLowThenGFED(StartPosition.fromDriverStation()));
@@ -90,6 +95,7 @@ public class Autos {
         autoChooser.addOption("Start 1 -> L", this::start1ThenL);
         autoChooser.addOption("Start 3 -> I", this::start3TThenI);
         autoChooser.addOption("Start 3 -> G", this::start3TThenG);
+
         autoChooser.addOption("Nothing", Commands::none);
         
         flipChooser.setDefaultOption("No flip", false);
@@ -141,12 +147,38 @@ public class Autos {
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("JKLA"))
             .setFlipped(flippedHorizontally)
             .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenHP("Reef J to Coral PS")
+            .runThenGroundForHP("Reef J to Coral PS (Ground)")
             .runThenScore("Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K))
             // .runThenHP("Reef K to Coral PS")
             // .runThenScore("Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
             // .runThenHP("Reef L to Coral PS")
             // .runThenScore("Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A))
+            .build();
+    }
+
+    public Command startThenJKGroundForL1(StartPosition startPosition) {
+        final var start = switch (startPosition) {
+            case ONE -> "Start 1 to Reef J";
+            case TWO -> "Start 2 to Reef J";
+            case THREE -> "Start 3 to Reef J";
+        };
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("JKLA"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
+            .runThenGroundForL1("Reef J to Coral PS (Ground)")
+            .runThenScore("Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K))
+            // .runThenHP("Reef K to Coral PS")
+            // .runThenScore("Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
+            // .runThenHP("Reef L to Coral PS")
+            // .runThenScore("Coral PS to Reef A", new ReefPosition(ReefLevel.L4, ReefBranch.A))
+            .build();
+    }
+
+    public Command start6ThenF() {
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("F"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore("Start 6 to Reef F", new ReefPosition(ReefLevel.L4, ReefBranch.F))
+            .run("Reef F to Coral PS2")
             .build();
     }
     // public Command startThenJKLA(StartPosition startPosition) {

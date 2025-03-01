@@ -265,7 +265,7 @@ public class Superstructure extends SubsystemBase {
     public Command intakeCoralFromGroundForL1() {
         return intake.setState(IntakeState.EXTENDED_NEUTRAL, true).andThen(
             intake.setState(IntakeState.L1_INTAKE, false),
-            Commands.waitUntil(intake::hasCoral),
+            Commands.waitUntil(intake::hasCoral).onlyIf(Robot::isReal),
             intake.setState(IntakeState.L1_NEUTRAL, false)
         );
     }
@@ -273,7 +273,7 @@ public class Superstructure extends SubsystemBase {
     public Command extakeCoralL1() {
         return intake.setState(IntakeState.L1_NEUTRAL, true).andThen(
             intake.setState(IntakeState.L1_EXTAKE, false),
-            Commands.waitUntil(() -> !intake.hasCoral()),
+            Commands.waitUntil(() -> !intake.hasCoral()).onlyIf(Robot::isReal),
             Commands.waitSeconds(0.5),
             intake.setState(IntakeState.L1_NEUTRAL, false)
         );
