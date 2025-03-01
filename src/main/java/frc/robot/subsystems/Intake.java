@@ -157,6 +157,8 @@ public class Intake extends SubsystemBase{
 
         EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
 
+
+        L1_INTAKE(IntakeRollerState.INTAKE_L1, IntakePivotState.EXTENDED),
         L1_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.L1),
         L1_EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.L1),
 
@@ -180,6 +182,7 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakeRollerState {
         INTAKE(-0.9),
+        INTAKE_L1(-0.5),
         // INTAKE_ALGAE(0.5),
         // HOLD_ALGAE(0.1),
         // EXTAKE_ALGAE(-0.8),

@@ -254,7 +254,7 @@ public class Superstructure extends SubsystemBase {
 
     public Command intakeCoralFromGroundForL1() {
         return intake.setState(IntakeState.EXTENDED_NEUTRAL, true).andThen(
-            intake.setState(IntakeState.INTAKE, false),
+            intake.setState(IntakeState.L1_INTAKE, false),
             Commands.waitUntil(intake::hasCoral),
             intake.setState(IntakeState.L1_NEUTRAL, false)
         );

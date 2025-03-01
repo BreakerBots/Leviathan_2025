@@ -79,8 +79,8 @@ public class Autos {
     }
 
     private void setupChooser() {
-        autoChooser.setDefaultOption("Start1 -> JK", () -> startThenJKLA(StartPosition.ONE));
-        autoChooser.addOption("Start2 -> JK", () -> startThenJKLA(StartPosition.TWO));
+        autoChooser.setDefaultOption("Start2 -> JK", () -> startThenJKLA(StartPosition.TWO));
+        autoChooser.addOption("Start1 -> JK", () -> startThenJKLA(StartPosition.ONE));
         autoChooser.addOption("Start3 -> JK", () -> startThenJKLA(StartPosition.THREE));
         // autoChooser.setDefaultOption("Start -> JK", () -> startThenJKLA(StartPosition.fromDriverStation()));
         // autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation())); // weird path
