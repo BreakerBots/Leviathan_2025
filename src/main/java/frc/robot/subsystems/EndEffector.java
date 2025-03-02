@@ -448,13 +448,13 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L3_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-32)), 
+            new WristSetpoint(Degrees.of(-35)), 
             RollerState.EXTAKE
         );
 
         public static final EndEffectorSetpoint L4_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-32)), 
+            new WristSetpoint(Degrees.of(-35)), 
             RollerState.EXTAKE
         );
 

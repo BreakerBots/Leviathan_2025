@@ -335,7 +335,7 @@ public class Superstructure extends SubsystemBase {
                 Commands.deferredProxy(
             () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
                 .alongWith(
-                    setMastState(MastState.PARTIAL_STOW, false)
+                    setMastState(position.level().getNeutralMastState(), false)
                 ))
             .andThen(
                 Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
