@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import static com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue.BlueAlliance;
+
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,8 +49,7 @@ public class AutoPilot {
       boolean allowTrigPoseEst,
       Pose2d positionTolerance,
       ChassisSpeeds velocityTolerance,
-      ProfiledPIDControllerConfig xConfig,
-      ProfiledPIDControllerConfig yConfig,
+      ProfiledPIDControllerConfig posConfig,
       ProfiledPIDControllerConfig thetaConfig) {
   }
 
@@ -61,11 +62,11 @@ public class AutoPilot {
     private final Pose2d positionTolerance;
     private final ChassisSpeeds velocityTolerance;
 
-    private Pose2d error = Pose2d.kZero;
+    private double posError = 0;
+    private double rotError = 0;
     private SwerveRequest.FieldCentric request = new SwerveRequest.FieldCentric();
 
-    private ProfiledPIDController xController;
-    private ProfiledPIDController yController;
+    private ProfiledPIDController posController;
     private ProfiledPIDController thetaController;
 
     private boolean allowTrigPoseEst;
@@ -79,8 +80,7 @@ public class AutoPilot {
       this.positionTolerance = config.positionTolerance;
       this.velocityTolerance = config.velocityTolerance;
       request.ForwardPerspective = BlueAlliance;
-      xController = fromConfig(config.xConfig);
-      yController = fromConfig(config.yConfig);
+      posController = fromConfig(config.posConfig);
       thetaController = fromConfig(config.thetaConfig);
       thetaController.enableContinuousInput(-Math.PI, Math.PI);
       allowTrigPoseEst = config.allowTrigPoseEst;
@@ -88,13 +88,11 @@ public class AutoPilot {
     }
 
     /**
-     * Updates the constraints of the x and y controllers.
-     * @param xConstraints The new constraints for the x controller.
-     * @param yConstraints The new constraints for the y controller.
+     * Updates the constraints of the position controller.
+     * @param posConstraints The new constraints for the position controller.
      */
-    public void updateConstraints(TrapezoidProfile.Constraints xConstraints, TrapezoidProfile.Constraints yConstraints) {
-      xController.setConstraints(xConstraints);
-      yController.setConstraints(xConstraints);
+    public void updateConstraints(TrapezoidProfile.Constraints posConstraints) {
+      posController.setConstraints(posConstraints);
     }
 
     /**
@@ -103,19 +101,24 @@ public class AutoPilot {
      * @return True if the pose error is within tolerance of the goal.
      */
     private boolean atGoal() {
-      final var eTranslate = error.getTranslation();
-      final var eRotate = error.getRotation();
+      final var eTranslate = posError;
+      final var eRotate = rotError;
       final var ptolTranslate = positionTolerance.getTranslation();
       final var ptolRotate = positionTolerance.getRotation();
       final var speeds = localizer.getSpeeds();
 
       // Check if position and velocity are within tolerances. Goal velocity is 0.
-      return Math.abs(eTranslate.getX()) < ptolTranslate.getX()
-          && Math.abs(eTranslate.getY()) < ptolTranslate.getY()
-          && Math.abs(eRotate.getRadians()) < ptolRotate.getRadians()
-          && Math.abs(speeds.vxMetersPerSecond) < velocityTolerance.vxMetersPerSecond
-          && Math.abs(speeds.vyMetersPerSecond) < velocityTolerance.vyMetersPerSecond
-          && Math.abs(speeds.omegaRadiansPerSecond) < velocityTolerance.omegaRadiansPerSecond;
+      final var translationAtGoal = Math.abs(eTranslate) < ptolTranslate.getNorm();
+      final var rotationAtGoal = Math.abs(eRotate) < ptolRotate.getRadians();
+      final var xSpeedAtGoal = Math.abs(speeds.vxMetersPerSecond) < velocityTolerance.vxMetersPerSecond;
+      final var ySpeedAtGoal = Math.abs(speeds.vyMetersPerSecond) < velocityTolerance.vyMetersPerSecond;
+      final var rotSpeedAtGoal = Math.abs(speeds.omegaRadiansPerSecond) < velocityTolerance.omegaRadiansPerSecond;
+      BreakerLog.log("NavToPose/translationAtGoal", translationAtGoal);
+      BreakerLog.log("NavToPose/rotationAtGoal", rotationAtGoal);
+      BreakerLog.log("NavToPose/xSpeedAtGoal", xSpeedAtGoal);
+      BreakerLog.log("NavToPose/ySpeedAtGoal", ySpeedAtGoal);
+      BreakerLog.log("NavToPose/rotSpeedAtGoal", rotSpeedAtGoal);
+      return translationAtGoal && rotationAtGoal && xSpeedAtGoal && ySpeedAtGoal && rotationAtGoal;
     }
 
     // Called when the command is initially scheduled.
@@ -124,14 +127,12 @@ public class AutoPilot {
       // Read current pose from the localizer.
       final var currentPose = localizer.getPose();
       final var currentChassisSpeeds = localizer.getSpeeds();
-      final var x = currentPose.getX();
-      final var y = currentPose.getY();
+      final var posDistance = currentPose.getTranslation().getDistance(goal.getTranslation());
       final var theta = currentPose.getRotation().getRadians();
 
       // If this is the first run, then we need to reset the controllers to the
       // current pose's position and heading.
-      xController.reset(x, currentChassisSpeeds.vxMetersPerSecond);
-      yController.reset(y, currentChassisSpeeds.vyMetersPerSecond);
+      posController.reset(posDistance, new Translation2d(currentChassisSpeeds.vxMetersPerSecond, currentChassisSpeeds.vyMetersPerSecond).getNorm());
       thetaController.reset(theta, currentChassisSpeeds.omegaRadiansPerSecond);
     }
 
@@ -140,52 +141,47 @@ public class AutoPilot {
     public void execute() {
       // Read current pose from the localizer.
       final var currentPose = localizer.getPose();
-      final var x = currentPose.getX();
-      final var y = currentPose.getY();
+      final var posDistance = currentPose.getTranslation().getDistance(goal.getTranslation());
       final var theta = currentPose.getRotation().getRadians();
 
       // Calculate feedback velocities (based on position error).
-      double xFB = xController.calculate(x, goal.getX());
-      double yFB = yController.calculate(y, goal.getY());
+      double posFB = posController.calculate(posDistance, 0);
       double thetaFB = thetaController.calculate(theta, goal.getRotation().getRadians());
 
       // Get feedforward velocities.
-      double xFF = xController.getSetpoint().velocity;
-      double yFF = yController.getSetpoint().velocity;
+      double posFF = posController.getSetpoint().velocity;
       double thetaFF = thetaController.getSetpoint().velocity;
 
       // Return next output.
-      request.VelocityX = xFB + xFF;
-      request.VelocityY = yFB + yFF;
+      final var posVel = posFB + posFF;
+      request.VelocityX = posVel * Math.cos(goal.relativeTo(currentPose).getRotation().getRadians());
+      request.VelocityY = posVel * Math.sin(goal.relativeTo(currentPose).getRotation().getRadians());
       request.RotationalRate = thetaFB + thetaFF;
       drivetrain.setControl(request);
 
-      double ex = goal.getX() - currentPose.getX();
-      double ey = goal.getY() - currentPose.getY();
+      double ePos = goal.getTranslation().getDistance(currentPose.getTranslation());
       Rotation2d et = goal.getRotation().minus(currentPose.getRotation());
 
-
-      if (allowTrigPoseEst && error.getTranslation().getNorm() < ApriltagVisionConstants.kMaxTrigSolveTagDist.minus(Meters.of(0.5)).in(Meters)) {
+      if (allowTrigPoseEst && posError < ApriltagVisionConstants.kMaxTrigSolveTagDist.minus(Meters.of(0.5)).in(Meters)) {
         vision.setEstimationType(EstimationType.TRIG);
       } else {
         vision.setEstimationType(EstimationType.PNP);
       }
 
-
-      error = new Pose2d(ex, ey, et);
+      posError = ePos;
+      rotError = et.getRadians();
 
       BreakerLog.log("NavToPose/CurrentPose", currentPose);
-      BreakerLog.log("NavToPose/xFB", xFB);
-      BreakerLog.log("NavToPose/yFB", yFB);
+      BreakerLog.log("NavToPose/posFB", posFB);
       BreakerLog.log("NavToPose/thetaFB", thetaFB);
-      BreakerLog.log("NavToPose/xFF", xFF);
-      BreakerLog.log("NavToPose/yFF", yFF);
+      BreakerLog.log("NavToPose/posFF", posFF);
       BreakerLog.log("NavToPose/thetaFF", thetaFF);
       BreakerLog.log("NavToPose/xRequest", request.VelocityX);
       BreakerLog.log("NavToPose/yRequest", request.VelocityY);
       BreakerLog.log("NavToPose/thetaRequest", request.RotationalRate);
       BreakerLog.log("NavToPose/Goal", goal);
-      BreakerLog.log("NavToPose/Error", error);
+      BreakerLog.log("NavToPose/PosError", posError);
+      BreakerLog.log("NavToPose/RotError", rotError);
     }
 
     // Called once the command ends or is interrupted.

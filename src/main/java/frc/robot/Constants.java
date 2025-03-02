@@ -112,7 +112,6 @@ public final class Constants {
         new Pose2d(0.025, 0.025, Rotation2d.fromDegrees(2)),
         new ChassisSpeeds(0.15, 0.15, 0.015), 
         kDefaultTranslationConfig, 
-        kDefaultTranslationConfig, 
         kDefaultRotationConfig);
 
       public static final  ProfiledPIDControllerConfig kAutoTranslationConfig = new ProfiledPIDControllerConfig(4.4, 0.001, 0, new Constraints(2.5, 3));
@@ -122,7 +121,6 @@ public final class Constants {
         true,
         new Pose2d(0.025, 0.025, Rotation2d.fromDegrees(2)),
         new ChassisSpeeds(0.15, 0.15, 0.015), 
-        kAutoTranslationConfig, 
         kAutoTranslationConfig, 
         kAutoRotationConfig);
     }
