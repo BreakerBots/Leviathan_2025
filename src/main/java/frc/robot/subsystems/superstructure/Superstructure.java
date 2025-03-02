@@ -315,7 +315,7 @@ public class Superstructure extends SubsystemBase {
             ).andThen(
                 setMastState(position.level().getExtakeMastState(), false),
                 new TimedWaitUntilCommand(() -> !endEffector.hasCoral(), 0.15).withTimeout(3),
-                Commands.deferredProxy(() -> forwardFromCurrentPosition(Meters.of(1))),
+                Commands.deferredProxy(() -> forwardFromCurrentPosition(Meters.of(0.5))),
                 setMastState(MastState.STOW, false)
             );
     }
