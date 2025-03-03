@@ -153,6 +153,7 @@ public class RobotContainer {
       )
     );
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure.stowAll());
+    new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure.stowAllPlus());
 
     buttonBoard.getLevelButtons().getL1Button().and(manualOverride).onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L1));
     buttonBoard.getLevelButtons().getL2Button().and(manualOverride).onTrue(superstructure.scoreOnReefManual(ReefPosition.ReefLevel.L2));

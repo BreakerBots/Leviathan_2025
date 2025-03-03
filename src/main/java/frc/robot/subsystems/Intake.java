@@ -165,7 +165,8 @@ public class Intake extends SubsystemBase{
         L1_EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.L1),
 
         CLIMB(IntakeRollerState.NEUTRAL, IntakePivotState.CLIMB),
-        STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED);
+        STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED),
+        STOW2(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED2);
         private IntakeRollerState rollerState;
         private IntakePivotState pivotState;
         private IntakeState(IntakeRollerState rollerState, IntakePivotState pivotState) {
@@ -207,6 +208,7 @@ public class Intake extends SubsystemBase{
         // ALGAE_HOLD(Rotations.of(0.34)),
         CLIMB(Degrees.of(45)),
         RETRACTED(Rotations.of(0.25)),
+        RETRACTED2(Rotations.of(0.4)),
         L1(Rotations.of(0.3));
 
 

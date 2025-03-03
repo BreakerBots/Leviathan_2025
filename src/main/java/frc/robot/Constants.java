@@ -115,7 +115,7 @@ public final class Constants {
         kDefaultTranslationConfig, 
         kDefaultRotationConfig);
 
-      public static final  ProfiledPIDControllerConfig kAutoTranslationConfig = new ProfiledPIDControllerConfig(4.4, 0.001, 0, new Constraints(2.5, 3));
+      public static final  ProfiledPIDControllerConfig kAutoTranslationConfig = new ProfiledPIDControllerConfig(4.4, 0.001, 0, new Constraints(1.5, 3));
       public static final  ProfiledPIDControllerConfig kAutoRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
 
       public static final NavToPoseConfig kAutoNavToPoseConfig = new NavToPoseConfig(

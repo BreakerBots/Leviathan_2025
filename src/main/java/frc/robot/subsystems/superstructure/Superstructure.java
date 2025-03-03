@@ -299,6 +299,10 @@ public class Superstructure extends SubsystemBase {
         return setMastState(MastState.STOW, true).andThen(intake.setState(IntakeState.STOW, false), indexer.setState(IndexerState.NEUTRAL));
     }
 
+    public Command stowAllPlus() {
+        return setMastState(MastState.STOW, true).andThen(intake.setState(IntakeState.STOW2, false), indexer.setState(IndexerState.NEUTRAL));
+    }
+
     // note: when this function is implemented, make sure to stow too once it scores.
     public Command scoreOnReefAuton(ReefPosition position) {
         // if (Robot.isSimulation()) {
