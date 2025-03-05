@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.*;
 
 import javax.print.attribute.standard.PrintQuality;
 
+import org.photonvision.simulation.SimCameraProperties;
+
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -84,6 +86,10 @@ public final class Constants {
         public static final double kInfrequentLogRate = 0.1;
     }
 
+    public static class LocalizationConstants {
+      public static final boolean kUseGTSAM = false;
+    }
+
     public static class ApriltagVisionConstants {
       public static final String kTopLeftCameraName = "top_left";
       public static final String kTopRightCameraName = "top_right";
@@ -94,6 +100,19 @@ public final class Constants {
       public static final Transform3d kTopRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-9.48),Inches.of(-10.54),Inches.of(37.486).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-15),Degrees.of(-145)));
       public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-25),Degrees.of(-165).plus(Degrees.of(5))));//10.425 //Degrees.of(-165).minus(Degrees.of(2.5))//25
       public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-25), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
+
+      public static final SimCameraProperties kBottomLeftCameraSimProperties = new SimCameraProperties()
+        .setCalibration(1600, 1300, Rotation2d.fromDegrees(80))
+        .setCalibError(0.9, 0.1)
+        .setFPS(40)
+        .setAvgLatencyMs(35)
+        .setLatencyStdDevMs(3);
+      public static final SimCameraProperties kBottomRightCameraSimProperties = new SimCameraProperties()
+        .setCalibration(1600, 1300, Rotation2d.fromDegrees(80))
+        .setCalibError(0.9, 0.1)
+        .setFPS(40)
+        .setAvgLatencyMs(35)
+        .setLatencyStdDevMs(3);
       
       public static final Distance kMaxTrigSolveTagDist = Meters.of(2.5);
       public static final Matrix<N3, N1> kTrigBaseStdDevs = VecBuilder.fill(0.5, 0.5, 15);

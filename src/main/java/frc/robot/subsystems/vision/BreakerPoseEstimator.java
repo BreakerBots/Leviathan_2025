@@ -20,6 +20,7 @@ import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.BreakerLib.util.math.OdometryFusion;
+import frc.robot.subsystems.vision.ApriltagVision2.CameraResult;
 
 import java.util.NavigableMap;
 import java.util.Optional;
@@ -229,6 +230,10 @@ public class BreakerPoseEstimator<T> {
 
     // Step 4: Remove all entries strictly before the newest timestamp we need.
     m_visionUpdates.headMap(newestNeededVisionUpdateTimestamp, false).clear();
+  }
+
+  public void addVisionMeasurement(CameraResult cameraResult) {
+    addVisionMeasurement(cameraResult.est().estimatedPose.toPose2d(), cameraResult.est().timestampSeconds, cameraResult.stdDevs());
   }
 
   /**

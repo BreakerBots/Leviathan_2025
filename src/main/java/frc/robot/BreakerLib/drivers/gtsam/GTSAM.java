@@ -16,18 +16,22 @@ import org.photonvision.targeting.TargetCorner;
 import java.util.stream.Collectors;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.StructSubscriber;
+import edu.wpi.first.networktables.TimestampedObject;
+import frc.robot.BreakerLib.util.TimestampedValue;
 
 public class GTSAM {
 
@@ -116,7 +120,7 @@ public class GTSAM {
      * @param distCoeffs Camera distortion coefficients, of length 4, 5 or 8
      */
     public void setCamIntrinsics(String camName, Optional<Matrix<N3, N3>> intrinsics,
-            Optional<Matrix<?, N1>> distCoeffs) {
+            Optional<Matrix<N8, N1>> distCoeffs) {
         if (intrinsics.isEmpty() || distCoeffs.isEmpty()) {
             return;
         }
@@ -205,5 +209,10 @@ public class GTSAM {
             System.err.println("No pose estimate yet");
             return new Pose3d();
         }
+    }
+
+    public TimestampedValue<Pose3d> getAtomicPoseEstimate() {
+        TimestampedObject<Pose3d> atomicVal = optimizedPoseSub.getAtomic();
+        return new TimestampedValue<Pose3d>(atomicVal.value, atomicVal.timestamp);
     }
 }
