@@ -2,13 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.BreakerLib.util.math;
+package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.MathSharedStore;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,6 +19,8 @@ import edu.wpi.first.math.kinematics.Kinematics;
 import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import frc.robot.BreakerLib.util.math.OdometryFusion;
+
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -27,18 +30,18 @@ import java.util.TreeMap;
  * measurements. Robot code should not use this directly- Instead, use the particular type for your
  * drivetrain (e.g., {@link DifferentialDrivePoseEstimator}). It is intended to be a drop-in
  * replacement for {@link Odometry}; in fact, if you never call {@link
- * PoseEstimator#addVisionMeasurement} and only call {@link PoseEstimator#update} then this will
+ * BreakerPoseEstimator#addVisionMeasurement} and only call {@link BreakerPoseEstimator#update} then this will
  * behave exactly the same as Odometry.
  *
- * <p>{@link PoseEstimator#update} should be called every robot loop.
+ * <p>{@link BreakerPoseEstimator#update} should be called every robot loop.
  *
- * <p>{@link PoseEstimator#addVisionMeasurement} can be called as infrequently as you want; if you
+ * <p>{@link BreakerPoseEstimator#addVisionMeasurement} can be called as infrequently as you want; if you
  * never call it then this class will behave exactly like regular encoder odometry.
  *
  * @param <T> Wheel positions type.
  */
-public class OdometryFusion<T> {
-  private final Odometry<T> m_odometry;
+public class BreakerPoseEstimator<T> {
+  private final OdometryFusion<T> m_odometry;
   private final Matrix<N3, N1> m_q = new Matrix<>(Nat.N3(), Nat.N1());
   private final Matrix<N3, N3> m_visionK = new Matrix<>(Nat.N3(), Nat.N3());
 
@@ -66,14 +69,14 @@ public class OdometryFusion<T> {
    *     the vision pose measurement less.
    */
   @SuppressWarnings("PMD.UnusedFormalParameter")
-  public OdometryFusion(
+  public BreakerPoseEstimator(
       Kinematics<?, T> kinematics,
-      Odometry<T> odometry,
+      OdometryFusion<T> odometry,
       Matrix<N3, N1> stateStdDevs,
       Matrix<N3, N1> visionMeasurementStdDevs) {
     m_odometry = odometry;
 
-    m_poseEstimate = m_odometry.getPoseMeters();
+    m_poseEstimate = m_odometry.getEstimatedPosition();
 
     for (int i = 0; i < 3; ++i) {
       m_q.set(i, 0, stateStdDevs.get(i, 0) * stateStdDevs.get(i, 0));
@@ -123,7 +126,7 @@ public class OdometryFusion<T> {
     m_odometry.resetPosition(gyroAngle, wheelPositions, poseMeters);
     m_odometryPoseBuffer.clear();
     m_visionUpdates.clear();
-    m_poseEstimate = m_odometry.getPoseMeters();
+    m_poseEstimate = m_odometry.getEstimatedPosition();
   }
 
   /**
@@ -135,7 +138,7 @@ public class OdometryFusion<T> {
     m_odometry.resetPose(pose);
     m_odometryPoseBuffer.clear();
     m_visionUpdates.clear();
-    m_poseEstimate = m_odometry.getPoseMeters();
+    m_poseEstimate = m_odometry.getEstimatedPosition();
   }
 
   /**
@@ -147,7 +150,7 @@ public class OdometryFusion<T> {
     m_odometry.resetTranslation(translation);
     m_odometryPoseBuffer.clear();
     m_visionUpdates.clear();
-    m_poseEstimate = m_odometry.getPoseMeters();
+    m_poseEstimate = m_odometry.getEstimatedPosition();
   }
 
   /**
@@ -159,7 +162,7 @@ public class OdometryFusion<T> {
     m_odometry.resetRotation(rotation);
     m_odometryPoseBuffer.clear();
     m_visionUpdates.clear();
-    m_poseEstimate = m_odometry.getPoseMeters();
+    m_poseEstimate = m_odometry.getEstimatedPosition();
   }
 
   /**
@@ -169,11 +172,6 @@ public class OdometryFusion<T> {
    */
   public Pose2d getEstimatedPosition() {
     return m_poseEstimate;
-  }
-
-
-  public Pose2d getPureOdometryPose() {
-    return m_odometry.getPoseMeters();
   }
 
   /**
@@ -238,7 +236,7 @@ public class OdometryFusion<T> {
    * while still accounting for measurement noise.
    *
    * <p>This method can be called as infrequently as you want, as long as you are calling {@link
-   * PoseEstimator#update} every loop.
+   * BreakerPoseEstimator#update} every loop.
    *
    * <p>To promote stability of the pose estimate and make it robust to bad vision data, we
    * recommend only adding vision measurements that are already within one meter or so of the
@@ -247,16 +245,16 @@ public class OdometryFusion<T> {
    * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
    * @param timestampSeconds The timestamp of the vision measurement in seconds. Note that if you
    *     don't use your own time source by calling {@link
-   *     PoseEstimator#updateWithTime(double,Rotation2d,Object)} then you must use a timestamp with
+   *     BreakerPoseEstimator#updateWithTime(double,Rotation2d,Object)} then you must use a timestamp with
    *     an epoch since FPGA startup (i.e., the epoch of this timestamp is the same epoch as {@link
    *     edu.wpi.first.wpilibj.Timer#getFPGATimestamp()}.) This means that you should use {@link
    *     edu.wpi.first.wpilibj.Timer#getFPGATimestamp()} as your time source or sync the epochs.
    */
-  public void addExternalOdometryMeasurment(Twist2d robotTwistMeters, double startTime, double endTime) {
+  public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
     // Step 0: If this measurement is old enough to be outside the pose buffer's timespan, skip.
     if (m_odometryPoseBuffer.getInternalBuffer().isEmpty()
         || m_odometryPoseBuffer.getInternalBuffer().lastKey() - kBufferDuration
-            > startTime) {
+            > timestampSeconds) {
       return;
     }
 
@@ -264,27 +262,22 @@ public class OdometryFusion<T> {
     cleanUpVisionUpdates();
 
     // Step 2: Get the pose measured by odometry at the moment the vision measurement was made.
-    var odometryStartSample = m_odometryPoseBuffer.getSample(startTime);
-    var odometryEndSample =  m_odometryPoseBuffer.getSample(endTime);
+    var odometrySample = m_odometryPoseBuffer.getSample(timestampSeconds);
 
-    if (odometryStartSample.isEmpty() || odometryEndSample.isEmpty()) {
+    if (odometrySample.isEmpty()) {
       return;
     }
 
     // Step 3: Get the vision-compensated pose estimate at the moment the vision measurement was
     // made.
-    var visionSample = sampleAt(endTime);
+    var visionSample = sampleAt(timestampSeconds);
 
     if (visionSample.isEmpty()) {
       return;
     }
 
-     // Step 4: Measure the twist between the old pose estimate and the vision pose.
-   
-     var extOdomExp = odometryStartSample.get().exp(robotTwistMeters);
-
-     var twist = odometryEndSample.get().log(extOdomExp);
-     
+    // Step 4: Measure the twist between the old pose estimate and the vision pose.
+    var twist = visionSample.get().log(visionRobotPoseMeters);
 
     // Step 5: We should not trust the twist entirely, so instead we scale this twist by a Kalman
     // gain matrix representing how much we trust vision measurements compared to our current pose.
@@ -295,17 +288,17 @@ public class OdometryFusion<T> {
         new Twist2d(k_times_twist.get(0, 0), k_times_twist.get(1, 0), k_times_twist.get(2, 0));
 
     // Step 7: Calculate and record the vision update.
-    var visionUpdate = new VisionUpdate(visionSample.get().exp(scaledTwist), odometryEndSample.get());
-    m_visionUpdates.put(endTime, visionUpdate);
+    var visionUpdate = new VisionUpdate(visionSample.get().exp(scaledTwist), odometrySample.get());
+    m_visionUpdates.put(timestampSeconds, visionUpdate);
 
     // TODO NOT DOING THIS MIGHT BREAK STUFF!
     // // Step 8: Remove later vision measurements. (Matches previous behavior)
     // m_visionUpdates.tailMap(endTime, false).entrySet().clear();
 
-    for (var extOdomUpdate : m_visionUpdates.tailMap(endTime, false).entrySet()) {
-      var newExtOdomPose = extOdomUpdate.getValue().visionPose.exp(scaledTwist);
-      var newUpdate = new VisionUpdate(newExtOdomPose, extOdomUpdate.getValue().odometryPose);
-      m_visionUpdates.put(extOdomUpdate.getKey(), newUpdate);
+    for (var update : m_visionUpdates.tailMap(timestampSeconds, false).entrySet()) {
+      var newExtOdomPose = update.getValue().visionPose.exp(scaledTwist);
+      var newUpdate = new VisionUpdate(newExtOdomPose, update.getValue().odometryPose);
+      m_visionUpdates.put(update.getKey(), newUpdate);
     }
 
     // TODO NOT DOING THIS MIGHT BREAK STUFF!
@@ -313,15 +306,41 @@ public class OdometryFusion<T> {
     // it's guaranteed to be the latest vision update.
     //m_poseEstimate = visionUpdate.compensate(m_odometry.getPoseMeters());
 
-    m_poseEstimate = m_visionUpdates.lastEntry().getValue().compensate(m_odometry.getPoseMeters());
+    m_poseEstimate = m_visionUpdates.lastEntry().getValue().compensate(m_odometry.getEstimatedPosition());
   }
 
-  public void addExternalOdometryMeasurment(
-      Twist2d robotTwistMeters, 
-      double startTime, double endTime,
+  /**
+   * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
+   * while still accounting for measurement noise.
+   *
+   * <p>This method can be called as infrequently as you want, as long as you are calling {@link
+   * BreakerPoseEstimator#update} every loop.
+   *
+   * <p>To promote stability of the pose estimate and make it robust to bad vision data, we
+   * recommend only adding vision measurements that are already within one meter or so of the
+   * current pose estimate.
+   *
+   * <p>Note that the vision measurement standard deviations passed into this method will continue
+   * to apply to future measurements until a subsequent call to {@link
+   * BreakerPoseEstimator#setVisionMeasurementStdDevs(Matrix)} or this method.
+   *
+   * @param visionRobotPoseMeters The pose of the robot as measured by the vision camera.
+   * @param timestampSeconds The timestamp of the vision measurement in seconds. Note that if you
+   *     don't use your own time source by calling {@link #updateWithTime}, then you must use a
+   *     timestamp with an epoch since FPGA startup (i.e., the epoch of this timestamp is the same
+   *     epoch as {@link edu.wpi.first.wpilibj.Timer#getFPGATimestamp()}). This means that you
+   *     should use {@link edu.wpi.first.wpilibj.Timer#getFPGATimestamp()} as your time source in
+   *     this case.
+   * @param visionMeasurementStdDevs Standard deviations of the vision pose measurement (x position
+   *     in meters, y position in meters, and heading in radians). Increase these numbers to trust
+   *     the vision pose measurement less.
+   */
+  public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
     setVisionMeasurementStdDevs(visionMeasurementStdDevs);
-    addExternalOdometryMeasurment(robotTwistMeters, startTime, endTime);
+    addVisionMeasurement(visionRobotPoseMeters, timestampSeconds);
   }
 
   /**

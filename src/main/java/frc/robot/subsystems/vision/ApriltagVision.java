@@ -179,7 +179,7 @@ public class ApriltagVision extends SubsystemBase {
         }
     }
 
-    private Matrix<N3, N1> calculateTrigDevs(EstimatedRobotPose est, PhotonPipelineResult result) {
+    public Matrix<N3, N1> calculateTrigDevs(EstimatedRobotPose est, PhotonPipelineResult result) {
         PhotonTrackedTarget tgt = result.getBestTarget();
         Optional<Pose3d> tagPoseOpt = FieldConstants.kAprilTagFieldLayout.getTagPose(tgt.fiducialId);
         if (tagPoseOpt.isPresent()) {
