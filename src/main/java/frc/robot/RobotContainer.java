@@ -50,6 +50,7 @@ import frc.robot.subsystems.ScoreOnReefScheduler;
 import frc.robot.subsystems.SimpleClimb;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.vision.ApriltagVision;
+import frc.robot.subsystems.vision.Localization;
 import frc.robot.subsystems.vision.ApriltagVision.EstimationType;
 
 /**
@@ -68,8 +69,9 @@ public class RobotContainer {
   private final Elevator elevator = new Elevator();
   private final EndEffector endEffector = new EndEffector();
   private final Climb climb = new Climb(drivetrain.getPigeon2());
-  private final ApriltagVision apriltagVision = new ApriltagVision(drivetrain);
-  private final AutoPilot ap = new AutoPilot(drivetrain, apriltagVision, drivetrain.getLocalizer());
+  // private final ApriltagVision apriltagVision = new ApriltagVision(drivetrain);
+  private final Localization localization = new Localization(drivetrain);
+  private final AutoPilot ap = new AutoPilot(drivetrain, drivetrain.getLocalizer());
 
   private final BreakerXboxController controller =
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
@@ -80,7 +82,7 @@ public class RobotContainer {
   
   
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake, climb, apriltagVision, ap, controller, buttonBoard);
+  intake, climb, ap, controller, buttonBoard);
 
   // private final ScoreOnReefScheduler scoreOnReefScheduler = new ScoreOnReefScheduler(buttonBoard, superstructure);
   

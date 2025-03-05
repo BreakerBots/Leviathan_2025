@@ -69,7 +69,7 @@ public class Superstructure extends SubsystemBase {
     private Climb climb;
     private BreakerXboxController controller;
     private Drivetrain drivetrain;
-    private ApriltagVision apriltagVision;
+    //private ApriltagVision apriltagVision;
     private AutoPilot autoPilot;
     private ButtonBoard buttonBoard;
 
@@ -79,7 +79,7 @@ public class Superstructure extends SubsystemBase {
     private HolonomicSlewRateLimiter limiter;
     
 
-    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, ApriltagVision apriltagVision, AutoPilot autoPilot, BreakerXboxController controller, ButtonBoard buttonBoard) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, AutoPilot autoPilot, BreakerXboxController controller, ButtonBoard buttonBoard) {
         this.elevator = elevator;
         this.intake = intake;
         this.indexer = indexer;
@@ -87,7 +87,7 @@ public class Superstructure extends SubsystemBase {
         this.drivetrain = drivetrain;
         this.climb = climb;
         this.controller = controller;
-        this.apriltagVision = apriltagVision;
+        //this.apriltagVision = apriltagVision;
         this.autoPilot = autoPilot;
         this.buttonBoard = buttonBoard;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());

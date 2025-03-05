@@ -31,10 +31,10 @@ public class AutoPilot {
   private Localizer localizer;
   private ApriltagVision vision;
 
-  public AutoPilot(BreakerSwerveDrivetrain drivetrain, ApriltagVision apriltagVision, Localizer localizer) {
+  public AutoPilot(BreakerSwerveDrivetrain drivetrain, Localizer localizer) {
     this.drivetrain = drivetrain;
     this.localizer = localizer;
-    vision = apriltagVision;
+    // vision = apriltagVision;
   }
 
   public record ProfiledPIDControllerConfig(double kP, double kI, double kD, TrapezoidProfile.Constraints constraints) {

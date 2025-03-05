@@ -30,6 +30,7 @@ import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -102,14 +103,20 @@ public final class Constants {
       public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-25), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
 
       public static final SimCameraProperties kBottomLeftCameraSimProperties = new SimCameraProperties()
-        .setCalibration(1600, 1300, Rotation2d.fromDegrees(80))
-        .setCalibError(0.9, 0.1)
+        .setCalibration(1600, 1304, Rotation2d.fromDegrees(80))
+        .setCalibration(
+          1600, 
+          1304,
+          MatBuilder.fill(N3, N3, ),
+          VecBuilder.fill()
+        )
+        .setCalibError(0.9, 0.01)
         .setFPS(40)
         .setAvgLatencyMs(35)
         .setLatencyStdDevMs(3);
       public static final SimCameraProperties kBottomRightCameraSimProperties = new SimCameraProperties()
-        .setCalibration(1600, 1300, Rotation2d.fromDegrees(80))
-        .setCalibError(0.9, 0.1)
+        .setCalibration(1600, 1304, Rotation2d.fromDegrees(80))
+        .setCalibError(0.9, 0.01)
         .setFPS(40)
         .setAvgLatencyMs(35)
         .setLatencyStdDevMs(3);

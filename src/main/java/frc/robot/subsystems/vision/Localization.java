@@ -50,7 +50,7 @@ public class Localization extends SubsystemBase implements Localizer {
     private Drivetrain drivetrain;
     public Localization(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
-        apriltagVision = new ApriltagVision2();
+        apriltagVision = new ApriltagVision2(this);
 
         SwerveDriveOdometry wheelOdometry = new SwerveDriveOdometry(
             drivetrain.getKinematics(), drivetrain.getState().RawHeading, 
@@ -119,19 +119,22 @@ public class Localization extends SubsystemBase implements Localizer {
             strat = EstimationStrategy.kDefault;
         }
         List<CameraResult> apriltagResults = apriltagVision.update(strat);
-        if (!hasOdometryBeenSeeded) {
+        if (!hasOdometryBeenSeeded && apriltagResults.size() > 0) {
             CameraResult best = apriltagResults.get(apriltagResults.size() - 1);
             visionFilter.resetPose(best.est().estimatedPose.toPose2d());
             hasOdometryBeenSeeded = true;
         }
-
+        Pose3d[] poses = new Pose3d[apriltagResults.size()];
+        int i = 0;
         for (CameraResult res : apriltagResults) {
+            poses[i++] = res.est().estimatedPose;
             visionFilter.addVisionMeasurement(res);
             if (kUseGTSAM) {
                 gtsam.setCamIntrinsics(res.camera().getName(), res.camera().getCameraMatrix(), res.camera().getDistanceCoeffs());
                 gtsam.sendVisionUpdate(res.camera().getName(), res.est().timestampSeconds, VisionUtils.photonTrackedTargetsToGTSAM(res.est().targetsUsed), res.camera().getRobotTCam());
             }
         }
+        BreakerLog.log("adaasf", poses);
     }
 
     public OdometryFusion<SwerveModulePosition[]> getOdometryFusion() {

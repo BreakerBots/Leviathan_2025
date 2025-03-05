@@ -38,6 +38,7 @@ import frc.robot.Robot;
 import frc.robot.BreakerLib.drivers.gtsam.GTSAM;
 import frc.robot.BreakerLib.util.Localizer;
 import frc.robot.BreakerLib.util.TimestampedValue;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.Drivetrain;
@@ -51,8 +52,10 @@ public class ApriltagVision2 {
     private Camera[] cameras;
     private Localization localization;
 
-    public ApriltagVision2() {
+    public ApriltagVision2(Localization localization) {
+        this.localization = localization;
         sim = new VisionSystemSim("ApriltagVision");
+        sim.addAprilTags(FieldConstants.kAprilTagFieldLayout);
         var bottomLeftCam = new Camera(kBottomLeftCameraName, sim, kBottomLeftCameraSimProperties, kBottomLeftCameraTransform, 1);
         var bottomRightCam = new Camera(kBottomRightCameraName, sim, kBottomRightCameraSimProperties, kBottomRightCameraTransform, 1);
         cameras = new Camera[]{bottomLeftCam, bottomRightCam};
@@ -91,11 +94,12 @@ public class ApriltagVision2 {
         public Camera(String cameraName, VisionSystemSim systemSim, SimCameraProperties simCameraProperties, Transform3d robotTcam, double stdDevScalar) {
             camera = new PhotonCamera(cameraName);
             sim = new PhotonCameraSim(camera, simCameraProperties, FieldConstants.kAprilTagFieldLayout);
+            sim.enableDrawWireframe(true);
             systemSim.addCamera(sim, robotTcam);
             poseEstimator = new PhotonPoseEstimator(FieldConstants.kAprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotTcam);
             this.stdDevScalar = stdDevScalar;
-
-
+            this.robotTcam = robotTcam;
+            
         }
 
         public String getName() {
