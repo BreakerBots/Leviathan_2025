@@ -26,28 +26,12 @@ import frc.robot.BreakerLib.swerve.BreakerSwerveDrivetrain;
 import frc.robot.BreakerLib.util.math.OdometryFusion;
 import frc.robot.subsystems.vision.BreakerPoseEstimator;
 public class Drivetrain extends BreakerSwerveDrivetrain {
-  private SwerveDriveOdometry odometry;
  
 
   /** Creates a new Drivetrain. */
   public Drivetrain() {
     super(DRIVETRAIN_CONSTANTS, FrontLeft, FrontRight, BackLeft, BackRight);
-    odometry = new SwerveDriveOdometry(getKinematics(), getState().RawHeading, getState().ModulePositions, new Pose2d());
   }
-
-  
-  private void updatePoseEstimation(SwerveDriveState state) {
-    odometryFusion.update(state.RawHeading, state.ModulePositions);
-  }
-
-  public OdometryFusion<SwerveModulePosition[]> getOdometryFusion() {
-      return odometryFusion;
-  }
-
-  public BreakerPoseEstimator<SwerveModulePosition[]> getVisionFilter() {
-      return visionFilter;
-  }
-  
   
   
   

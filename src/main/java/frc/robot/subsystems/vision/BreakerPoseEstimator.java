@@ -298,7 +298,7 @@ public class BreakerPoseEstimator<T> {
     for (var update : m_visionUpdates.tailMap(timestampSeconds, false).entrySet()) {
       var newExtOdomPose = update.getValue().visionPose.exp(scaledTwist);
       var newUpdate = new VisionUpdate(newExtOdomPose, update.getValue().odometryPose);
-      m_visionUpdates.put(update.getKey(), newUpdate);
+      m_visionUpdates.replace(update.getKey(), newUpdate);
     }
 
     // TODO NOT DOING THIS MIGHT BREAK STUFF!

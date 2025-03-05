@@ -46,13 +46,12 @@ public class ApriltagVision2 {
     private GTSAM gtsam;
     private VisionSystemSim sim;
     private Camera[] cameras;
-    private Localizer localizer;
-    private Drivetrain drivetrain;
+    private Localization localization;
 
-    private void update() {
-        FrameContext context = new FrameContext(localizer.getPose());
+    private List<CameraResult> update() {
+        FrameContext context = new FrameContext(localization.getPose());
         if (RobotBase.isSimulation()) {
-            sim.update(drivetrain.getOdometryFusion().getPureOdometryPose());
+            sim.update(localization.getOdometryFusion().getPureOdometryPose());
         }
         List<CameraResult> allCameraResults = new ArrayList<>();
         for (var cam : cameras) {
