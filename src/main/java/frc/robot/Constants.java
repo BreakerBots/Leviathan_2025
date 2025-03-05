@@ -103,19 +103,65 @@ public final class Constants {
       public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-25), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
 
       public static final SimCameraProperties kBottomLeftCameraSimProperties = new SimCameraProperties()
-        .setCalibration(1600, 1304, Rotation2d.fromDegrees(80))
         .setCalibration(
           1600, 
           1304,
-          MatBuilder.fill(N3, N3, ),
-          VecBuilder.fill()
+          MatBuilder.fill(
+            N3, 
+            N3, 
+            1380.278298417611,
+            0.0,
+            812.9866295000404,
+            0.0,
+            1379.4771633563626,
+            713.7349392103608,
+            0.0,
+            0.0,
+            1.0
+            ),
+          VecBuilder.fill(
+            -0.023583816443651925,
+            -0.013927876662786186,
+            -5.265726756324146E-4,
+            -1.1610575615885912E-4,
+            0.03363075302770153,
+            4.900879121679141E-4,
+            2.539986658798725E-4,
+            -0.0012091457686458247
+          )
         )
         .setCalibError(0.9, 0.01)
         .setFPS(40)
         .setAvgLatencyMs(35)
         .setLatencyStdDevMs(3);
       public static final SimCameraProperties kBottomRightCameraSimProperties = new SimCameraProperties()
-        .setCalibration(1600, 1304, Rotation2d.fromDegrees(80))
+      .setCalibration(
+        1600, 
+        1304,
+        MatBuilder.fill(
+          N3, 
+          N3, 
+          1380.278298417611,
+          0.0,
+          812.9866295000404,
+          0.0,
+          1379.4771633563626,
+          713.7349392103608,
+          0.0,
+          0.0,
+          1.0
+          ),
+        VecBuilder.fill(
+          -0.023583816443651925,
+          -0.013927876662786186,
+          -5.265726756324146E-4,
+          -1.1610575615885912E-4,
+          0.03363075302770153,
+          4.900879121679141E-4,
+          2.539986658798725E-4,
+          -0.0012091457686458247
+        )
+      )
         .setCalibError(0.9, 0.01)
         .setFPS(40)
         .setAvgLatencyMs(35)
