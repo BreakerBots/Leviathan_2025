@@ -33,6 +33,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -107,8 +108,8 @@ public final class Constants {
           1600, 
           1304,
           MatBuilder.fill(
-            N3, 
-            N3, 
+            Nat.N3(), 
+            Nat.N3(), 
             1380.278298417611,
             0.0,
             812.9866295000404,
@@ -139,8 +140,8 @@ public final class Constants {
         1600, 
         1304,
         MatBuilder.fill(
-          N3, 
-          N3, 
+          Nat.N3(), 
+          Nat.N3(), 
           1380.278298417611,
           0.0,
           812.9866295000404,
