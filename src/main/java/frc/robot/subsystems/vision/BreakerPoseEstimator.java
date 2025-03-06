@@ -298,20 +298,20 @@ public class BreakerPoseEstimator<T> {
 
     // TODO NOT DOING THIS MIGHT BREAK STUFF!
     // // Step 8: Remove later vision measurements. (Matches previous behavior)
-    m_visionUpdates.tailMap(timestampSeconds, false).entrySet().clear();
+    // m_visionUpdates.tailMap(timestampSeconds, false).entrySet().clear();
 
-    // for (var update : m_visionUpdates.tailMap(timestampSeconds, false).entrySet()) {
-    //   var newExtOdomPose = update.getValue().visionPose.exp(scaledTwist);
-    //   var newUpdate = new VisionUpdate(newExtOdomPose, update.getValue().odometryPose);
-    //   m_visionUpdates.replace(update.getKey(), newUpdate);
-    // }
+    for (var update : m_visionUpdates.tailMap(timestampSeconds, false).entrySet()) {
+      var newExtOdomPose = update.getValue().visionPose.exp(scaledTwist);
+      var newUpdate = new VisionUpdate(newExtOdomPose, update.getValue().odometryPose);
+      m_visionUpdates.replace(update.getKey(), newUpdate);
+    }
 
     // TODO NOT DOING THIS MIGHT BREAK STUFF!
     // Step 9: Update latest pose estimate. Since we cleared all updates after this vision update,
     // it's guaranteed to be the latest vision update.
-    m_poseEstimate = visionUpdate.compensate(m_odometry.getEstimatedPosition());
+    // m_poseEstimate = visionUpdate.compensate(m_odometry.getEstimatedPosition());
 
-    // m_poseEstimate = m_visionUpdates.lastEntry().getValue().compensate(m_odometry.getEstimatedPosition());
+    m_poseEstimate = m_visionUpdates.lastEntry().getValue().compensate(m_odometry.getEstimatedPosition());
   }
 
   /**

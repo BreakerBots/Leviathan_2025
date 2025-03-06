@@ -61,15 +61,15 @@ public class Localization extends SubsystemBase implements Localizer {
         odometryFusion = new OdometryFusion<SwerveModulePosition[]>(
             drivetrain.getKinematics(), 
             wheelOdometry,
-            VecBuilder.fill(0, 0, 0),
-            VecBuilder.fill(0, 0, 0)
+            VecBuilder.fill(0.1, 0.1, 0.1),
+            VecBuilder.fill(0.9, 0.9, 0.9) 
         );
 
         visionFilter = new BreakerPoseEstimator<>(
             drivetrain.getKinematics(),
             odometryFusion,
-            VecBuilder.fill(0, 0, 0),
-            VecBuilder.fill(0, 0, 0)
+            VecBuilder.fill(0.1, 0.1, 0.1),
+            VecBuilder.fill(0.9, 0.9, 0.9) 
         );
 
         lastOdometryValue = drivetrain.getStateCopy().Pose;
@@ -109,8 +109,10 @@ public class Localization extends SubsystemBase implements Localizer {
         BreakerLog.log("Localization/Estimates/KalmanPoseEstimator", visionFilter.getEstimatedPosition());
         BreakerLog.log("Localization/Estimates/OdometryFusion", odometryFusion.getEstimatedPosition());
         BreakerLog.log("Localization/Estimates/PureOdometry", odometryFusion.getPureOdometryPose());
-        BreakerLog.log("Localization/Estimates/GTSAM/AtomicPose", gtsam.getAtomicPoseEstimate().getValue());
-        BreakerLog.log("Localization/Estimates/GTSAM/LatencyCompensatedPose", gtsam.getLatencyCompensatedPoseEstimate());
+        if (kUseGTSAM) {
+            BreakerLog.log("Localization/Estimates/GTSAM/AtomicPose", gtsam.getAtomicPoseEstimate().getValue());
+            BreakerLog.log("Localization/Estimates/GTSAM/LatencyCompensatedPose", gtsam.getLatencyCompensatedPoseEstimate());
+        }
     }
 
     private void update() {
