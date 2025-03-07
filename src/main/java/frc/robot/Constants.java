@@ -96,6 +96,17 @@ public final class Constants {
       public static final boolean kUseGTSAM = false;
     }
 
+    public static class DepthVisionConstants {
+      public static final LinearVelocity kMaxLinearVelVIO = MetersPerSecond.of(2.5);
+      public static final double kLinearVelStdDevScalarVIO = 1.5;
+      public static final AngularVelocity kMaxAngularVelVIO = DegreesPerSecond.of(360);
+      public static final double kAngularVelStdDevScalarVIO = 3.0;
+      public static final double kMinConfidanceVIO = 0.6;
+      public static final double kConfidanceScalarVIO = 1.0;
+      public static final Matrix<N3, N1> kBaseStdDevsVIO = VecBuilder.fill(0.5, 0.5, 0.01);
+      
+    }
+
     public static class ApriltagVisionConstants {
       public static final String kTopLeftCameraName = "top_left";
       public static final String kTopRightCameraName = "top_right";

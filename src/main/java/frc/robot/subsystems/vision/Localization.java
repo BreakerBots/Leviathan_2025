@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.fasterxml.jackson.databind.deser.std.ArrayBlockingQueueDeserializer;
@@ -18,19 +19,24 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.BreakerLib.drivers.ZED.LocalizationResults;
+import frc.robot.BreakerLib.drivers.ZED.LocalizationResults.OdometryRecord;
 import frc.robot.BreakerLib.drivers.gtsam.GTSAM;
 import frc.robot.BreakerLib.physics.ChassisAccels;
 import frc.robot.BreakerLib.util.Localizer;
 import frc.robot.BreakerLib.util.TimestampedValue;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.math.OdometryFusion;
+import frc.robot.Constants.DepthVisionConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.vision.ApriltagVision2.CameraResult;
 import frc.robot.subsystems.vision.ApriltagVision2.EstimationStrategy;
@@ -84,7 +90,7 @@ public class Localization extends SubsystemBase implements Localizer {
         drivetrain.setLocalizer(this);
     }
 
-    public void updateWheelOdometry(SwerveDriveState state) {
+    private void updateWheelOdometry(SwerveDriveState state) {
         Pose2d guess = visionFilter.update(state.RawHeading, state.ModulePositions);
         if (kUseGTSAM) {
             Pose2d currentOdom = odometryFusion.getEstimatedPosition();
@@ -116,6 +122,20 @@ public class Localization extends SubsystemBase implements Localizer {
     }
 
     private void update() {
+        ChassisSpeeds speeds = getFieldRelativeSpeeds();
+        Optional<LocalizationResults> zedVIOOpt = depthVision.getUnreadLocalizationResults();
+        if (zedVIOOpt.isPresent()) {
+            var zedVIO = zedVIOOpt.get();
+            boolean confGood = zedVIO.getConfidance() >= DepthVisionConstants.kMinConfidanceVIO;
+            boolean linVelGood = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) <= DepthVisionConstants.kMaxLinearVelVIO.in(Units.MetersPerSecond);
+            boolean angVelGood = speeds.omegaRadiansPerSecond <= DepthVisionConstants.kMaxAngularVelVIO.in(Units.RadiansPerSecond);
+            if (confGood && linVelGood && angVelGood) {
+                var devs = VisionUtils.estimateStdDevsZedVIO(zedVIO, speeds);
+                OdometryRecord odoRec = zedVIO.getFieldRelativeDelta();
+                addExternalOdometry(VisionUtils.toTwist2d(odoRec.delta()), odoRec.startTime(), odoRec.endTime(), devs);
+            }
+        }
+        
         EstimationStrategy strat = EstimationStrategy.kDefaultNoSeed;
         if (hasOdometryBeenSeeded) {
             strat = EstimationStrategy.kDefault;
@@ -136,7 +156,6 @@ public class Localization extends SubsystemBase implements Localizer {
                 gtsam.sendVisionUpdate(res.camera().getName(), res.est().timestampSeconds, VisionUtils.photonTrackedTargetsToGTSAM(res.est().targetsUsed), res.camera().getRobotTCam());
             }
         }
-        BreakerLog.log("adaasf", poses);
     }
 
     public OdometryFusion<SwerveModulePosition[]> getOdometryFusion() {

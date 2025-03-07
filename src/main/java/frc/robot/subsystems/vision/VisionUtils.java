@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.geometry.Twist3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Units;
@@ -22,9 +23,13 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.vision.ApriltagVision.BreakerEstimatedPose;
 import frc.robot.subsystems.vision.ApriltagVision2.CameraResult;
+import frc.robot.BreakerLib.drivers.ZED.LocalizationResults;
 import frc.robot.BreakerLib.drivers.gtsam.TagDetection;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static frc.robot.Constants.ApriltagVisionConstants.*;
+import static frc.robot.Constants.DepthVisionConstants.*;
 
 public class VisionUtils {
     public static double phoenixTimeToFPGA(double phoenixTime) {
@@ -90,11 +95,22 @@ public class VisionUtils {
         return new Pose3d().log(new Pose3d(new Pose2d().exp(twist)));
     }
 
+    public static Twist2d toTwist2d(Twist3d twist) {
+        return new Pose2d().log(new Pose3d().exp(twist).toPose2d());
+    }
+
     public static List<TagDetection> photonTrackedTargetsToGTSAM(List<PhotonTrackedTarget> targetsUsed) {
         List<TagDetection> dets = new ArrayList<>();
         for (var tgt : targetsUsed) {
             dets.add(new TagDetection(tgt.getFiducialId(), tgt.detectedCorners));
         }
         return dets;
+    }
+
+    public static Matrix<N3, N1> estimateStdDevsZedVIO(LocalizationResults results, ChassisSpeeds speeds) {
+        Matrix<N3, N1> devs = kBaseStdDevsVIO.div(results.getConfidance() * kConfidanceScalarVIO);
+        devs = devs.times((Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond)) * kLinearVelStdDevScalarVIO);
+        devs = devs.times((speeds.omegaRadiansPerSecond) * kAngularVelStdDevScalarVIO);
+        return devs;
     }
 }

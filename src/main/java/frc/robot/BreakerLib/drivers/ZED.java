@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.CoordinateSystem;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Twist3d;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.networktables.BooleanArraySubscriber;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
@@ -27,6 +28,7 @@ import edu.wpi.first.networktables.StringArraySubscriber;
 import edu.wpi.first.networktables.StructArraySubscriber;
 import edu.wpi.first.networktables.StructSubscriber;
 import edu.wpi.first.networktables.TimestampedInteger;
+import edu.wpi.first.networktables.TimestampedObject;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.physics.BreakerVector3;
@@ -58,6 +60,7 @@ public class ZED extends SubsystemBase {
   private Supplier<Pair<Double, Pose3d>> robotPoseAtTimeSupplier;
 
   private DetectionResults latestResult;
+  private LocalizationResults latestLocalization;
 
 
   public ZED(String cameraName, Supplier<Pair<Double, Pose3d>> robotPoseAtTimeSupplier, Transform3d robotToZedLeftEye, Transform3d zedLeftEyeRobotSpaceToZedGlobal) {
@@ -65,6 +68,7 @@ public class ZED extends SubsystemBase {
     cameraGlobalRefrenceFrameInCameraSpace = new RefrenceFrame(zedLeftEyeRobotSpaceToZedGlobal);
     this.robotPoseAtTimeSupplier = robotPoseAtTimeSupplier;
     latestResult = new DetectionResults(new TreeMap<>(), Timer.getTimestamp());
+    latestLocalization = new LocalizationResults(new Pose3d(), Timer.getTimestamp(), 0.0, cameraRefrenceFrameInRobotSpace, new RefrenceFrame(getPoseAtTime(Timer.getTimestamp())), null);
     timeSinceLastUpdate = new Timer();
     configNT(cameraName);
   }
@@ -94,10 +98,6 @@ public class ZED extends SubsystemBase {
     return (timeSinceLastUpdate.get() < 0.3) && (lastHeartbeat > -1) ;
   }
 
-  public Pose3d getCameraPose() {
-    return null;
-  }
-
   public DetectionResults getDetectionResults() {
     updateRobotPoseHistory();
     TimestampedInteger[] latencyQueue = latencySub.readQueue();
@@ -124,6 +124,25 @@ public class ZED extends SubsystemBase {
       robotPoseHistory.addSample(curPose.getFirst(), curPose.getSecond());
     }
     return curPose;
+  }
+
+  public LocalizationResults getLocalizationResults() {
+    updateRobotPoseHistory();
+    TimestampedObject<Pose3d> atomicPose = cameraPoseSub.getAtomic();
+    double captureTimestamp = atomicPose.timestamp + camPoseLatencySub.get();
+    double conf = camPoseConfSub.get();
+    RefrenceFrame robotFrameInWorldSpace = new RefrenceFrame(getPoseAtTime(captureTimestamp));
+    latestLocalization = new LocalizationResults(atomicPose.value, captureTimestamp, conf, cameraRefrenceFrameInRobotSpace, robotFrameInWorldSpace, latestLocalization);
+    return latestLocalization;
+  }
+
+  public Optional<LocalizationResults> getUnreadLocalizationResults() {
+    TimestampedObject<Pose3d> atomicPose = cameraPoseSub.getAtomic();
+    double captureTimestamp = atomicPose.timestamp + camPoseLatencySub.get();
+    if (MathUtil.isNear(captureTimestamp, latestLocalization.getTimestamp(), 1e-5)) {
+      return Optional.empty();
+    }
+    return Optional.of(getLocalizationResults());
   }
 
   private Pose3d getPoseAtTime(double timestamp) {
@@ -284,6 +303,12 @@ public class ZED extends SubsystemBase {
       return val;
     }
 
+    public Pose3d convertToParentFrame(Pose3d val) {
+      val = CoordinateSystem.convert(val, coordinateSystem, CoordinateSystem.NWU());
+      val = val.transformBy(parentToFrameTransfrom.inverse());
+      return val;
+    }
+
     public CoordinateSystem getCoordinateSystem() {
         return coordinateSystem;
     }
@@ -348,23 +373,48 @@ public class ZED extends SubsystemBase {
     private double timestamp;
     private double confidance;
     private RefrenceFrame cameraFrameInRobotSpace;
-    private RefrenceFrame cameraGlobalRefrenceFrameInCameraSpace;
-    private LocalizationResults(Pose3d cameraPose, double timestamp, double confidance, RefrenceFrame cameraFrameInRobotSpace, RefrenceFrame cameraGlobalRefrenceFrameInCameraSpace) {
+    private RefrenceFrame robotFrameInWorldSpace;
+    private LocalizationResults prevResults;
+    private LocalizationResults(Pose3d cameraPose, double timestamp, double confidance, RefrenceFrame cameraFrameInRobotSpace, RefrenceFrame robotFrameInWorldSpace, LocalizationResults prevResults) {
       this.cameraPose = cameraPose;
       this.timestamp = timestamp;
       this.confidance = confidance;
+      this.cameraFrameInRobotSpace = cameraFrameInRobotSpace;
+      this.robotFrameInWorldSpace = robotFrameInWorldSpace;
+      this.prevResults = prevResults;
     }
 
-    public Pose3d getPoseFieldSpace(boolean compensateForLatency) {
-      return null;
+    public Pose3d getPoseRobotSpace() {
+      return cameraFrameInRobotSpace.convertToParentFrame(cameraPose);
+    }
+
+    public Pose3d getPoseFieldSpace() {
+      return robotFrameInWorldSpace.convertToParentFrame(getPoseRobotSpace());
+    }
+
+    public OdometryRecord getRobotRelativeDelta() {
+      Twist3d delta = prevResults.getPoseRobotSpace().log(getPoseRobotSpace());
+      return new OdometryRecord(delta, prevResults.timestamp, timestamp);
+    }
+
+    public OdometryRecord getFieldRelativeDelta() {
+      Twist3d delta = prevResults.getPoseFieldSpace().log(getPoseFieldSpace());
+      return new OdometryRecord(delta, prevResults.timestamp, timestamp);
     }
 
     public double getConfidance() {
-      return 0;
+      return confidance;
     }
 
     public double getTimestamp() {
-      return 0;
+      return timestamp;
+    }
+
+    public record OdometryRecord(
+      Twist3d delta,
+      double startTime,
+      double endTime
+    ) {
     }
 
   }
