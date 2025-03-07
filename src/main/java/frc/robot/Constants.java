@@ -258,6 +258,9 @@ public final class Constants {
   public static class SuperstructureConstants {
     public static final Distance kMaxHeightForEndEffectorFloorLimit = Centimeters.of(30);
     public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(25);
+    public static final Angle kMinAngleForEndEffectorInterferenceWithIntake = Degrees.of(165);
+    public static final Angle kMaxAngleForEndEffectorInterferenceWithIntake = Degrees.of(175);
+    public static final Angle kMinAngleForIntakeToInterfereWithEndEffector = Rotations.of(0.3);
     public static final CANBus kSuperstructureCANBus = new CANBus("superstructure");
 
     // public static final InterpolatingTreeMap<Distance, DrivetrainKinimaticLimits> kElevatorExtendedDriveKinimaticLimitsTable = 
@@ -384,15 +387,11 @@ public final class Constants {
     public static final MechanismRatio kWristRatio = new MechanismRatio(240);//
 
     public static final double kWristDiscontinuityPoint = 0.75;
-    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(55
-    );
+    public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(55);
 
     public static final Color kAlgaeColor = new Color(0.11, 0.831, 0.69);
     public static final double kMaxColorDelta = 0.15;
     public static final double kHasAlgaeProximityThresh = 0.1;
-
-    public static final Angle kMinWristAngle = Degrees.of(0);
-    public static final Angle kMaxWristAngle = Degrees.of(270);
 
     public static final Angle kDefaultWristAngleTolerence = Degrees.of(10); //Degrees.of(3.5);
     public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
@@ -433,7 +432,7 @@ public final class Constants {
 
 
     public static final Angle kMinFlipAngle = kMaxElevatorRestrictedSafeAngle;
-    public static final Angle kMaxFlipAngle = kMaxElevatorRestrictedSafeAngle.plus(Degrees.of(20));
+    public static final Angle kMaxFlipAngle = kMaxElevatorRestrictedSafeAngle.plus(Degrees.of(10));
   }
 
   public static class KickerConstants {
