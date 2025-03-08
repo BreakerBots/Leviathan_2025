@@ -251,8 +251,8 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kButtonBoardPort = 1;
 
-    public static final double TRANSLATIONAL_DEADBAND = 0.1;
-    public static final double ROTATIONAL_DEADBAND = 0.1;
+    public static final double TRANSLATIONAL_DEADBAND = 0.01;
+    public static final double ROTATIONAL_DEADBAND = 0.01;
   }
 
   public static class SuperstructureConstants {
