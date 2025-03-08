@@ -120,14 +120,14 @@ public class RobotContainer {
     driverTranslation = driverTranslation
             .clamp(1.0)
             .deadband(Constants.OperatorConstants.TRANSLATIONAL_DEADBAND, 1.0)
-            .mapToMagnitude(new BreakerLinearizedConstrainedExponential(0.075, 3.0, true))
+            .mapToMagnitude(new BreakerLinearizedConstrainedExponential(0.15, 6.0, true))
             .scale(Constants.DriveConstants.MAXIMUM_TRANSLATIONAL_VELOCITY.in(Units.MetersPerSecond));
     driverX = driverTranslation.getY();
     driverY = driverTranslation.getX();
     driverOmega = controller.getRightThumbstick().getX()
             .clamp(1.0)
             .deadband(Constants.OperatorConstants.ROTATIONAL_DEADBAND, 1.0)
-            .map(new BreakerLinearizedConstrainedExponential(0.12, 5.5, true))
+            .map(new BreakerLinearizedConstrainedExponential(0.09, 5.5, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
    // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
