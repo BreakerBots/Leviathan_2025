@@ -198,6 +198,7 @@ public final class Constants {
     public static class FieldConstants {
       public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
       public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(6.47);
+      public static final Distance kReefFaceLength = Inches.of(36.792600);
       
     }
 

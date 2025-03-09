@@ -7,11 +7,22 @@ import java.nio.channels.Pipe;
 
 import com.reduxrobotics.sensors.canandcolor.DigoutChannel.Index;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.EndEffectorConstants;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.ReefPosition.ReefLevel;
+import frc.robot.commands.DriveToPose;
+import frc.robot.ReefPosition;
 import frc.robot.Robot;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Indexer;
@@ -31,6 +42,7 @@ public class Superstructure2 {
     private Elevator elevator;
     private Intake intake;
     private Indexer indexer;
+    private Drivetrain drivetrain;
 
     public Command intakeFromGround() {
         return 
@@ -40,6 +52,22 @@ public class Superstructure2 {
             Commands.waitUntil(endEffector::hasCoral),
             setSuperstructureState(SuperstructureState.STOW, false)
         );
+    }
+
+    public Commands scoreOnReefManual(ReefLevel reefLevel) {
+        return 
+    }
+
+    public Command scoreOnReef(ReefPosition reefPosition) {
+        return new DriveToPose(
+            drivetrain, 
+            () -> getReefAlignDriveTarget(
+                drivetrain.getLocalizer().getPose(), 
+                reefPosition.branch().getAlignPose(
+                    DriverStation.getAlliance().orElse(Alliance.Blue)
+                )
+            )
+        ).andThen();
     }
 
 
@@ -258,6 +286,21 @@ public class Superstructure2 {
         }
         return false;
     }
+
+    private Pose2d getReefAlignDriveTarget(Pose2d robot, Pose2d goal) {
+        var offset = robot.relativeTo(goal);
+        double yDistance = Math.abs(offset.getY());
+        double xDistance = Math.abs(offset.getX());
+        double shiftXT =
+            MathUtil.clamp(
+                (yDistance / (FieldConstants.kReefFaceLength.in(Meters) * 2)) + ((xDistance - 0.3) / (FieldConstants.kReefFaceLength.in(Meters) * 3)),
+                0.0,
+                1.0);
+        double shiftYT =
+            MathUtil.clamp(yDistance <= 0.2 ? 0.0 : offset.getX() /FieldConstants.kReefFaceLength.in(Meters), 0.0, 1.0);
+        return goal.transformBy(
+            new Transform2d(-shiftXT * 1.5,  Math.copySign(shiftYT * 1.5 * 0.8, offset.getY()), new Rotation2d()));
+      }
 
     public static record IntexerState(
         IntakeState intakeState,
