@@ -153,26 +153,21 @@ public class Intake extends SubsystemBase{
         BreakerLog.log("Intake/Pivot/Angle", getPivotAngle().in(Degrees));
     }
 
-    public static enum IntakeState {
-        INTAKE(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED),
-        EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED),
+    public static record IntakeState(IntakeRollerState rollerState, IntakePivotState pivotState) {
+        public static final IntakeState INTAKE = new IntakeState(IntakeRollerState.INTAKE, IntakePivotState.EXTENDED);
+        public static final IntakeState EXTAKE = new IntakeState(IntakeRollerState.EXTAKE, IntakePivotState.EXTENDED);
 
-        EXTENDED_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED),
+        public static final IntakeState EXTENDED_NEUTRAL = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.EXTENDED);
+        public static final IntakeState CLEAR = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.CLEAR);
 
 
-        L1_INTAKE(IntakeRollerState.INTAKE_L1, IntakePivotState.EXTENDED),
-        L1_NEUTRAL(IntakeRollerState.NEUTRAL, IntakePivotState.L1),
-        L1_EXTAKE(IntakeRollerState.EXTAKE, IntakePivotState.L1),
+        public static final IntakeState L1_INTAKE = new IntakeState(IntakeRollerState.INTAKE_L1, IntakePivotState.EXTENDED);
+        public static final IntakeState L1_NEUTRAL = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.L1);
+        public static final IntakeState L1_EXTAKE = new IntakeState(IntakeRollerState.EXTAKE, IntakePivotState.L1);
 
-        CLIMB(IntakeRollerState.NEUTRAL, IntakePivotState.CLIMB),
-        STOW(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED),
-        STOW2(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED2);
-        private IntakeRollerState rollerState;
-        private IntakePivotState pivotState;
-        private IntakeState(IntakeRollerState rollerState, IntakePivotState pivotState) {
-            this.rollerState = rollerState;
-            this.pivotState = pivotState;
-        }
+        public static final IntakeState CLIMB = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.CLIMB);
+        public static final IntakeState STOW = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED);
+        public static final IntakeState STOW2 = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED2);
 
         public IntakePivotState getPivotState() {
             return pivotState;
@@ -206,6 +201,7 @@ public class Intake extends SubsystemBase{
         EXTENDED(Rotations.of(0.035).minus(Degrees.of(3))),
         // ALGAE(Rotations.of(0.22)),
         // ALGAE_HOLD(Rotations.of(0.34)),
+        CLEAR(Degrees.of(0.25)),
         CLIMB(Degrees.of(45)),
         RETRACTED(Rotations.of(0.25)),
         RETRACTED2(Rotations.of(0.4)),
