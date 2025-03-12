@@ -21,14 +21,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Drivetrain;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -172,13 +164,10 @@ public class DriveToPose extends Command {
             0.0,
             1.0);
     driveErrorAbs = currentDistance;
-    double x = drivetrain.getLocalizer().getSpeeds().vxMetersPerSecond;
-    double y = drivetrain.getLocalizer().getSpeeds().vyMetersPerSecond;
-    // double speeds = Math.sqrt(x*x + y*y);
-    // driveController.reset(
-    //     driveErrorAbs,
-    //     speeds);
-    
+    driveController.reset(
+        lastSetpointTranslation.getDistance(targetPose.getTranslation()),
+        driveController.getSetpoint().velocity);
+        
     double calc = driveController.calculate(driveErrorAbs, 0.0);
     
     double driveVelocityScalar =
