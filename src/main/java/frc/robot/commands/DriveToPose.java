@@ -87,6 +87,13 @@ public class DriveToPose extends Command {
     driveRequest.DriveRequestType = DriveRequestType.Velocity;
     this.config = config;
     robot = drivetrain.getLocalizer()::getPose;
+
+    driveController.setPID(config.drivePID.kP, config.drivePID.kI, config.drivePID.kD);
+    thetaController.setPID(config.thetaPID.kP, config.thetaPID.kI, config.thetaPID.kD);
+    BreakerLog.log("maxacc", config.driveMaxAcceleration);
+    driveController.setConstraints(new TrapezoidProfile.Constraints(config.driveMaxVelocity.in(MetersPerSecond), config.driveMaxAcceleration.in(MetersPerSecondPerSecond)));
+    thetaController.setConstraints(new TrapezoidProfile.Constraints(config.thetaMaxVelocity.in(RadiansPerSecond), config.thetaMaxAcceleration.in(RadiansPerSecondPerSecond)));
+
     addRequirements(drivetrain);
   }
 
@@ -167,17 +174,16 @@ public class DriveToPose extends Command {
     driveErrorAbs = currentDistance;
     double x = drivetrain.getLocalizer().getSpeeds().vxMetersPerSecond;
     double y = drivetrain.getLocalizer().getSpeeds().vyMetersPerSecond;
-    double speeds = Math.sqrt(x*x + y*y);
-    driveController.reset(
-        driveErrorAbs,
-        speeds);
+    // double speeds = Math.sqrt(x*x + y*y);
+    // driveController.reset(
+    //     driveErrorAbs,
+    //     speeds);
     
     double calc = driveController.calculate(driveErrorAbs, 0.0);
     
     double driveVelocityScalar =
         driveController.getSetpoint().velocity * ffScaler
             + calc;
-    BreakerLog.log("aaa", calc);
     if (currentDistance < driveController.getPositionTolerance()) driveVelocityScalar = 0.0;
     lastSetpointTranslation =
         new Pose2d(
