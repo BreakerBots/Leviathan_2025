@@ -165,12 +165,19 @@ public class DriveToPose extends Command {
             0.0,
             1.0);
     driveErrorAbs = currentDistance;
+    double x = drivetrain.getLocalizer().getSpeeds().vxMetersPerSecond;
+    double y = drivetrain.getLocalizer().getSpeeds().vyMetersPerSecond;
+    double speeds = Math.sqrt(x*x + y*y);
     driveController.reset(
-        lastSetpointTranslation.getDistance(targetPose.getTranslation()),
-        driveController.getSetpoint().velocity);
+        driveErrorAbs,
+        speeds);
+    
+    double calc = driveController.calculate(driveErrorAbs, 0.0);
+    
     double driveVelocityScalar =
         driveController.getSetpoint().velocity * ffScaler
-            + driveController.calculate(driveErrorAbs, 0.0);
+            + calc;
+    BreakerLog.log("aaa", calc);
     if (currentDistance < driveController.getPositionTolerance()) driveVelocityScalar = 0.0;
     lastSetpointTranslation =
         new Pose2d(
@@ -194,7 +201,7 @@ public class DriveToPose extends Command {
                 currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
             .transformBy(new Transform2d(driveVelocityScalar, 0.0, new Rotation2d()))
             .getTranslation();
-
+    
     // Scale feedback velocities by input ff
     final double linearS = linearFF.get().getNorm() * 3.0;
     final double thetaS = Math.abs(omegaFF.getAsDouble()) * 3.0;
@@ -213,7 +220,7 @@ public class DriveToPose extends Command {
     driveRequest.VelocityX = requestedSpeeds.vxMetersPerSecond;
     driveRequest.VelocityY = requestedSpeeds.vyMetersPerSecond;
     driveRequest.RotationalRate = requestedSpeeds.omegaRadiansPerSecond;
-    
+
     drivetrain.setControl(driveRequest);
 
     // Log data
