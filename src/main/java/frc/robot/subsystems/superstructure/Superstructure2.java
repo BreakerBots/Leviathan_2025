@@ -306,7 +306,7 @@ public class Superstructure2 {
         double shiftYT =
             MathUtil.clamp(yDistance <= 0.2 ? 0.0 : offset.getX() /FieldConstants.kReefFaceLength.in(Meters), 0.0, 1.0);
         return goal.transformBy(
-            new Transform2d(-shiftXT * 1.5,  Math.copySign(shiftYT * 1.5 * 0.8, offset.getY()), new Rotation2d()));
+            new Transform2d(-shiftXT * 1.5,  Math.copySign(shiftYT * 1.5 * 0.8, offset.getY()), Rotation2d.kZero));
       }
 
     public static record IntexerState(
