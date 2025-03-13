@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -306,7 +307,7 @@ public class Superstructure2 {
         double shiftYT =
             MathUtil.clamp(yDistance <= 0.2 ? 0.0 : offset.getX() /FieldConstants.kReefFaceLength.in(Meters), 0.0, 1.0);
         return goal.transformBy(
-            new Transform2d(-shiftXT * 1.5,  Math.copySign(shiftYT * 1.5 * 0.8, offset.getY()), Rotation2d.kZero));
+            new Transform2d(new Translation2d(shiftXT * 1.5,  Math.copySign(shiftYT * 1.5 * 0.8, offset.getY())).rotateBy(offset.getRotation().plus(Rotation2d.k180deg)), Rotation2d.kZero));
       }
 
     public static record IntexerState(
