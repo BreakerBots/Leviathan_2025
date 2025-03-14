@@ -33,9 +33,13 @@ public class BreakerDigitalSensor extends SubsystemBase implements BooleanSuppli
     hasChanged = false;
   }
 
+  public static BreakerDigitalSensor fromDIO(DigitalInput dio, boolean triggeredOnTrue) {
+    return new BreakerDigitalSensor(() -> dio.get() == triggeredOnTrue, () -> dio.close());
+  }
+ 
   public static BreakerDigitalSensor fromDIO(int inputChannelDIO, boolean triggeredOnTrue) {
     var dio = new DigitalInput(inputChannelDIO);
-    return new BreakerDigitalSensor(() -> dio.get() == triggeredOnTrue, () -> dio.close());
+    return fromDIO(dio, triggeredOnTrue);
   }
 
   public static BreakerDigitalSensor fromCANrange(CANrange canrange) {

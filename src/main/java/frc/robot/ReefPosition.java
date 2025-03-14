@@ -12,17 +12,23 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.superstructure.Superstructure.MastState;
+import frc.robot.subsystems.superstructure.Superstructure2.SuperstructureState;
 
 public record ReefPosition(ReefLevel level, ReefBranch branch) {
     public static enum ReefLevel {
-        L1(MastState.L1_NEUTRAL, MastState.L1_EXTAKE),
+        L1(MastState.L1_NEUTRAL, MastState.L1_EXTAKE, SuperstructureState.L2),
         L2(MastState.L2_NEUTRAL, MastState.L2_EXTAKE),
         L3(MastState.L3_NEUTRAL, MastState.L3_EXTAKE),
         L4(MastState.L4_NEUTRAL, MastState.L4_EXTAKE);
         private MastState neutral, extake;
-        private ReefLevel(MastState neutral, MastState extake) {
+        private SuperstructureState extakeState;
+        private ReefLevel(MastState neutral, MastState extake, SuperstructureState extakeState) {
             this.extake = extake;
             this.neutral = neutral;
+        }
+
+        public SuperstructureState getExtakeSuperstructureState() {
+            return extakeState;
         }
 
         public MastState getExtakeMastState() {

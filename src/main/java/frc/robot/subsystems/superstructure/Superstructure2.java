@@ -54,8 +54,29 @@ public class Superstructure2 {
         );
     }
 
+    public Command intakeFromGroundForL1() {
+        return
+        setSuperstructureState(SuperstructureState.INTAKE_L1.withNeutralRollers(), true)
+        .andThen(
+            setSuperstructureState(SuperstructureState.INTAKE_L1, false),
+            intake.waitForCoralGroundIntakeL1AndStopRollers(),
+            setSuperstructureState(SuperstructureState.HOLD_L1, false)
+        );
+    }
+
+    public Command extakeForL1FromIntake() {
+        return
+        setSuperstructureState(SuperstructureState.EXTAKE_L1.withNeutralRollers(), true)
+        .andThen(
+            setSuperstructureState(SuperstructureState.EXTAKE_L1, false),
+            Commands.waitUntil(() -> !intake.hasCoral())
+                .andThen(Commands.waitSeconds(0.1)),
+            setSuperstructureState(SuperstructureState.HOLD_L1, false)
+        );
+    }
+
     public Commands scoreOnReefManual(ReefLevel reefLevel) {
-        return 
+        return setSuperstructureState(reefLevel)
     }
 
     public Command scoreOnReef(ReefPosition reefPosition) {
@@ -288,19 +309,11 @@ public class Superstructure2 {
     }
 
     private Pose2d getReefAlignDriveTarget(Pose2d robot, Pose2d goal) {
-        var offset = robot.relativeTo(goal);
-        double yDistance = Math.abs(offset.getY());
-        double xDistance = Math.abs(offset.getX());
-        double shiftXT =
-            MathUtil.clamp(
-                (yDistance / (FieldConstants.kReefFaceLength.in(Meters) * 2)) + ((xDistance - 0.3) / (FieldConstants.kReefFaceLength.in(Meters) * 3)),
-                0.0,
-                1.0);
-        double shiftYT =
-            MathUtil.clamp(yDistance <= 0.2 ? 0.0 : offset.getX() /FieldConstants.kReefFaceLength.in(Meters), 0.0, 1.0);
-        return goal.transformBy(
-            new Transform2d(-shiftXT * 1.5,  Math.copySign(shiftYT * 1.5 * 0.8, offset.getY()), new Rotation2d()));
-      }
+        // double xOffset =  robot.getX() - goal.getX();
+        // double yOffset =  robot.getY() - goal.getY();
+
+        return goal;
+    }
 
     public static record IntexerState(
         IntakeState intakeState,
@@ -376,6 +389,61 @@ public class Superstructure2 {
             true, 
             IntakeState.INTAKE, 
             IndexerState.INDEXING, 
+            true
+        );
+
+
+        public static final SuperstructureState L4 = new SuperstructureState(
+            ElevatorSetpoint.L4, 
+            EndEffectorSetpoint.L4_EXTAKE_CORAL, 
+            true, 
+            IntakeState.STOW, 
+            IndexerState.NEUTRAL, 
+            false
+        );
+
+        public static final SuperstructureState L3 = new SuperstructureState(
+            ElevatorSetpoint.L3, 
+            EndEffectorSetpoint.L3_EXTAKE_CORAL, 
+            true, 
+            IntakeState.STOW, 
+            IndexerState.NEUTRAL, 
+            false
+        );
+
+        public static final SuperstructureState L2 = new SuperstructureState(
+            ElevatorSetpoint.L2, 
+            EndEffectorSetpoint.L2_EXTAKE_CORAL, 
+            true, 
+            IntakeState.STOW, 
+            IndexerState.NEUTRAL, 
+            false
+        );
+
+        public static final SuperstructureState INTAKE_L1 = new SuperstructureState(
+            ElevatorSetpoint.STOW, 
+            EndEffectorSetpoint.STOW, 
+            false, 
+            IntakeState.L1_INTAKE, 
+            IndexerState.NEUTRAL, 
+            true
+        );
+
+        public static final SuperstructureState HOLD_L1 = new SuperstructureState(
+            ElevatorSetpoint.STOW, 
+            EndEffectorSetpoint.STOW, 
+            false, 
+            IntakeState.L1_NEUTRAL, 
+            IndexerState.NEUTRAL, 
+            true
+        );
+
+        public static final SuperstructureState EXTAKE_L1 = new SuperstructureState(
+            ElevatorSetpoint.STOW, 
+            EndEffectorSetpoint.STOW, 
+            false, 
+            IntakeState.L1_EXTAKE, 
+            IndexerState.NEUTRAL, 
             true
         );
 

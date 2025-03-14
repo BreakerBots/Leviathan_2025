@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.IntakeConstants.*;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -24,6 +26,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.AsynchronousInterrupt;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -42,6 +46,7 @@ public class Intake extends SubsystemBase{
     private TalonFX pivot;
     private CANcoder encoder;
     private BreakerDigitalSensor coralSensor;
+    private DigitalInput rawCoralSensor;
     private MotionMagicVoltage pivotRequest;
     private DutyCycleOut rollerRequest;
 
@@ -51,7 +56,8 @@ public class Intake extends SubsystemBase{
         rollers = new TalonFX(IntakeConstants.kIntakeRollersMotorID, SuperstructureConstants.kSuperstructureCANBus);
         pivot = new TalonFX(IntakeConstants.kIntakePivotMotorID, SuperstructureConstants.kSuperstructureCANBus);
         encoder = BreakerCANCoderFactory.createCANCoder(IntakeConstants.kIntakeCANCoderID, SuperstructureConstants.kSuperstructureCANBus, 0.5, kPivotEncoderOffset, SensorDirectionValue.CounterClockwise_Positive);
-        coralSensor = BreakerDigitalSensor.fromDIO(0, false);
+        rawCoralSensor = new DigitalInput(0);
+        coralSensor = BreakerDigitalSensor.fromDIO(rawCoralSensor, false);
         setpoint = IntakeState.STOW;
         pivotRequest = new MotionMagicVoltage(IntakePivotState.RETRACTED.getAngle());
         rollerRequest = new DutyCycleOut(RollerState.NEUTRAL.getDutyCycle());
@@ -92,6 +98,10 @@ public class Intake extends SubsystemBase{
         config.MotionMagic.MotionMagicAcceleration = IntakeConstants.kMotionMagicAcceleration.in(RotationsPerSecondPerSecond);
 
         pivot.getConfigurator().apply(config);
+    }
+
+    public Command waitForCoralGroundIntakeL1AndStopRollers() {
+        return this.new WaitForCoralGroundIntakeL1AndStopRollersCommand();
     }
 
     public Command setState(IntakeState state, boolean waitForSuccess) {
@@ -138,6 +148,10 @@ public class Intake extends SubsystemBase{
         }
     }
 
+    private Intake getSelf() {
+        return this;
+    }
+
     @Override
     public void periodic() {
         if (RobotState.isDisabled()) {
@@ -152,6 +166,46 @@ public class Intake extends SubsystemBase{
         BreakerLog.log("Intake/Pivot/Setpoint/Angle", setpoint.getPivotState().getAngle().in(Degrees));
         BreakerLog.log("Intake/Pivot/Setpoint/AtSetpoint", atSetpoint());
         BreakerLog.log("Intake/Pivot/Angle", getPivotAngle().in(Degrees));
+    }
+
+    private class WaitForCoralGroundIntakeL1AndStopRollersCommand extends Command {
+        private AsynchronousInterrupt interrupt;
+        private boolean endFlag;
+        private ReentrantLock lock;
+        public WaitForCoralGroundIntakeL1AndStopRollersCommand() {
+            interrupt = new AsynchronousInterrupt(rawCoralSensor, this::internalCallback);
+            interrupt. setInterruptEdges(false, true);
+            addRequirements(getSelf());
+        }
+
+        private void internalCallback(Boolean isRiseing, Boolean isFalling) {
+            try {
+                lock.lock();
+                if (isFalling) {
+                    endFlag = true;
+                    setStateFunc(IntakeState.EXTENDED_NEUTRAL);
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public void initialize() {
+            endFlag = false;
+            interrupt.enable();
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            interrupt.disable();
+            interrupt.close();
+        }
+
+        @Override
+        public boolean isFinished() {
+            return endFlag;
+        }
     }
 
     public static record IntakeState(IntakeRollerState rollerState, IntakePivotState pivotState) {
