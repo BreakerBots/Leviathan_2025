@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -44,6 +45,13 @@ public class Superstructure2 {
     private Indexer indexer;
     private Drivetrain drivetrain;
 
+    public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Drivetrain drivetrain) {
+        this.drivetrain = drivetrain;
+        this.elevator = elevator;
+        this.intake = intake;
+        this.endEffector = endEffector;
+    }
+
     public Command intakeFromGround() {
         return 
         setSuperstructureState(SuperstructureState.GROUND_INTAKE.withNeutralRollers(), true)
@@ -75,9 +83,9 @@ public class Superstructure2 {
         );
     }
 
-    public Commands scoreOnReefManual(ReefLevel reefLevel) {
-        return setSuperstructureState(reefLevel)
-    }
+    // public Commands scoreOnReefManual(ReefLevel reefLevel) {
+    //     return 
+    // }
 
     public Command scoreOnReef(ReefPosition reefPosition) {
         return new DriveToPose(
@@ -102,7 +110,7 @@ public class Superstructure2 {
         public SetSuperstructureStateCommand(SuperstructureState superstructureState, boolean waitForSuccess) {
             this.superstructureState = superstructureState;
             this.waitForSuccess = waitForSuccess;
-            addRequirements(elevator, endEffector);
+            addRequirements(elevator, endEffector, intake, indexer);
         }
 
         @Override

@@ -16,6 +16,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist3d;
+import edu.wpi.first.math.interpolation.Interpolatable;
+import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.networktables.BooleanArraySubscriber;
 import edu.wpi.first.networktables.DoubleArraySubscriber;
@@ -29,9 +31,12 @@ import edu.wpi.first.networktables.StructArraySubscriber;
 import edu.wpi.first.networktables.StructSubscriber;
 import edu.wpi.first.networktables.TimestampedInteger;
 import edu.wpi.first.networktables.TimestampedObject;
+import edu.wpi.first.units.TimeUnit;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.physics.BreakerVector3;
+import frc.robot.BreakerLib.util.TimestampedValue;
 import frc.robot.BreakerLib.util.math.BreakerMath;
 
 public class ZED extends SubsystemBase {
@@ -57,17 +62,18 @@ public class ZED extends SubsystemBase {
   private RefrenceFrame cameraRefrenceFrameInRobotSpace;
   private RefrenceFrame cameraGlobalRefrenceFrameInCameraSpace;
   private TimeInterpolatableBuffer<Pose3d> robotPoseHistory;
-  private Supplier<Pair<Double, Pose3d>> robotPoseAtTimeSupplier;
+  private Supplier<TimestampedValue<Pose3d>> robotPoseAtTimeSupplier;
 
   private DetectionResults latestResult;
   private LocalizationResults latestLocalization;
 
 
-  public ZED(String cameraName, Supplier<Pair<Double, Pose3d>> robotPoseAtTimeSupplier, Transform3d robotToZedLeftEye, Transform3d zedLeftEyeRobotSpaceToZedGlobal) {
+  public ZED(String cameraName, Supplier<TimestampedValue<Pose3d>> robotPoseAtTimeSupplier, Transform3d robotToZedLeftEye, Transform3d zedLeftEyeRobotSpaceToZedGlobal) {
     cameraRefrenceFrameInRobotSpace = new RefrenceFrame(robotToZedLeftEye);
     cameraGlobalRefrenceFrameInCameraSpace = new RefrenceFrame(zedLeftEyeRobotSpaceToZedGlobal);
     this.robotPoseAtTimeSupplier = robotPoseAtTimeSupplier;
     latestResult = new DetectionResults(new TreeMap<>(), Timer.getTimestamp());
+    robotPoseHistory = TimeInterpolatableBuffer.createBuffer(10);
     latestLocalization = new LocalizationResults(new Pose3d(), Timer.getTimestamp(), 0.0, cameraRefrenceFrameInRobotSpace, new RefrenceFrame(getPoseAtTime(Timer.getTimestamp())), null);
     timeSinceLastUpdate = new Timer();
     configNT(cameraName);
@@ -118,10 +124,11 @@ public class ZED extends SubsystemBase {
     updateRobotPoseHistory();
   }
   
-  private Pair<Double, Pose3d> updateRobotPoseHistory() {
-    Pair<Double, Pose3d> curPose = robotPoseAtTimeSupplier.get();
-    if (MathUtil.isNear(curPose.getFirst(), robotPoseHistory.getInternalBuffer().lastKey(), 1e-5)) {
-      robotPoseHistory.addSample(curPose.getFirst(), curPose.getSecond());
+  private TimestampedValue<Pose3d> updateRobotPoseHistory() {
+    TimestampedValue<Pose3d> curPose = robotPoseAtTimeSupplier.get();
+  
+    if (robotPoseHistory.getInternalBuffer().isEmpty() || !MathUtil.isNear(curPose.getTimestamp().in(Units.Second), robotPoseHistory.getInternalBuffer().lastKey(), 1e-5)) {
+      robotPoseHistory.addSample(curPose.getTimestamp().in(Units.Second), curPose.getValue());
     }
     return curPose;
   }
@@ -146,9 +153,9 @@ public class ZED extends SubsystemBase {
   }
 
   private Pose3d getPoseAtTime(double timestamp) {
-    Pair<Double, Pose3d> latest = updateRobotPoseHistory();
+    TimestampedValue<Pose3d> latest = updateRobotPoseHistory();
     Optional<Pose3d> opt = robotPoseHistory.getSample(timestamp);
-    return opt.orElse(latest.getSecond());
+    return opt.orElse(latest.getValue());
   }
   
   private DetectionResults updateDetections(double timestamp) {

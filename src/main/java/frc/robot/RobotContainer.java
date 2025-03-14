@@ -49,6 +49,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.ScoreOnReefScheduler;
 import frc.robot.subsystems.SimpleClimb;
 import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.Superstructure2;
 import frc.robot.subsystems.vision.ApriltagVision;
 import frc.robot.subsystems.vision.Localization;
 import frc.robot.subsystems.vision.ApriltagVision.EstimationType;
@@ -83,6 +84,8 @@ public class RobotContainer {
   
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
   intake, climb, ap, controller, buttonBoard);
+
+  private final Superstructure2 superstructure2 = new Superstructure2(endEffector, elevator, intake, indexer, drivetrain);
 
   // private final ScoreOnReefScheduler scoreOnReefScheduler = new ScoreOnReefScheduler(buttonBoard, superstructure);
   
@@ -137,7 +140,8 @@ public class RobotContainer {
 
     Trigger manualOverride = buttonBoard.getRightButtons().getHighRightSwitch();
 
-    controller.getButtonX().onTrue(elevator.home());
+    // controller.getButtonX().onTrue(elevator.home());
+    controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.F)));
     controller.getButtonB().onTrue(superstructure.reverseIntake());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure.intakeAlgaeFromReef(false));

@@ -57,12 +57,12 @@ public class Localization extends SubsystemBase implements Localizer {
     public Localization(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         apriltagVision = new ApriltagVision2(this);
-
+        
         SwerveDriveOdometry wheelOdometry = new SwerveDriveOdometry(
             drivetrain.getKinematics(), drivetrain.getState().RawHeading, 
             drivetrain.getState().ModulePositions, 
             new Pose2d()
-            );
+        );
 
         odometryFusion = new OdometryFusion<SwerveModulePosition[]>(
             drivetrain.getKinematics(), 
@@ -77,6 +77,8 @@ public class Localization extends SubsystemBase implements Localizer {
             VecBuilder.fill(0.1, 0.1, 0.1),
             VecBuilder.fill(0.9, 0.9, 0.9) 
         );
+
+        depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
 
         lastOdometryValue = drivetrain.getStateCopy().Pose;
         drivetrain.registerTelemetry(this::updateWheelOdometry);
@@ -156,6 +158,7 @@ public class Localization extends SubsystemBase implements Localizer {
                 gtsam.sendVisionUpdate(res.camera().getName(), res.est().timestampSeconds, VisionUtils.photonTrackedTargetsToGTSAM(res.est().targetsUsed), res.camera().getRobotTCam());
             }
         }
+        drivetrain.resetPose(getPose());
     }
 
     public OdometryFusion<SwerveModulePosition[]> getOdometryFusion() {
@@ -175,6 +178,8 @@ public class Localization extends SubsystemBase implements Localizer {
         }
         return new TimestampedValue<>(visionFilter.getEstimatedPosition(), Timer.getTimestamp());
     }
+
+
     @Override
     public Pose2d getPose() {
         if (kUseGTSAM) {

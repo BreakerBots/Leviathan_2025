@@ -21,14 +21,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Drivetrain;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
-
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -87,6 +79,13 @@ public class DriveToPose extends Command {
     driveRequest.DriveRequestType = DriveRequestType.Velocity;
     this.config = config;
     robot = drivetrain.getLocalizer()::getPose;
+
+    driveController.setPID(config.drivePID.kP, config.drivePID.kI, config.drivePID.kD);
+    thetaController.setPID(config.thetaPID.kP, config.thetaPID.kI, config.thetaPID.kD);
+    BreakerLog.log("maxacc", config.driveMaxAcceleration);
+    driveController.setConstraints(new TrapezoidProfile.Constraints(config.driveMaxVelocity.in(MetersPerSecond), config.driveMaxAcceleration.in(MetersPerSecondPerSecond)));
+    thetaController.setConstraints(new TrapezoidProfile.Constraints(config.thetaMaxVelocity.in(RadiansPerSecond), config.thetaMaxAcceleration.in(RadiansPerSecondPerSecond)));
+
     addRequirements(drivetrain);
   }
 
@@ -168,9 +167,12 @@ public class DriveToPose extends Command {
     driveController.reset(
         lastSetpointTranslation.getDistance(targetPose.getTranslation()),
         driveController.getSetpoint().velocity);
+        
+    double calc = driveController.calculate(driveErrorAbs, 0.0);
+    
     double driveVelocityScalar =
         driveController.getSetpoint().velocity * ffScaler
-            + driveController.calculate(driveErrorAbs, 0.0);
+            + calc;
     if (currentDistance < driveController.getPositionTolerance()) driveVelocityScalar = 0.0;
     lastSetpointTranslation =
         new Pose2d(
@@ -194,7 +196,7 @@ public class DriveToPose extends Command {
                 currentPose.getTranslation().minus(targetPose.getTranslation()).getAngle())
             .transformBy(new Transform2d(driveVelocityScalar, 0.0, new Rotation2d()))
             .getTranslation();
-
+    
     // Scale feedback velocities by input ff
     final double linearS = linearFF.get().getNorm() * 3.0;
     final double thetaS = Math.abs(omegaFF.getAsDouble()) * 3.0;
@@ -213,7 +215,7 @@ public class DriveToPose extends Command {
     driveRequest.VelocityX = requestedSpeeds.vxMetersPerSecond;
     driveRequest.VelocityY = requestedSpeeds.vyMetersPerSecond;
     driveRequest.RotationalRate = requestedSpeeds.omegaRadiansPerSecond;
-    
+
     drivetrain.setControl(driveRequest);
 
     // Log data
