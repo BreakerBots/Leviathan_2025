@@ -352,7 +352,7 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint STOW = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Rotations.of(0.45)), 
+                new WristSetpoint(Rotations.of(0.3)), 
                 RollerState.NEUTRAL
         );
 

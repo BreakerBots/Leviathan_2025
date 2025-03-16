@@ -56,8 +56,6 @@ public class Localization extends SubsystemBase implements Localizer {
     private Drivetrain drivetrain;
     public Localization(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
-        apriltagVision = new ApriltagVision2(this);
-        
         SwerveDriveOdometry wheelOdometry = new SwerveDriveOdometry(
             drivetrain.getKinematics(), drivetrain.getState().RawHeading, 
             drivetrain.getState().ModulePositions, 
@@ -78,6 +76,7 @@ public class Localization extends SubsystemBase implements Localizer {
             VecBuilder.fill(0.9, 0.9, 0.9) 
         );
 
+        apriltagVision = new ApriltagVision2(this);
         depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
 
         lastOdometryValue = drivetrain.getStateCopy().Pose;

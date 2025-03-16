@@ -24,6 +24,10 @@ public class MechanismRatio {
         return new MechanismRatio(ratioToOne * ratio.getRatioToOne());
     }
 
+    public MechanismRatio to(double otherRatioFrom, double otherRatioTo) {
+        return to(new MechanismRatio(otherRatioFrom, otherRatioTo));
+    }
+
     public double getOutput(double input) {
         return input / ratioToOne;
     }

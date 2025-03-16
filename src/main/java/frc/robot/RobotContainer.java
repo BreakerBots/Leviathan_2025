@@ -85,7 +85,7 @@ public class RobotContainer {
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
   intake, climb, ap, controller, buttonBoard);
 
-  private final Superstructure2 superstructure2 = new Superstructure2(endEffector, elevator, intake, indexer, drivetrain);
+  private final Superstructure2 superstructure2 = new Superstructure2(endEffector, elevator, intake, indexer, drivetrain, controller);
 
   // private final ScoreOnReefScheduler scoreOnReefScheduler = new ScoreOnReefScheduler(buttonBoard, superstructure);
   
@@ -135,7 +135,7 @@ public class RobotContainer {
             .map(new BreakerLinearizedConstrainedExponential(0.15, 5, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
-   // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
+  //  // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
     drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
 
     Trigger manualOverride = buttonBoard.getRightButtons().getHighRightSwitch();
@@ -320,5 +320,6 @@ public class RobotContainer {
     // This command will be run during the autonomous period
     // You can create different auto routines and select them via Shuffleboard/SmartDashboard
     return autos.getSelectedAuto();
+    //return null;
   }
 }

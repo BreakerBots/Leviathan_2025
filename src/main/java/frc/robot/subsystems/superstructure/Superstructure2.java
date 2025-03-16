@@ -3,8 +3,11 @@ package frc.robot.subsystems.superstructure;
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.Constants.SuperstructureConstants.*;
 
+import java.lang.ModuleLayer.Controller;
 import java.nio.channels.Pipe;
+import java.util.function.BooleanSupplier;
 
+import com.pathplanner.lib.config.PIDConstants;
 import com.reduxrobotics.sensors.canandcolor.DigoutChannel.Index;
 
 import edu.wpi.first.math.MathUtil;
@@ -14,15 +17,20 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.DriveToPose;
+import frc.robot.commands.DriveToPose.NavToPoseConfig;
 import frc.robot.ReefPosition;
 import frc.robot.Robot;
+import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
+import frc.robot.BreakerLib.util.commands.RumbleCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -44,12 +52,19 @@ public class Superstructure2 {
     private Intake intake;
     private Indexer indexer;
     private Drivetrain drivetrain;
+    private BreakerXboxController controller;
 
-    public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Drivetrain drivetrain) {
+    public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Drivetrain drivetrain, BreakerXboxController controller) {
         this.drivetrain = drivetrain;
         this.elevator = elevator;
         this.intake = intake;
         this.endEffector = endEffector;
+        this.indexer = indexer;
+        this.controller = controller;
+    }
+
+    public Command stowAll() {
+        return setSuperstructureState(SuperstructureState.STOW, false);
     }
 
     public Command intakeFromGround() {
@@ -83,9 +98,20 @@ public class Superstructure2 {
         );
     }
 
-    // public Commands scoreOnReefManual(ReefLevel reefLevel) {
-    //     return 
-    // }
+    public Command scoreOnReefManual(ReefLevel reefLevel) {
+        return setSuperstructureState(reefLevel.getExtakeSuperstructureState().withNeutralRollers(), true)
+        .andThen(
+            new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.7)
+                .until(() -> controller.getButtonA().getAsBoolean()),
+            setSuperstructureState(reefLevel.getExtakeSuperstructureState(), false),
+            stowAll()
+        );
+    }
+
+    public Command waitForDriverConfirmation() {
+        return new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.7)
+        .until(() -> controller.getButtonA().getAsBoolean());
+    }
 
     public Command scoreOnReef(ReefPosition reefPosition) {
         return new DriveToPose(
@@ -96,8 +122,57 @@ public class Superstructure2 {
                     DriverStation.getAlliance().orElse(Alliance.Blue)
                 )
             )
-        ).andThen();
+        ).withTimeout(8).deadlineFor(
+            waitAndExtendMastToScore(reefPosition)
+        ).andThen(
+            setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), true),
+            new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.7)
+                .until(() -> controller.getButtonA().getAsBoolean()),
+            setSuperstructureState(reefPosition.level().getExtakeSuperstructureState(), false),
+            waitForDriverConfirmation().onlyIf(() -> !DriverStation.isAutonomous()),
+            Commands.waitUntil(() -> !endEffector.hasCoral()),
+            Commands.waitSeconds(0.1),
+            new DriveToPose(
+                drivetrain, 
+                () -> {
+                    Pose2d scoreGoal = reefPosition.branch().getAlignPose(
+                        DriverStation.getAlliance().orElse(Alliance.Blue));
+                    Translation2d offset = new Translation2d(0.4, 0);
+                    offset = offset.rotateBy(scoreGoal.getRotation());
+                    scoreGoal.plus(new Transform2d(offset, Rotation2d.kZero));
+                    return scoreGoal;
+                },
+                new NavToPoseConfig(
+                    Meters.of(0.05), 
+                    Degrees.of(5.0), 
+                    MetersPerSecond.of(3.0), 
+                    DegreesPerSecond.of(360), 
+                    MetersPerSecondPerSecond.of(3.0), 
+                    RadiansPerSecondPerSecond.of(8), 
+                    Meters.of(0.05), 
+                    Meters.of(0.1), 
+                    new PIDConstants(0.8, 0.0, 0.0), 
+                    new PIDConstants(4, 0.0, 0.0)
+                )
+            ),
+            setSuperstructureState(SuperstructureState.STOW, false)
+        );
     }
+
+    private Command waitAndExtendMastToScore(ReefPosition reefPosition) {
+        BooleanSupplier canExtend = () -> {
+            Pose2d robotPose = drivetrain.getLocalizer().getPose();
+            Pose2d goalPose = reefPosition.branch().getAlignPose(
+                DriverStation.getAlliance().orElse(Alliance.Blue));
+            
+            double distance = robotPose.getTranslation().getDistance(goalPose.getTranslation());
+
+            return distance <= 1.5;
+        };
+        return Commands.waitUntil(canExtend).andThen(setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), false));
+    }
+
+
 
 
 
@@ -123,6 +198,7 @@ public class Superstructure2 {
 
            boolean willIntakeInterferWithEndEffectorMotionFuture = willIntakeInterferWithEndEffectorMotion(mast.endEffectorSetpoint, intexer.intakeState);
            boolean willIntakeInterferWithEndEffectorMotionNow = willIntakeInterferWithEndEffectorMotion(endEffector.getWristAngle(), mast.endEffectorSetpoint.wristSetpoint().getSetpoint(), intake.getPivotAngle());
+           if (RobotBase.isReal()) {
             if (willIntakeInterferWithEndEffectorMotionFuture && willIntakeInterferWithEndEffectorMotionNow) {
                 var intermedairySP = new MastState(
                     mast.elevatorSetpoint, 
@@ -162,6 +238,9 @@ public class Superstructure2 {
                 );
             } else {
                 cmd = setMastState(mast, waitForMast).alongWith(setIntexerState(intexer, waitForIntexer));
+            }
+            } else {
+                cmd = Commands.waitSeconds(0.7);
             }
         }
 

@@ -64,8 +64,8 @@ public class DriveToPose extends Command {
         RadiansPerSecondPerSecond.of(8), 
         Meters.of(0.05), 
         Meters.of(0.1), 
-        new PIDConstants(0.8, 0.0, 0.0), 
-        new PIDConstants(4, 0.0, 0.0)));
+        new PIDConstants(9.5, 0.9, 0.15), 
+        new PIDConstants(15.0, 0.9, 0.1)));
   }
 
   public DriveToPose(Drivetrain drivetrain, Supplier<Pose2d> target, NavToPoseConfig config) {

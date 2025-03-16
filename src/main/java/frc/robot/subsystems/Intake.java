@@ -258,7 +258,7 @@ public class Intake extends SubsystemBase{
         // ALGAE_HOLD(Rotations.of(0.34)),
         CLEAR(Degrees.of(0.25)),
         CLIMB(Degrees.of(45)),
-        RETRACTED(Rotations.of(0.25)),
+        RETRACTED(Rotations.of(0.4)),
         RETRACTED2(Rotations.of(0.4)),
         L1(Rotations.of(0.3));
 

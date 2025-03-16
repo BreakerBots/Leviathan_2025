@@ -17,14 +17,15 @@ import frc.robot.subsystems.superstructure.Superstructure2.SuperstructureState;
 public record ReefPosition(ReefLevel level, ReefBranch branch) {
     public static enum ReefLevel {
         L1(MastState.L1_NEUTRAL, MastState.L1_EXTAKE, SuperstructureState.L2),
-        L2(MastState.L2_NEUTRAL, MastState.L2_EXTAKE),
-        L3(MastState.L3_NEUTRAL, MastState.L3_EXTAKE),
-        L4(MastState.L4_NEUTRAL, MastState.L4_EXTAKE);
+        L2(MastState.L2_NEUTRAL, MastState.L2_EXTAKE, SuperstructureState.L2),
+        L3(MastState.L3_NEUTRAL, MastState.L3_EXTAKE, SuperstructureState.L3),
+        L4(MastState.L4_NEUTRAL, MastState.L4_EXTAKE, SuperstructureState.L4);
         private MastState neutral, extake;
         private SuperstructureState extakeState;
         private ReefLevel(MastState neutral, MastState extake, SuperstructureState extakeState) {
             this.extake = extake;
             this.neutral = neutral;
+            this.extakeState = extakeState;
         }
 
         public SuperstructureState getExtakeSuperstructureState() {
