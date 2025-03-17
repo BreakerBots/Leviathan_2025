@@ -115,8 +115,8 @@ public final class Constants {
 
       public static final Transform3d kTopLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-9.48),Inches.of(10.54),Inches.of(37.486).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-15),Degrees.of(145)));
       public static final Transform3d kTopRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-9.48),Inches.of(-10.54),Inches.of(37.486).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-15),Degrees.of(-145)));
-      public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-20),Degrees.of(-170).plus(Degrees.of(5))));//10.425 //Degrees.of(-165).minus(Degrees.of(2.5))//25
-      public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-20), Degrees.of(170).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
+      public static final Transform3d kBottomLeftCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-24),Degrees.of(-165).plus(Degrees.of(5))));//10.425 //Degrees.of(-165).minus(Degrees.of(2.5))//25
+      public static final Transform3d kBottomRightCameraTransform = new Transform3d(new Translation3d(Inches.of(-11.642),Inches.of(-10.425),Inches.of(6.761).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-24), Degrees.of(165).minus(Degrees.of(5))));//-10.425//Degrees.of(165).plus(Degrees.of(2.5))//25
 
       public static final SimCameraProperties kBottomLeftCameraSimProperties =
       getThriftyCam()
@@ -279,15 +279,15 @@ public final class Constants {
     public static final InvertedValue kRightMotorInverted = InvertedValue.Clockwise_Positive;
 
     // All gains are in terms of rotor rotations and volts
-    public static final double kP = 25;//0.26
+    public static final double kP = 1.75;//0.26
     public static final double kI = 0;
-    public static final double kD = 0.1;
+    public static final double kD = 0.15;
     public static final double kS = 0;
-    public static final double kV = 0.85;
-    public static final double kA = 0.035;
-    public static final double kG = 0.71;
-    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(30);
-    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(40);
+    public static final double kV = 0.1;
+    public static final double kA = 0;
+    public static final double kG = 0.13;
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(55);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(150);
     // public static final Measure<VelocityUnit<LinearAccelerationUnit>> kMotionMagicJerk = MetersPerSecondPerSecond.per(Second).of(15.0);
 
 
@@ -316,10 +316,10 @@ public final class Constants {
       .withStatorCurrentLimit(kHomeStatorCurrentLimit)
       .withStatorCurrentLimitEnable(true);
 
-    public static final Distance kMaxHeight = Inches.of(77.25); 
+    public static final Distance kMaxHeight = Centimeters.of(193.95); 
     public static final Distance kMinHeight = Meters.of(0.0);
 
-    public static final Angle kMaxRotorRevs = Rotations.of(29.114258);
+    public static final Angle kMaxRotorRevs = Rotations.of(31.861328);
 
     public static final MechanismRatio kRotationsToMeters = new MechanismRatio(kMaxHeight.in(Meters), kMaxRotorRevs.in(Rotations));
 
@@ -341,6 +341,7 @@ public final class Constants {
 
     public static final MechanismRatio kPivotGearRatio = new MechanismRatio(92.25);
 
+    
     public static final double kP = 20;
     public static final double kI = 0.0;
     public static final double kD = 0.1;
@@ -350,7 +351,6 @@ public final class Constants {
     public static final double kG = 0.25;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(3);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
-
     
   }
 
@@ -385,7 +385,7 @@ public final class Constants {
     private static final Angle kWristEncoderMagnetOffset = Rotations.of(0.375);
     public static final Angle kWristEncoderOffset = kWristEncoderMagnetOffset;
 
-    public static final MechanismRatio kWristRatio = new MechanismRatio(8, 64).to(20, 30);//
+    public static final MechanismRatio kWristRatio = new MechanismRatio(8, 64).to(20, 80);//
 
     public static final double kWristDiscontinuityPoint = 0.75;
     public static final Angle kMaxElevatorRestrictedSafeAngle = Degrees.of(85);
@@ -398,8 +398,8 @@ public final class Constants {
     public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
 
 
-    public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs().withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(Degrees.of(-35)).withReverseSoftLimitEnable(true);
-    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs().withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true).withForwardSoftLimitThreshold(Degrees.of(182)).withForwardSoftLimitEnable(true);
+    public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs();//.withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(Degrees.of(-35)).withReverseSoftLimitEnable(true);
+    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs();//.withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true).withForwardSoftLimitThreshold(Degrees.of(182)).withForwardSoftLimitEnable(true);
     public static final SoftwareLimitSwitchConfigs kNormalLimits =   new SoftwareLimitSwitchConfigs();
 
     public static final CurrentLimitsConfigs kWristCurrentLimits = new CurrentLimitsConfigs()
@@ -420,16 +420,15 @@ public final class Constants {
     public static final int kEndEffectorRollerID = 53;
     // public static final int kEndEffectorKickerID = 54;
 
-    public static final double kP = 40;
-    public static final double kI = 0;
-    public static final double kD = 0.5;
-    public static final double kV = 26;
-    public static final double kS = 0;
-    public static final double kA = 1;
-    public static final double kG = 0.22;
-
-    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1.5);
-    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
+    public static final double kP = 45;
+    public static final double kI = 0.0;
+    public static final double kD = 2.5;
+    public static final double kS = 0.0;
+    public static final double kV = 3;
+    public static final double kA = 0;
+    public static final double kG = 0.14;
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(3);
 
 
     public static final Angle kMinFlipAngle = kMaxElevatorRestrictedSafeAngle;

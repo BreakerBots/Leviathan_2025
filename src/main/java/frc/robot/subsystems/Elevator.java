@@ -48,6 +48,7 @@ public class Elevator extends SubsystemBase {
         right = new TalonFX(kRightMotorID, kSuperstructureCANBus);
         configLeft();
         configRight();
+        homePosition();
         voltageRequest = new VoltageOut(0);
         motionMagicRequest = new MotionMagicVoltage(getNativePosition()).withEnableFOC(true);
         followRequest = new Follower(kLeftMotorID, true);
@@ -264,11 +265,11 @@ public class Elevator extends SubsystemBase {
         }
 
         public static final ElevatorSetpoint L1 = new ElevatorSetpoint(Meters.of(0.6));
-        public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.9));
-        public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.92).plus(Inches.of(15.75)));
-        public static final ElevatorSetpoint L4 = new ElevatorSetpoint(kMaxHeight.plus(Centimeters.of(8)));
+        public static final ElevatorSetpoint L2 = new ElevatorSetpoint(Meters.of(0.9).minus(Inches.of(6.25)));
+        public static final ElevatorSetpoint L3 = new ElevatorSetpoint(Meters.of(0.92).plus(Inches.of(15.75).minus(Inches.of(6))));
+        public static final ElevatorSetpoint L4 = new ElevatorSetpoint(kMaxHeight.minus(Inches.of(4)));
         public static final ElevatorSetpoint HUMAN_PLAYER = new ElevatorSetpoint(Meters.of(0.45));
-        public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.06), Centimeters.of(2), kDefaultVelocityTolerence);
+        public static final ElevatorSetpoint HANDOFF = new ElevatorSetpoint(Meters.of(0.0), Centimeters.of(2), kDefaultVelocityTolerence);
         public static final ElevatorSetpoint GROUND_ALGAE = new ElevatorSetpoint(Meters.of(0.0));
         public static final ElevatorSetpoint STOW = new ElevatorSetpoint(Meters.of(0.0), Centimeters.of(4), kDefaultVelocityTolerence);
 

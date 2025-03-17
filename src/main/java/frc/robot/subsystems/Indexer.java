@@ -30,8 +30,8 @@ public class Indexer extends SubsystemBase {
     }
 
     public static enum IndexerState {
-        INDEXING(1),
-        REVERSE(-1.0),
+        INDEXING(-0.8),
+        REVERSE(0.8),
         NEUTRAL(0.0);
 
         private double dutyCycleOut;

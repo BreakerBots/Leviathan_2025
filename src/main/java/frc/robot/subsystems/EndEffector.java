@@ -61,7 +61,7 @@ public class EndEffector extends SubsystemBase {
     private Timer logRefreshTimer = new Timer();
     
     public EndEffector() {
-        wristEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, kWristDiscontinuityPoint, kWristEncoderOffset, SensorDirectionValue.Clockwise_Positive);
+        wristEncoder = BreakerCANCoderFactory.createCANCoder(EndEffectorConstants.kEndEffectorCANCoderID, kWristDiscontinuityPoint, kWristEncoderOffset, SensorDirectionValue.CounterClockwise_Positive);
         wrist = new TalonFXS(EndEffectorConstants.kEndEffectorPivotMotorID);
         candi = new CANdi(EndEffectorConstants.kEndEffectorCANdiID);
         // kicker = new TalonSRX(kEndEffectorKickerID);
@@ -105,7 +105,7 @@ public class EndEffector extends SubsystemBase {
 
         config.CurrentLimits = kWristCurrentLimits;
 
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         config.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;

@@ -64,7 +64,7 @@ public class ApriltagVision2 {
     public List<CameraResult> update(EstimationStrategy strategy) {
         FrameContext context = new FrameContext(localization.getAtomicPose(), localization.getSpeeds(), strategy);
         if (RobotBase.isSimulation()) {
-            sim.update(localization.getOdometryFusion().getPureOdometryPose());
+            sim.update(localization.getPose());
         }
         ArrayList<CameraResult> allCameraResults = new ArrayList<>();
         for (var cam : cameras) {

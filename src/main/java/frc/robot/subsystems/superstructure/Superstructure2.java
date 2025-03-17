@@ -31,6 +31,7 @@ import frc.robot.ReefPosition;
 import frc.robot.Robot;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.util.commands.RumbleCommand;
+import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -104,6 +105,8 @@ public class Superstructure2 {
             new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.7)
                 .until(() -> controller.getButtonA().getAsBoolean()),
             setSuperstructureState(reefLevel.getExtakeSuperstructureState(), false),
+            Commands.waitUntil(() -> !endEffector.hasCoral()),
+            Commands.waitSeconds(0.1),
             stowAll()
         );
     }
@@ -200,6 +203,7 @@ public class Superstructure2 {
            boolean willIntakeInterferWithEndEffectorMotionNow = willIntakeInterferWithEndEffectorMotion(endEffector.getWristAngle(), mast.endEffectorSetpoint.wristSetpoint().getSetpoint(), intake.getPivotAngle());
            if (RobotBase.isReal()) {
             if (willIntakeInterferWithEndEffectorMotionFuture && willIntakeInterferWithEndEffectorMotionNow) {
+                BreakerLog.log("dsdfsd", 1);
                 var intermedairySP = new MastState(
                     mast.elevatorSetpoint, 
                     new EndEffectorSetpoint(
@@ -222,6 +226,7 @@ public class Superstructure2 {
                     )
                 );
             } else if (willIntakeInterferWithEndEffectorMotionFuture && !willIntakeInterferWithEndEffectorMotionNow) {
+                BreakerLog.log("dsdfsd", 2);
                 cmd = setMastState(mast, waitForMast)
                 .alongWith(
                     Commands.waitUntil(() -> !willIntakeInterferWithEndEffectorMotion(mast.endEffectorSetpoint, intexer.intakeState))
@@ -230,6 +235,7 @@ public class Superstructure2 {
                         )
                 );
             } else if (!willIntakeInterferWithEndEffectorMotionFuture && willIntakeInterferWithEndEffectorMotionNow) {
+                BreakerLog.log("dsdfsd", 3);
                 cmd = setIntexerState(intexer, waitForIntexer).alongWith(
                     Commands.waitUntil(() -> !willIntakeInterferWithEndEffectorMotion(mast.endEffectorSetpoint, intexer.intakeState))
                     .andThen(
@@ -237,11 +243,13 @@ public class Superstructure2 {
                         )
                 );
             } else {
+                BreakerLog.log("dsdfsd", 4);
                 cmd = setMastState(mast, waitForMast).alongWith(setIntexerState(intexer, waitForIntexer));
             }
             } else {
                 cmd = Commands.waitSeconds(0.7);
             }
+            cmd.initialize();
         }
 
         @Override
