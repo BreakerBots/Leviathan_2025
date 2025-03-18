@@ -501,7 +501,7 @@ public class Superstructure2 {
                     IntakeRollerState.NEUTRAL, 
                     intexerState.intakeState.getPivotState()
                 ),
-                intexerState.indexerState, 
+                IndexerState.NEUTRAL, 
                 considerIntexerSuccess);
         }
 
