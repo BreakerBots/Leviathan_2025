@@ -170,7 +170,7 @@ public final class Constants {
     }
 
     public static class AutoPilotConstants {
-      public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(24);
+      public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(20);
 
       public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(4.5, 0.001, 0, new Constraints(1.0, 1.5));
       public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
@@ -197,7 +197,7 @@ public final class Constants {
 
     public static class FieldConstants {
       public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-      public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(6.47);
+      public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(8);
       public static final Distance kReefFaceLength = Inches.of(36.792600);
       
     }

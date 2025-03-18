@@ -46,6 +46,7 @@ import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake.IntakeRollerState;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.superstructure.Superstructure.MastState;
+import frc.robot.subsystems.vision.Localization;
 
 public class Superstructure2 {
     private EndEffector endEffector;
@@ -53,14 +54,16 @@ public class Superstructure2 {
     private Intake intake;
     private Indexer indexer;
     private Drivetrain drivetrain;
+    private Localization localization;
     private BreakerXboxController controller;
 
-    public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Drivetrain drivetrain, BreakerXboxController controller) {
+    public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Drivetrain drivetrain, Localization localization, BreakerXboxController controller) {
         this.drivetrain = drivetrain;
         this.elevator = elevator;
         this.intake = intake;
         this.endEffector = endEffector;
         this.indexer = indexer;
+        this.localization = localization;
         this.controller = controller;
     }
 
@@ -75,6 +78,26 @@ public class Superstructure2 {
             setSuperstructureState(SuperstructureState.GROUND_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
             setSuperstructureState(SuperstructureState.STOW, false)
+        );
+    }
+
+    public Command intakeFromHumanPlayerManual() {
+        return
+        setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true)
+        .andThen(
+            setSuperstructureState(SuperstructureState.HP_INTAKE, false),
+            Commands.waitUntil(endEffector::hasCoral),
+            setSuperstructureState(SuperstructureState.STOW, false)
+        );
+
+    }
+
+    public Command removeAlgae(boolean isHigh) {
+        var state = (isHigh ? SuperstructureState.REMOVE_ALGAE_HIGH : SuperstructureState.REMOVE_ALGAE_LOW);
+        return setSuperstructureState(state.withNeutralRollers(), true).andThen(
+            setSuperstructureState(state, false),
+            waitForDriverConfirmation(),
+            stowAll()
         );
     }
 
@@ -125,7 +148,20 @@ public class Superstructure2 {
                     DriverStation.getAlliance().orElse(Alliance.Blue)
                 )
             )
-        ).withTimeout(8).deadlineFor(
+        ).deadlineFor(
+            Commands.run(
+                () -> {
+                    var tgt = reefPosition.branch().getAlignPose(
+                        DriverStation.getAlliance().orElse(Alliance.Blue)
+                    );
+
+                    double dist = tgt.getTranslation().getDistance(drivetrain.getLocalizer().getPose().getTranslation());
+
+                    if (dist < 2) {
+                        localization.useTrigApriltagStragey(true);
+                    }
+                }
+            ),
             waitAndExtendMastToScore(reefPosition)
         ).andThen(
             setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), true),
@@ -159,7 +195,7 @@ public class Superstructure2 {
                 )
             ),
             setSuperstructureState(SuperstructureState.STOW, false)
-        );
+        ).finallyDo(()->localization.useTrigApriltagStragey(false));
     }
 
     private Command waitAndExtendMastToScore(ReefPosition reefPosition) {
@@ -487,6 +523,16 @@ public class Superstructure2 {
             true
         );
 
+        public static final SuperstructureState HP_INTAKE = new SuperstructureState(
+            ElevatorSetpoint.HUMAN_PLAYER, 
+            EndEffectorSetpoint.INTAKE_HUMAN_PLAYER, 
+            true, 
+            IntakeState.STOW, 
+            IndexerState.NEUTRAL, 
+            false
+        );
+
+
 
         public static final SuperstructureState L4 = new SuperstructureState(
             ElevatorSetpoint.L4, 
@@ -540,6 +586,24 @@ public class Superstructure2 {
             IntakeState.L1_EXTAKE, 
             IndexerState.NEUTRAL, 
             true
+        );
+
+        public static final SuperstructureState REMOVE_ALGAE_HIGH = new SuperstructureState(
+            ElevatorSetpoint.HIGH_REEF_ALGAE, 
+            EndEffectorSetpoint.REEF_ALGAE_HIGH_INTAKE, 
+            true, 
+            IntakeState.STOW, 
+            IndexerState.NEUTRAL, 
+            false
+        );
+
+        public static final SuperstructureState REMOVE_ALGAE_LOW = new SuperstructureState(
+            ElevatorSetpoint.LOW_REEF_ALGAE, 
+            EndEffectorSetpoint.REEF_ALGAE_LOW_INTAKE, 
+            true, 
+            IntakeState.STOW, 
+            IndexerState.NEUTRAL, 
+            false
         );
 
 

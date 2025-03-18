@@ -56,16 +56,16 @@ public class DriveToPose extends Command {
 
   public DriveToPose(Drivetrain drivetrain, Supplier<Pose2d> target) {
     this(drivetrain, target, new NavToPoseConfig(
-        Meters.of(0.01), 
+        Meters.of(0.02), 
         Degrees.of(1.0), 
-        MetersPerSecond.of(3.0), 
+        MetersPerSecond.of(1.5), 
         DegreesPerSecond.of(360), 
-        MetersPerSecondPerSecond.of(3.0), 
+        MetersPerSecondPerSecond.of(4.0), 
         RadiansPerSecondPerSecond.of(8), 
-        Meters.of(0.05), 
-        Meters.of(0.1), 
-        new PIDConstants(0.8, 0.0, 0), 
-        new PIDConstants(4.0, 0.0, 0)));
+        Meters.of(0.02), 
+        Meters.of(0.15), 
+        new PIDConstants(9.5, 0.0, 0), 
+        new PIDConstants(8.0, 0.0, 0)));
   }
 
   public DriveToPose(Drivetrain drivetrain, Supplier<Pose2d> target, NavToPoseConfig config) {
@@ -158,11 +158,11 @@ public class DriveToPose extends Command {
 
     // Calculate drive speed
     double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
-    double ffScaler =
-        MathUtil.clamp(
-            (currentDistance - config.ffMinRadius.in(Meters)) / (config.ffMaxRadius.in(Meters) - config.ffMinRadius.in(Meters)),
-            0.0,
-            1.0);
+    double ffScaler = 1;
+        // MathUtil.clamp(
+        //     (currentDistance - config.ffMinRadius.in(Meters)) / (config.ffMaxRadius.in(Meters) - config.ffMinRadius.in(Meters)),
+        //     0.0,
+        //     1.0);
     driveErrorAbs = currentDistance;
     driveController.reset(
         lastSetpointTranslation.getDistance(targetPose.getTranslation()),

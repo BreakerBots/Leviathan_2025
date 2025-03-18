@@ -164,6 +164,11 @@ public class ApriltagVision2 {
                         }
                 }
             }
+            Pose3d[] poses = new Pose3d[results.size()];
+            for (int i = 0; i < results.size(); i++) {
+                poses[i] = results.get(i).est.estimatedPose;
+            }
+            BreakerLog.log("ApriltagVision/" + getName() + "/Poses", poses);
             return results;
 
         }
@@ -252,5 +257,6 @@ public class ApriltagVision2 {
         EstimatedRobotPose est,
         Matrix<N3, N1> stdDevs
         ) {
+
     }
 }

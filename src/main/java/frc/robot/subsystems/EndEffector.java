@@ -454,13 +454,13 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint L4_EXTAKE_CORAL = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-35)), 
+            new WristSetpoint(Degrees.of(-40)), 
             RollerState.EXTAKE
         );
 
         public static final EndEffectorSetpoint REEF_ALGAE_LOW_INTAKE = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(9)), 
+            new WristSetpoint(Degrees.of(-5)), 
             RollerState.INTAKE_ALGAE
         );
 
@@ -473,7 +473,7 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint REEF_ALGAE_HIGH_INTAKE = 
         new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(30)), 
+            new WristSetpoint(Degrees.of(-5)), 
             RollerState.INTAKE_ALGAE
         );
 

@@ -54,6 +54,7 @@ public class Localization extends SubsystemBase implements Localizer {
     private boolean hasOdometryBeenSeeded;
     private Pose2d lastOdometryValue;
     private Drivetrain drivetrain;
+    private boolean useTrigStrat;
     public Localization(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         SwerveDriveOdometry wheelOdometry = new SwerveDriveOdometry(
@@ -139,7 +140,11 @@ public class Localization extends SubsystemBase implements Localizer {
         
         EstimationStrategy strat = EstimationStrategy.kDefaultNoSeed;
         if (hasOdometryBeenSeeded) {
-            strat = EstimationStrategy.kDefault;
+            if (!useTrigStrat) {
+                strat = EstimationStrategy.kDefault;
+            } else {
+                strat = EstimationStrategy.kTrig;
+            }
         }
         List<CameraResult> apriltagResults = apriltagVision.update(strat);
         if (!hasOdometryBeenSeeded && apriltagResults.size() > 0) {
@@ -168,6 +173,9 @@ public class Localization extends SubsystemBase implements Localizer {
         return visionFilter;
     }
 
+    public void useTrigApriltagStragey(boolean useTrigStrat) {
+        this.useTrigStrat = useTrigStrat;
+    }
 
     @Override
     public TimestampedValue<Pose2d> getAtomicPose() {

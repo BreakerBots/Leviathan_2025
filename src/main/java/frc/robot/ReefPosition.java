@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.FieldConstants;
@@ -65,10 +66,10 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
 
         public Pose2d getAlignPose(Alliance alliance) {
             Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueReefFaceApriltagID : redReefFaceApriltagID).get().toPose2d();
-
+            Distance endEffectorOffset = Units.Inches.of(0.5);
             Translation2d allignOffsetRel = new Translation2d(
-                (alliance == Alliance.Blue ? -1 : -1) * AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
-                (isLeft ? 1 : -1) * (alliance == Alliance.Blue ? -1 : -1) * FieldConstants.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters));
+                -AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
+                ((isLeft ? 1 : -1) * -FieldConstants.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters) + endEffectorOffset.in(Units.Meter)));
 
             Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
 
