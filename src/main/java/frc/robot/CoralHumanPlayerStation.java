@@ -33,8 +33,8 @@ public enum CoralHumanPlayerStation {
         Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueTag : redTag).get().toPose2d();
         
         final var pos = new BreakerVector2(tagPose.getTranslation());
-        final Distance backupOffset = Inches.of(26);
-        final Distance sideOffset = Inches.of(2);
+        final Distance backupOffset = Inches.of(20);
+        final Distance sideOffset = Inches.of(0);
 
         final var offsetVec = new BreakerVector2(tagPose.getRotation(), backupOffset.in(Meter))
             .plus(new BreakerVector2(tagPose.getRotation().plus(Rotation2d.fromRadians(Math.PI/2.0)), sideOffset.in(Meter)));

@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToPose.NavToPoseConfig;
@@ -77,6 +78,7 @@ public class Superstructure2 {
         .andThen(
             setSuperstructureState(SuperstructureState.GROUND_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
+            Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
         );
     }
@@ -87,9 +89,22 @@ public class Superstructure2 {
         .andThen(
             setSuperstructureState(SuperstructureState.HP_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
+            Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
         );
 
+    }
+
+    public Command intakeCoralFromHumanPlayer(CoralHumanPlayerStation pos) {
+        return new DriveToPose(drivetrain, () -> pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)))
+        .onlyWhile(() -> !controller.getButtonA().getAsBoolean())
+        .andThen(
+            setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true),
+            setSuperstructureState(SuperstructureState.HP_INTAKE, false),
+            Commands.waitUntil(endEffector::hasCoral),
+            Commands.waitSeconds(0.1),
+            setSuperstructureState(SuperstructureState.STOW, false)
+        );
     }
 
     public Command removeAlgae(boolean isHigh) {
@@ -148,7 +163,7 @@ public class Superstructure2 {
                     DriverStation.getAlliance().orElse(Alliance.Blue)
                 )
             )
-        ).deadlineFor(
+        ).onlyWhile(() -> !controller.getButtonA().getAsBoolean()).deadlineFor(
             Commands.run(
                 () -> {
                     var tgt = reefPosition.branch().getAlignPose(
@@ -157,7 +172,7 @@ public class Superstructure2 {
 
                     double dist = tgt.getTranslation().getDistance(drivetrain.getLocalizer().getPose().getTranslation());
 
-                    if (dist < 2) {
+                    if (dist < 3) {
                         localization.useTrigApriltagStragey(true);
                     }
                 }
@@ -165,35 +180,33 @@ public class Superstructure2 {
             waitAndExtendMastToScore(reefPosition)
         ).andThen(
             setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), true),
-            new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.7)
-                .until(() -> controller.getButtonA().getAsBoolean()),
-            setSuperstructureState(reefPosition.level().getExtakeSuperstructureState(), false),
             waitForDriverConfirmation().onlyIf(() -> !DriverStation.isAutonomous()),
-            Commands.waitUntil(() -> !endEffector.hasCoral()),
+            setSuperstructureState(reefPosition.level().getExtakeSuperstructureState(), false),
+            Commands.waitUntil(() -> !endEffector.hasCoral()).withTimeout(1.0),
             Commands.waitSeconds(0.1),
-            new DriveToPose(
-                drivetrain, 
-                () -> {
-                    Pose2d scoreGoal = reefPosition.branch().getAlignPose(
-                        DriverStation.getAlliance().orElse(Alliance.Blue));
-                    Translation2d offset = new Translation2d(0.4, 0);
-                    offset = offset.rotateBy(scoreGoal.getRotation());
-                    scoreGoal.plus(new Transform2d(offset, Rotation2d.kZero));
-                    return scoreGoal;
-                },
-                new NavToPoseConfig(
-                    Meters.of(0.05), 
-                    Degrees.of(5.0), 
-                    MetersPerSecond.of(3.0), 
-                    DegreesPerSecond.of(360), 
-                    MetersPerSecondPerSecond.of(3.0), 
-                    RadiansPerSecondPerSecond.of(8), 
-                    Meters.of(0.05), 
-                    Meters.of(0.1), 
-                    new PIDConstants(0.8, 0.0, 0.0), 
-                    new PIDConstants(4, 0.0, 0.0)
-                )
-            ),
+            // new DriveToPose(
+            //     drivetrain, 
+            //     () -> {
+            //         Pose2d scoreGoal = reefPosition.branch().getAlignPose(
+            //             DriverStation.getAlliance().orElse(Alliance.Blue));
+            //         Translation2d offset = new Translation2d(0.4, 0);
+            //         offset = offset.rotateBy(scoreGoal.getRotation());
+            //         scoreGoal.plus(new Transform2d(offset, Rotation2d.kZero));
+            //         return scoreGoal;
+            //     },
+            //     new NavToPoseConfig(
+            //         Meters.of(0.05), 
+            //         Degrees.of(5.0), 
+            //         MetersPerSecond.of(3.0), 
+            //         DegreesPerSecond.of(360), 
+            //         MetersPerSecondPerSecond.of(3.0), 
+            //         RadiansPerSecondPerSecond.of(8), 
+            //         Meters.of(0.05), 
+            //         Meters.of(0.1), 
+            //         new PIDConstants(0.8, 0.0, 0.0), 
+            //         new PIDConstants(4, 0.0, 0.0)
+            //     )
+            // ),
             setSuperstructureState(SuperstructureState.STOW, false)
         ).finallyDo(()->localization.useTrigApriltagStragey(false));
     }

@@ -56,11 +56,11 @@ public class DriveToPose extends Command {
 
   public DriveToPose(Drivetrain drivetrain, Supplier<Pose2d> target) {
     this(drivetrain, target, new NavToPoseConfig(
-        Meters.of(0.02), 
+        Meters.of(0.01), 
         Degrees.of(1.0), 
-        MetersPerSecond.of(1.5), 
+        MetersPerSecond.of(1.0), 
         DegreesPerSecond.of(360), 
-        MetersPerSecondPerSecond.of(4.0), 
+        MetersPerSecondPerSecond.of(2.0), 
         RadiansPerSecondPerSecond.of(8), 
         Meters.of(0.02), 
         Meters.of(0.15), 
@@ -158,11 +158,11 @@ public class DriveToPose extends Command {
 
     // Calculate drive speed
     double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
-    double ffScaler = 1;
-        // MathUtil.clamp(
-        //     (currentDistance - config.ffMinRadius.in(Meters)) / (config.ffMaxRadius.in(Meters) - config.ffMinRadius.in(Meters)),
-        //     0.0,
-        //     1.0);
+    double ffScaler =
+        MathUtil.clamp(
+            (currentDistance - config.ffMinRadius.in(Meters)) / (config.ffMaxRadius.in(Meters) - config.ffMinRadius.in(Meters)),
+            0.0,
+            1.0);
     driveErrorAbs = currentDistance;
     driveController.reset(
         lastSetpointTranslation.getDistance(targetPose.getTranslation()),

@@ -170,7 +170,7 @@ public final class Constants {
     }
 
     public static class AutoPilotConstants {
-      public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(20);
+      public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(18);
 
       public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(4.5, 0.001, 0, new Constraints(1.0, 1.5));
       public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
@@ -197,7 +197,7 @@ public final class Constants {
 
     public static class FieldConstants {
       public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-      public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(8);
+      public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(7);
       public static final Distance kReefFaceLength = Inches.of(36.792600);
       
     }
@@ -342,14 +342,14 @@ public final class Constants {
     public static final MechanismRatio kPivotGearRatio = new MechanismRatio(92.25);
 
     
-    public static final double kP = 20;
+    public static final double kP = 35;
     public static final double kI = 0.0;
     public static final double kD = 0.1;
     public static final double kS = 0.0;
     public static final double kV = 35;
     public static final double kA = 0.2;
     public static final double kG = 0.25;
-    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(3);
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1.5);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(2);
     
   }

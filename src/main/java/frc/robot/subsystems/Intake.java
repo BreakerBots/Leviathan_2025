@@ -22,6 +22,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj.AsynchronousInterrupt;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -172,16 +174,19 @@ public class Intake extends SubsystemBase{
         private AsynchronousInterrupt interrupt;
         private boolean endFlag;
         private ReentrantLock lock;
+        private Timer timer;
         public WaitForCoralGroundIntakeL1AndStopRollersCommand() {
+            lock = new ReentrantLock();
             interrupt = new AsynchronousInterrupt(rawCoralSensor, this::internalCallback);
-            interrupt. setInterruptEdges(false, true);
+            interrupt.setInterruptEdges(false, true);
+            timer = new Timer();
             addRequirements(getSelf());
         }
 
         private void internalCallback(Boolean isRiseing, Boolean isFalling) {
             try {
                 lock.lock();
-                if (isFalling) {
+                if (isFalling && timer.hasElapsed(0.2)) {
                     endFlag = true;
                     setStateFunc(IntakeState.EXTENDED_NEUTRAL);
                 }
@@ -192,14 +197,17 @@ public class Intake extends SubsystemBase{
 
         @Override
         public void initialize() {
+            timer.reset();
+            timer.start();
             endFlag = false;
             interrupt.enable();
         }
 
         @Override
         public void end(boolean interrupted) {
+            timer.stop();
+            endFlag = false;
             interrupt.disable();
-            interrupt.close();
         }
 
         @Override
@@ -235,7 +243,7 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakeRollerState {
         INTAKE(-0.9),
-        INTAKE_L1(-0.5),
+        INTAKE_L1(-0.9),
         // INTAKE_ALGAE(0.5),
         // HOLD_ALGAE(0.1),
         // EXTAKE_ALGAE(-0.8),
