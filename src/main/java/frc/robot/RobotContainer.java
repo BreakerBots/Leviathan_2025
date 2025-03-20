@@ -89,7 +89,7 @@ public class RobotContainer {
 
   // private final ScoreOnReefScheduler scoreOnReefScheduler = new ScoreOnReefScheduler(buttonBoard, superstructure);
   
-  private final Autos autos = new Autos(superstructure);
+  private final Autos autos = new Autos(superstructure2);
 
   private BreakerInputStream driverX, driverY, driverOmega;
   
@@ -147,7 +147,7 @@ public class RobotContainer {
     controller.getDPad().getLeft().onTrue(superstructure2.removeAlgae(false));
     controller.getDPad().getRight().onTrue(superstructure2.removeAlgae(true));
     controller.getLeftBumper().onTrue(superstructure2.intakeFromGround());
-    controller.getStartButton()
+    controller.getStartButton().and(manualOverride.negate())
     .onTrue(
       Commands.defer(
         () -> superstructure2.intakeCoralFromHumanPlayer(
@@ -159,6 +159,10 @@ public class RobotContainer {
         Set.of(elevator, indexer, intake, endEffector)
       )
     );
+    controller.getStartButton().and(manualOverride)
+    .onTrue(
+      superstructure2.intakeCoralFromHumanPlayerManual()
+      );
     //controller.getStartButton().onTrue(superstructure2.intakeFromHumanPlayerManual());
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll());
     //new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure.stowAllPlus());

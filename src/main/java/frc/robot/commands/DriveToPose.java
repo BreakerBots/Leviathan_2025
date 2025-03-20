@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -56,6 +58,8 @@ public class DriveToPose extends Command {
 
   public DriveToPose(Drivetrain drivetrain, Supplier<Pose2d> target) {
     this(drivetrain, target, new NavToPoseConfig(
+        Meters.of(0.01), 
+        Degrees.of(1.0), 
         Meters.of(0.01), 
         Degrees.of(1.0), 
         MetersPerSecond.of(1.0), 
@@ -110,6 +114,9 @@ public class DriveToPose extends Command {
   public record NavToPoseConfig(
       Distance driveTolerence,
       Angle thetaTolerence,
+      Distance driveCutoff,
+      Angle thetaCutoff,
+
 
       LinearVelocity driveMaxVelocity,
       AngularVelocity thetaMaxVelocity,
@@ -173,7 +180,7 @@ public class DriveToPose extends Command {
     double driveVelocityScalar =
         driveController.getSetpoint().velocity * ffScaler
             + calc;
-    if (currentDistance < driveController.getPositionTolerance()) driveVelocityScalar = 0.0;
+    if (currentDistance < config.driveCutoff.in(Units.Meter)) driveVelocityScalar = 0.0;
     lastSetpointTranslation =
         new Pose2d(
                 targetPose.getTranslation(),
@@ -188,7 +195,7 @@ public class DriveToPose extends Command {
                 currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
     thetaErrorAbs =
         Math.abs(currentPose.getRotation().minus(targetPose.getRotation()).getRadians());
-    if (thetaErrorAbs < thetaController.getPositionTolerance()) thetaVelocity = 0.0;
+    if (thetaErrorAbs < config.thetaCutoff.in(Radian)) thetaVelocity = 0.0;
 
     Translation2d driveVelocity =
         new Pose2d(
@@ -248,9 +255,14 @@ public class DriveToPose extends Command {
   }
 
   /** Checks if the robot pose is within the allowed drive and theta tolerances. */
-  public boolean withinTolerance(double driveTolerance, Rotation2d thetaTolerance) {
+  public boolean withinTolerance(Distance driveTolerance, Angle thetaTolerance) {
     return running
-        && Math.abs(driveErrorAbs) < driveTolerance
-        && Math.abs(thetaErrorAbs) < thetaTolerance.getRadians();
+        && Math.abs(driveErrorAbs) < driveTolerance.in(Units.Meter)
+        && Math.abs(thetaErrorAbs) < thetaTolerance.in(Units.Radian);
+  }
+
+  @Override
+  public boolean isFinished() {
+      return withinTolerance(config.driveTolerence, config.thetaTolerence);
   }
 }

@@ -18,15 +18,16 @@ import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.Superstructure2;
 
 public class TrajectoryBuilder {
     private final AutoRoutine routine;
-    private final Superstructure superstructure;
+    private final Superstructure2 superstructure;
     private boolean flippedHorizontally = false;
 
     private final List<Pair<AutoTrajectory, Command>> trajectories = new ArrayList<>();
 
-    public TrajectoryBuilder(Superstructure superstructure, AutoRoutine routine) {
+    public TrajectoryBuilder(Superstructure2 superstructure, AutoRoutine routine) {
         this.superstructure = superstructure;
         this.routine = routine;
     }
@@ -36,14 +37,21 @@ public class TrajectoryBuilder {
         return this;
     }
 
+    public TrajectoryBuilder runThenCommand(String traj, Command command) {
+        final var trajectory = loadTrajectory(traj);
+        trajectories.add(new Pair<>(trajectory, command));
+
+        return this;
+    }
+
     public TrajectoryBuilder runThenScore(String traj, ReefPosition reefPosition) {
         reefPosition = doFlip(reefPosition);
 
         final var trajectory = loadTrajectory(traj);
 
         final var cmd = switch (reefPosition.level()) {
-            case L1 -> superstructure.extakeCoralL1(); // FIXME, doesn't align
-            default -> superstructure.scoreOnReefAuton(reefPosition).asProxy();
+            case L1 -> superstructure.extakeForL1FromIntake(); // FIXME, doesn't align
+            default -> superstructure.scoreOnReef(reefPosition);
         };
 
         trajectories.add(new Pair<>(trajectory, cmd));
@@ -62,7 +70,7 @@ public class TrajectoryBuilder {
         final var trajectory = loadTrajectory(traj);
         
         final var station = flipCoralHumanPlayerStation(stringToHp(traj));
-        final var cmd = superstructure.intakeCoralFromHumanPlayerAligned(station).asProxy();
+        final var cmd = superstructure.intakeCoralFromHumanPlayer(station).asProxy();
         trajectories.add(new Pair<>(trajectory, cmd));
 
         return this;
@@ -71,7 +79,7 @@ public class TrajectoryBuilder {
     public TrajectoryBuilder runThenGroundForL1(String traj) {
         final var trajectory = loadTrajectory(traj);
         
-        final var cmd = superstructure.intakeCoralFromGroundForL1();
+        final var cmd = superstructure.intakeFromGroundForL1();
         trajectories.add(new Pair<>(trajectory, cmd));
         return this;
     }
@@ -79,7 +87,7 @@ public class TrajectoryBuilder {
     public TrajectoryBuilder runThenGroundForHP(String traj) {
         final var trajectory = loadTrajectory(traj);
         
-        final var cmd = superstructure.intakeCoralFromGround();
+        final var cmd = superstructure.intakeFromGround();
         trajectories.add(new Pair<>(trajectory, cmd));
         return this;
     }
@@ -154,7 +162,7 @@ public class TrajectoryBuilder {
             final var traj = trajectories.get(i);
             lastTraj.getFirst().done().onTrue(Commands.sequence(
                 lastTraj.getSecond(),
-                traj.getFirst().cmd().asProxy()
+                traj.getFirst().cmd()
             ));
             lastTraj = traj;
         }
@@ -162,8 +170,8 @@ public class TrajectoryBuilder {
         lastTraj.getFirst().done().onTrue(lastTraj.getSecond());
 
         routine.active().onTrue(Commands.sequence(
-            initial.getFirst().resetOdometry().asProxy(),
-            initial.getFirst().cmd().asProxy()
+            initial.getFirst().resetOdometry(),
+            initial.getFirst().cmd()
         ));
 
         return routine.cmd();

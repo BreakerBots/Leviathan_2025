@@ -19,10 +19,12 @@ import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.Superstructure2;
+import frc.robot.subsystems.superstructure.Superstructure2.SuperstructureState;
 
 /** Add your docs here. */
 public class Autos {
-    private final Superstructure superstructure;
+    private final Superstructure2 superstructure;
     private final AutoFactory autoFactory;
 
     private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
@@ -50,7 +52,7 @@ public class Autos {
         }
     }
 
-    public Autos(Superstructure superstructure) {
+    public Autos(Superstructure2 superstructure) {
         this.superstructure = superstructure;
         autoFactory = superstructure.getDrivetrain().getAutoFactory();
         setupChooser();
@@ -146,9 +148,10 @@ public class Autos {
         };
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("JKLA"))
             .setFlipped(flippedHorizontally)
-            .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            // .runThenGroundForHP("Reef J to Coral PS (Ground)")
-            // .runThenScore("Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K))
+            // .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
+            .runThenCommand(start, superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.J)).andThen(superstructure.setSuperstructureState(SuperstructureState.GROUND_INTAKE, false)))
+            .runThenGroundForHP("Reef J to Coral PS (Ground)")
+            .runThenScore("Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K))
             // .runThenHP("Reef K to Coral PS")
             // .runThenScore("Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
             // .runThenHP("Reef L to Coral PS")

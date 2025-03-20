@@ -68,6 +68,10 @@ public class Superstructure2 {
         this.controller = controller;
     }
 
+    public Drivetrain getDrivetrain() {
+        return drivetrain;
+    }
+
     public Command stowAll() {
         return setSuperstructureState(SuperstructureState.STOW, false);
     }
@@ -97,8 +101,18 @@ public class Superstructure2 {
 
     public Command intakeCoralFromHumanPlayer(CoralHumanPlayerStation pos) {
         return new DriveToPose(drivetrain, () -> pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)))
-        .onlyWhile(() -> !controller.getButtonA().getAsBoolean())
         .andThen(
+            setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true),
+            setSuperstructureState(SuperstructureState.HP_INTAKE, false),
+            Commands.waitUntil(endEffector::hasCoral),
+            Commands.waitSeconds(0.1),
+            setSuperstructureState(SuperstructureState.STOW, false)
+        );
+    }
+
+    public Command intakeCoralFromHumanPlayerManual() {
+        return 
+        Commands.sequence(
             setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true),
             setSuperstructureState(SuperstructureState.HP_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
@@ -163,7 +177,7 @@ public class Superstructure2 {
                     DriverStation.getAlliance().orElse(Alliance.Blue)
                 )
             )
-        ).onlyWhile(() -> !controller.getButtonA().getAsBoolean()).deadlineFor(
+        ).withTimeout(10).deadlineFor(
             Commands.run(
                 () -> {
                     var tgt = reefPosition.branch().getAlignPose(
@@ -177,7 +191,7 @@ public class Superstructure2 {
                     }
                 }
             ),
-            waitAndExtendMastToScore(reefPosition)
+            setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), false)
         ).andThen(
             setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), true),
             waitForDriverConfirmation().onlyIf(() -> !DriverStation.isAutonomous()),
@@ -219,7 +233,7 @@ public class Superstructure2 {
             
             double distance = robotPose.getTranslation().getDistance(goalPose.getTranslation());
 
-            return distance <= 1.5;
+            return distance <= 2.5;
         };
         return Commands.waitUntil(canExtend).andThen(setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), false));
     }
@@ -392,7 +406,7 @@ public class Superstructure2 {
         return indexer.setState(intexerState.indexerState).alongWith(intake.setState(intexerState.intakeState, waitForSuccess));
     }
 
-    private Command setSuperstructureState(SuperstructureState superstructureState, boolean waitForSuccess) {
+    public Command setSuperstructureState(SuperstructureState superstructureState, boolean waitForSuccess) {
         return this.new SetSuperstructureStateCommand(superstructureState, waitForSuccess);
 
     }
