@@ -25,7 +25,9 @@ public class TrajectoryBuilder {
     private final Superstructure2 superstructure;
     private boolean flippedHorizontally = false;
 
-    private final List<Pair<AutoTrajectory, Command>> trajectories = new ArrayList<>();
+    private static record TrajectoryStep(AutoTrajectory getFirst, Command getSecond, Command[] getParallels) {}
+
+    private final List<TrajectoryStep> trajectories = new ArrayList<>();
 
     public TrajectoryBuilder(Superstructure2 superstructure, AutoRoutine routine) {
         this.superstructure = superstructure;
@@ -37,14 +39,14 @@ public class TrajectoryBuilder {
         return this;
     }
 
-    public TrajectoryBuilder runThenCommand(String traj, Command command) {
+    public TrajectoryBuilder runThenCommand(String traj, Command command, Command... inParallel) {
         final var trajectory = loadTrajectory(traj);
-        trajectories.add(new Pair<>(trajectory, command));
+        trajectories.add(new TrajectoryStep(trajectory, command, inParallel));
 
         return this;
     }
 
-    public TrajectoryBuilder runThenScore(String traj, ReefPosition reefPosition) {
+    public TrajectoryBuilder runThenScore(String traj, ReefPosition reefPosition, Command... inParallel) {
         reefPosition = doFlip(reefPosition);
 
         final var trajectory = loadTrajectory(traj);
@@ -54,41 +56,41 @@ public class TrajectoryBuilder {
             default -> superstructure.scoreOnReef(reefPosition);
         };
 
-        trajectories.add(new Pair<>(trajectory, cmd));
+        trajectories.add(new TrajectoryStep(trajectory, cmd, inParallel));
 
         return this;
     }
 
-    public TrajectoryBuilder run(String traj) {
+    public TrajectoryBuilder run(String traj, Command... inParallel) {
         final var trajectory = loadTrajectory(traj);
 
-        trajectories.add(new Pair<>(trajectory, Commands.none()));
+        trajectories.add(new TrajectoryStep(trajectory, Commands.none(), inParallel));
         return this;
     }
 
-    public TrajectoryBuilder runThenHP(String traj) {
+    public TrajectoryBuilder runThenHP(String traj, Command... inParallel) {
         final var trajectory = loadTrajectory(traj);
         
         final var station = flipCoralHumanPlayerStation(stringToHp(traj));
         final var cmd = superstructure.intakeCoralFromHumanPlayer(station).asProxy();
-        trajectories.add(new Pair<>(trajectory, cmd));
+        trajectories.add(new TrajectoryStep(trajectory, cmd, inParallel));
 
         return this;
     }
 
-    public TrajectoryBuilder runThenGroundForL1(String traj) {
+    public TrajectoryBuilder runThenGroundForL1(String traj, Command... inParallel) {
         final var trajectory = loadTrajectory(traj);
         
         final var cmd = superstructure.intakeFromGroundForL1();
-        trajectories.add(new Pair<>(trajectory, cmd));
+        trajectories.add(new TrajectoryStep(trajectory, cmd, inParallel));
         return this;
     }
 
-    public TrajectoryBuilder runThenGroundForHP(String traj) {
+    public TrajectoryBuilder runThenGroundForHP(String traj, Command... inParallel) {
         final var trajectory = loadTrajectory(traj);
         
         final var cmd = superstructure.intakeFromGround();
-        trajectories.add(new Pair<>(trajectory, cmd));
+        trajectories.add(new TrajectoryStep(trajectory, cmd, inParallel));
         return this;
     }
 
@@ -156,12 +158,12 @@ public class TrajectoryBuilder {
     public Command build() {
         if (trajectories.size() == 0) return routine.cmd(); // will do nothing.
 
-        final var initial = trajectories.get(0);
+        final var initial = trajectories.get(0); // a little messy >_<
         var lastTraj = initial;
         for (int i = 1; i < trajectories.size(); i++) {
             final var traj = trajectories.get(i);
             lastTraj.getFirst().done().onTrue(Commands.sequence(
-                lastTraj.getSecond(),
+                lastTraj.getSecond().alongWith(lastTraj.getParallels()),
                 traj.getFirst().cmd()
             ));
             lastTraj = traj;
