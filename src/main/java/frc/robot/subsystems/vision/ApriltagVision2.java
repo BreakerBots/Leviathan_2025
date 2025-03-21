@@ -58,7 +58,9 @@ public class ApriltagVision2 {
         sim.addAprilTags(FieldConstants.kAprilTagFieldLayout);
         var bottomLeftCam = new Camera(kBottomLeftCameraName, sim, kBottomLeftCameraSimProperties, kBottomLeftCameraTransform, 1);
         var bottomRightCam = new Camera(kBottomRightCameraName, sim, kBottomRightCameraSimProperties, kBottomRightCameraTransform, 1);
-        cameras = new Camera[]{bottomLeftCam, bottomRightCam};
+        var topLeftCam = new Camera(kTopLeftCameraName, sim, kTopLeftCameraSimProperties, kTopLeftCameraTransform, 1);
+        var topFrontCam = new Camera(kTopFrontCameraName, sim, kTopFrontCameraSimProperties, kTopFrontCameraTransform, 1);
+        cameras = new Camera[]{bottomLeftCam, bottomRightCam, topFrontCam, topLeftCam};
     }
 
     public List<CameraResult> update(EstimationStrategy strategy) {
