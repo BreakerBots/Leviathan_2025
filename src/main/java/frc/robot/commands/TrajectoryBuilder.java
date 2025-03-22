@@ -25,7 +25,15 @@ public class TrajectoryBuilder {
     private final Superstructure2 superstructure;
     private boolean flippedHorizontally = false;
 
-    private static record TrajectoryStep(AutoTrajectory getFirst, Command getSecond, Command[] getParallels) {}
+    private static record TrajectoryStep(AutoTrajectory getFirst, Command getSecond, Command[] getParallels) {
+        public Command[] getParallelsAsProxy() {
+            final var result = new Command[getParallels.length];
+            for (int i = 0; i < getParallels.length; i++) {
+                result[i] = getParallels[i].asProxy();
+            }
+            return result;
+        }
+    }
 
     private final List<TrajectoryStep> trajectories = new ArrayList<>();
 
@@ -163,8 +171,8 @@ public class TrajectoryBuilder {
         for (int i = 1; i < trajectories.size(); i++) {
             final var traj = trajectories.get(i);
             lastTraj.getFirst().done().onTrue(Commands.sequence(
-                lastTraj.getSecond().alongWith(lastTraj.getParallels()),
-                traj.getFirst().cmd()
+                lastTraj.getSecond(),
+                traj.getFirst().cmd().alongWith(traj.getParallels())
             ));
             lastTraj = traj;
         }
@@ -173,7 +181,7 @@ public class TrajectoryBuilder {
 
         routine.active().onTrue(Commands.sequence(
             initial.getFirst().resetOdometry(),
-            initial.getFirst().cmd()
+            initial.getFirst().cmd().alongWith(initial.getParallels())
         ));
 
         return routine.cmd();
