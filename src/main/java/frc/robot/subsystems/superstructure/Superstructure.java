@@ -386,11 +386,11 @@ public class Superstructure extends SubsystemBase {
             endEffector.setWristLimits(EndEffectorWristLimits.ELEVATOR_EXTENDED);
         }
 
-        if ((elevator.getHeight().in(Meter) >= kMaxHeightForEndEffectorFullMotion.in(Meter)) && !safe) {
-            elevator.forceStop(true);
-        } else {
-            elevator.forceStop(false);
-        }
+        // if ((elevator.getHeight().in(Meter) >= kMaxHeightForEndEffectorFullMotion.in(Meter)) && !safe) {
+        //     elevator.forceStop(true);
+        // } else {
+        //     elevator.forceStop(false);
+        // }
     }
 
     public Command climbOnDeepCage() {

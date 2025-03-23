@@ -98,6 +98,8 @@ public class Autos {
         autoChooser.addOption("Start 3 -> I", this::start3TThenI);
         autoChooser.addOption("Start 3 -> G", this::start3TThenG);
 
+        autoChooser.addOption("Start 6 -> Leave", this::start6ThenLeave);
+
         autoChooser.addOption("Nothing", Commands::none);
         
         flipChooser.setDefaultOption("No flip", false);
@@ -105,6 +107,13 @@ public class Autos {
 
         Shuffleboard.getTab("Autonomous").add(autoChooser);
         Shuffleboard.getTab("Autonomous").add(flipChooser);
+    }
+
+    public Command start6ThenLeave() {
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("Leave6"))
+        .setFlipped(flippedHorizontally)
+        .run("Start 6  Leave")
+        .build();
     }
 
     public Command startCenterThenH() {

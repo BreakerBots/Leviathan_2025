@@ -432,11 +432,11 @@ public final class Constants {
     public static final int kEndEffectorRollerID = 53;
     // public static final int kEndEffectorKickerID = 54;
 
-    public static final double kP = 45;
+    public static final double kP = 50;
     public static final double kI = 0.0;
     public static final double kD = 2.5;
     public static final double kS = 0.0;
-    public static final double kV = 3;
+    public static final double kV = 2.5;
     public static final double kA = 0;
     public static final double kG = 0.14;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1);
@@ -579,7 +579,7 @@ public final class Constants {
     private static final double kDriveGearRatio = 7.13;
     private static final double kSteerGearRatio_MK4i = 150.0/7.0;
     private static final double kSteerGearRatio_MK4n = 18.75;
-    private static final Distance kWheelRadius = Inches.of(2.0);
+    private static final Distance kWheelRadius = Inches.of(1.952);
 
     private static final boolean kInvertLeftSide = true;
     private static final boolean kInvertRightSide = false;

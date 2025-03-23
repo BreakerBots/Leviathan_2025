@@ -311,6 +311,39 @@ public class RobotContainer {
         )
       ,Set.of(drivetrain, endEffector, elevator)
     ));
+
+    Trigger driverAllignL4 = controller.getDPad().getDown();
+    Trigger driverAllignL3 = controller.getBackButton();
+
+    driverAllignL4.and(manualOverride.negate()).onTrue(Commands.defer(
+      () -> superstructure2.scoreOnReef(
+        new ReefPosition(
+          ReefLevel.L4, 
+          ReefBranch.getClosest(
+            drivetrain.getLocalizer().getPose(),
+             DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+          )
+        )
+      )
+    ,Set.of(drivetrain, endEffector, elevator, intake, indexer)));
+
+    driverAllignL3.and(manualOverride.negate()).onTrue(Commands.defer(
+      () -> superstructure2.scoreOnReef(
+        new ReefPosition(
+          ReefLevel.L3, 
+          ReefBranch.getClosest(
+            drivetrain.getLocalizer().getPose(),
+             DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+          )
+        )
+      )
+    ,Set.of(drivetrain, endEffector, elevator, intake, indexer)));
+
+    driverAllignL4.and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefLevel.L4));
+    driverAllignL3.and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefLevel.L3));
+
+
+
     
 
 
