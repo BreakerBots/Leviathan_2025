@@ -168,16 +168,23 @@ public class Superstructure2 {
         .until(() -> controller.getButtonA().getAsBoolean());
     }
 
+    private Command conditionalProxy(Command command, BooleanSupplier condition) {
+        return Commands.either(command, command.asProxy(), condition);
+    }
+
     public Command scoreOnReef(ReefPosition reefPosition) {
-        return new DriveToPose(
-            drivetrain, 
-            () -> getReefAlignDriveTarget(
-                drivetrain.getLocalizer().getPose(), 
-                reefPosition.branch().getAlignPose(
-                    DriverStation.getAlliance().orElse(Alliance.Blue)
+        return conditionalProxy(
+            new DriveToPose(
+                drivetrain, 
+                () -> getReefAlignDriveTarget(
+                    drivetrain.getLocalizer().getPose(), 
+                    reefPosition.branch().getAlignPose(
+                        DriverStation.getAlliance().orElse(Alliance.Blue)
+                    )
                 )
-            )
-        ).withTimeout(10).deadlineFor(
+            ),
+            () -> !DriverStation.isAutonomous()
+        ).asProxy().withTimeout(10).deadlineFor(
             Commands.run(
                 () -> {
                     var tgt = reefPosition.branch().getAlignPose(
@@ -198,29 +205,6 @@ public class Superstructure2 {
             setSuperstructureState(reefPosition.level().getExtakeSuperstructureState(), false),
             Commands.waitUntil(() -> !endEffector.hasCoral()).withTimeout(1.0),
             Commands.waitSeconds(0.1),
-            // new DriveToPose(
-            //     drivetrain, 
-            //     () -> {
-            //         Pose2d scoreGoal = reefPosition.branch().getAlignPose(
-            //             DriverStation.getAlliance().orElse(Alliance.Blue));
-            //         Translation2d offset = new Translation2d(0.4, 0);
-            //         offset = offset.rotateBy(scoreGoal.getRotation());
-            //         scoreGoal.plus(new Transform2d(offset, Rotation2d.kZero));
-            //         return scoreGoal;
-            //     },
-            //     new NavToPoseConfig(
-            //         Meters.of(0.05), 
-            //         Degrees.of(5.0), 
-            //         MetersPerSecond.of(3.0), 
-            //         DegreesPerSecond.of(360), 
-            //         MetersPerSecondPerSecond.of(3.0), 
-            //         RadiansPerSecondPerSecond.of(8), 
-            //         Meters.of(0.05), 
-            //         Meters.of(0.1), 
-            //         new PIDConstants(0.8, 0.0, 0.0), 
-            //         new PIDConstants(4, 0.0, 0.0)
-            //     )
-            // ),
             setSuperstructureState(SuperstructureState.STOW, false)
         ).finallyDo(()->localization.useTrigApriltagStragey(false));
     }
