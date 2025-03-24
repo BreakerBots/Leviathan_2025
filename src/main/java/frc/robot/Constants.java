@@ -270,7 +270,7 @@ public final class Constants {
 
   public static class SuperstructureConstants {
     public static final Distance kMaxHeightForEndEffectorFloorLimit = Centimeters.of(30);
-    public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(20);
+    public static final Distance kMaxHeightForEndEffectorFullMotion = Centimeters.of(10);
     public static final Angle kMinAngleForEndEffectorInterferenceWithIntake = Rotations.of(0.425);
     public static final Angle kMaxAngleForEndEffectorInterferenceWithIntake = Degrees.of(180);
     public static final Angle kMinAngleForIntakeToInterfereWithEndEffector = Rotations.of(0.2175);
@@ -406,8 +406,8 @@ public final class Constants {
     public static final double kMaxColorDelta = 0.15;
     public static final double kHasAlgaeProximityThresh = 0.1;
 
-    public static final Angle kDefaultWristAngleTolerence = Degrees.of(10); //Degrees.of(3.5);
-    public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(4);
+    public static final Angle kDefaultWristAngleTolerence = Degrees.of(4); //Degrees.of(3.5);
+    public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(2);
 
 
     public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs();//.withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(Degrees.of(-35)).withReverseSoftLimitEnable(true);
@@ -432,13 +432,13 @@ public final class Constants {
     public static final int kEndEffectorRollerID = 53;
     // public static final int kEndEffectorKickerID = 54;
 
-    public static final double kP = 50;
+    public static final double kP = 25;
     public static final double kI = 0.0;
-    public static final double kD = 2.5;
-    public static final double kS = 0.0;
-    public static final double kV = 2.5;
-    public static final double kA = 0;
-    public static final double kG = 0.14;
+    public static final double kD = 0;
+    public static final double kS = 0.2;
+    public static final double kV = 2.65;
+    public static final double kA = 0.05;
+    public static final double kG = 0.247;
     public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1);
     public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(3);
 

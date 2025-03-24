@@ -262,8 +262,10 @@ public class Superstructure2 {
            boolean waitForMast = waitForSuccess && superstructureState.considerMastSuccess;
            boolean waitForIntexer = waitForSuccess && superstructureState.considerIntexerSuccess;
 
-           boolean willIntakeInterferWithEndEffectorMotionFuture = willIntakeInterferWithEndEffectorMotion(mast.endEffectorSetpoint, intexer.intakeState);
-           boolean willIntakeInterferWithEndEffectorMotionNow = willIntakeInterferWithEndEffectorMotion(endEffector.getWristAngle(), mast.endEffectorSetpoint.wristSetpoint().getSetpoint(), intake.getPivotAngle());
+           boolean endEffectorHasCoral = endEffector.hasCoral();
+
+           boolean willIntakeInterferWithEndEffectorMotionFuture = endEffectorHasCoral && willIntakeInterferWithEndEffectorMotion(mast.endEffectorSetpoint, intexer.intakeState);
+           boolean willIntakeInterferWithEndEffectorMotionNow = endEffectorHasCoral && willIntakeInterferWithEndEffectorMotion(endEffector.getWristAngle(), mast.endEffectorSetpoint.wristSetpoint().getSetpoint(), intake.getPivotAngle());
            if (RobotBase.isReal()) {
             if (willIntakeInterferWithEndEffectorMotionFuture && willIntakeInterferWithEndEffectorMotionNow) {
                 BreakerLog.log("dsdfsd", 1);
@@ -437,8 +439,8 @@ public class Superstructure2 {
 
     public boolean doesIntakeInterferWithEndEffector(Angle endEffectorAngle, Angle intakeAngle) {
         boolean a = intakeAngle.in(Degrees) >= kMinAngleForIntakeToInterfereWithEndEffector.in(Degrees);
-        boolean b = endEffectorAngle.in(Degrees) < kMaxAngleForEndEffectorInterferenceWithIntake.in(Degrees);
-        boolean c = endEffectorAngle.in(Degrees) > kMinAngleForEndEffectorInterferenceWithIntake.in(Degrees);
+        boolean b = endEffectorAngle.in(Degrees) <= kMaxAngleForEndEffectorInterferenceWithIntake.in(Degrees);
+        boolean c = endEffectorAngle.in(Degrees) >= kMinAngleForEndEffectorInterferenceWithIntake.in(Degrees);
         return a && b && c;
     }
 
