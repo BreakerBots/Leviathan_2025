@@ -30,9 +30,12 @@ import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToPose.NavToPoseConfig;
 import frc.robot.ReefPosition;
 import frc.robot.Robot;
+import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerRumbleType;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.util.commands.RumbleCommand;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
+import frc.robot.subsystems.Climb.ClimbState;
+import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
@@ -54,22 +57,46 @@ public class Superstructure2 {
     private Elevator elevator;
     private Intake intake;
     private Indexer indexer;
+    private Climb climb;
     private Drivetrain drivetrain;
     private Localization localization;
     private BreakerXboxController controller;
 
-    public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Drivetrain drivetrain, Localization localization, BreakerXboxController controller) {
+    public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Climb climb, Drivetrain drivetrain, Localization localization, BreakerXboxController controller) {
         this.drivetrain = drivetrain;
         this.elevator = elevator;
         this.intake = intake;
         this.endEffector = endEffector;
         this.indexer = indexer;
+        this.climb = climb;
         this.localization = localization;
         this.controller = controller;
     }
 
     public Drivetrain getDrivetrain() {
         return drivetrain;
+    }
+
+    public Command climbOnDeepCageManual() {
+        return climb.setState(ClimbState.EXTENDED, true).alongWith(
+            setSuperstructureState(SuperstructureState.CLIMB, false)
+        ).andThen(
+            waitForDriverConfirmation(),
+            climb.setState(ClimbState.CLIMBING, false)
+        );
+    }
+
+    public Command climbOnDeepCage() {
+        return climb.setState(ClimbState.EXTENDED, true).alongWith(
+            setSuperstructureState(SuperstructureState.CLIMB, false)
+        ).andThen(
+            waitForDriverConfirmation(),
+            climb.setState(ClimbState.CLIMBING, false)
+        );
+    }
+ 
+    public Command stowClimb() {
+        return climb.setState(ClimbState.STOW, true);
     }
 
     public Command stowAll() {
@@ -555,6 +582,15 @@ public class Superstructure2 {
             EndEffectorSetpoint.STOW, 
             true, 
             IntakeState.STOW, 
+            IndexerState.NEUTRAL, 
+            true
+        );
+
+        public static final SuperstructureState CLIMB = new SuperstructureState(
+            ElevatorSetpoint.STOW, 
+            EndEffectorSetpoint.CLIMB, 
+            true, 
+            IntakeState.CLIMB, 
             IndexerState.NEUTRAL, 
             true
         );

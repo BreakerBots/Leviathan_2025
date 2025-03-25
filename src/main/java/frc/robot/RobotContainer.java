@@ -85,7 +85,7 @@ public class RobotContainer {
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
   intake, climb, ap, controller, buttonBoard);
 
-  private final Superstructure2 superstructure2 = new Superstructure2(endEffector, elevator, intake, indexer, drivetrain, localization, controller);
+  private final Superstructure2 superstructure2 = new Superstructure2(endEffector, elevator, intake, indexer, climb, drivetrain, localization, controller);
 
   // private final ScoreOnReefScheduler scoreOnReefScheduler = new ScoreOnReefScheduler(buttonBoard, superstructure);
   
