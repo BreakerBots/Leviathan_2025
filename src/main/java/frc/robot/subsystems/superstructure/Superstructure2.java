@@ -87,6 +87,14 @@ public class Superstructure2 {
         
     }
 
+    public Command intakeFromGroundAuton() {
+        return setSuperstructureState(SuperstructureState.GROUND_INTAKE, false).andThen(
+        Commands.waitUntil(endEffector::hasCoral),
+            Commands.waitSeconds(0.1),
+            setSuperstructureState(SuperstructureState.STOW, false)
+        );
+    }
+
     public Command intakeFromGround() {
         return 
         setSuperstructureState(SuperstructureState.GROUND_INTAKE.withNeutralRollers(), true)
