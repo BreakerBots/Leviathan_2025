@@ -93,7 +93,7 @@ public final class Constants {
     }
 
     public static class LocalizationConstants {
-      public static final boolean kUseGTSAM = false;
+      public static final boolean kUseGTSAM = true;
     }
 
     public static class DepthVisionConstants {
@@ -432,15 +432,15 @@ public final class Constants {
     public static final int kEndEffectorRollerID = 53;
     // public static final int kEndEffectorKickerID = 54;
 
-    public static final double kP = 25;
+    public static final double kP = 50;
     public static final double kI = 0.0;
     public static final double kD = 0;
     public static final double kS = 0.2;
-    public static final double kV = 2.65;
-    public static final double kA = 0.05;
+    public static final double kV = 3;
+    public static final double kA = 0.1;
     public static final double kG = 0.247;
-    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(1);
-    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(3);
+    public static final AngularVelocity kMotionMagicCruiseVelocity = RotationsPerSecond.of(2);
+    public static final AngularAcceleration kMotionMagicAcceleration = RotationsPerSecondPerSecond.of(8);
 
 
     public static final Angle kMinFlipAngle = kMaxElevatorRestrictedSafeAngle;

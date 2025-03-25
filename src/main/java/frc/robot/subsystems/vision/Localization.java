@@ -78,16 +78,15 @@ public class Localization extends SubsystemBase implements Localizer {
         );
 
         apriltagVision = new ApriltagVision2(this);
-        depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
-
-        lastOdometryValue = drivetrain.getStateCopy().Pose;
-        drivetrain.registerTelemetry(this::updateWheelOdometry);
-
         ArrayList<String> camNames = new ArrayList<>();
         for (var cam : apriltagVision.getCameras()) {
             camNames.add(cam.getName());
         }
         gtsam = new GTSAM(camNames);
+        depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
+
+        lastOdometryValue = drivetrain.getStateCopy().Pose;
+        drivetrain.registerTelemetry(this::updateWheelOdometry);
 
         drivetrain.setLocalizer(this);
     }
