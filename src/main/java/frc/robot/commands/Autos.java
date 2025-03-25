@@ -158,7 +158,7 @@ public class Autos {
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("JKLA"))
             .setFlipped(flippedHorizontally)
             // .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenCommand(start, superstructure.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.J)).andThen(superstructure.setSuperstructureState(SuperstructureState.GROUND_INTAKE, false)))
+            .runThenCommand(start, superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.J)).andThen(superstructure.setSuperstructureState(SuperstructureState.GROUND_INTAKE, false)))
             .runThenGroundForHP("Reef J to Coral PS (Ground)")
             .runThenScore("Coral PS to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K))
             // .runThenHP("Reef K to Coral PS")

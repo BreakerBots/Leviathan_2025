@@ -232,6 +232,8 @@ public class Intake extends SubsystemBase{
         public static final IntakeState STOW = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED);
         public static final IntakeState STOW2 = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED2);
 
+        public static final IntakeState RETRACTED_EXTAKE = new IntakeState(IntakeRollerState.EXTAKE, IntakePivotState.RETRACTED); 
+
         public IntakePivotState getPivotState() {
             return pivotState;
         }

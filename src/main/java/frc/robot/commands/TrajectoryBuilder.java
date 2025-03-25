@@ -51,7 +51,7 @@ public class TrajectoryBuilder {
 
         final var cmd = switch (reefPosition.level()) {
             case L1 -> superstructure.extakeForL1FromIntake(); // FIXME, doesn't align
-            default -> superstructure.scoreOnReef(reefPosition);
+            default -> superstructure.scoreOnReefAuton(reefPosition);
         };
 
         trajectories.add(new Pair<>(trajectory, cmd));

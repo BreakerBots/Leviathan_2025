@@ -411,7 +411,7 @@ public final class Constants {
 
 
     public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs();//.withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(Degrees.of(-35)).withReverseSoftLimitEnable(true);
-    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs();//.withReverseSoftLimitThreshold(Degrees.of(15)).withReverseSoftLimitEnable(true).withForwardSoftLimitThreshold(Degrees.of(182)).withForwardSoftLimitEnable(true);
+    public static final SoftwareLimitSwitchConfigs kFloorRestrictedLimits = new SoftwareLimitSwitchConfigs().withReverseSoftLimitThreshold(Degrees.of(-15)).withReverseSoftLimitEnable(true).withForwardSoftLimitThreshold(Degrees.of(182)).withForwardSoftLimitEnable(true);
     public static final SoftwareLimitSwitchConfigs kNormalLimits =   new SoftwareLimitSwitchConfigs();
 
     public static final CurrentLimitsConfigs kWristCurrentLimits = new CurrentLimitsConfigs()

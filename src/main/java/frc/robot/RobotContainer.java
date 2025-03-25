@@ -132,7 +132,7 @@ public class RobotContainer {
     driverOmega = controller.getRightThumbstick().getX()
             .clamp(1.0)
             .deadband(Constants.OperatorConstants.ROTATIONAL_DEADBAND, 1.0)
-            .map(new BreakerLinearizedConstrainedExponential(0.15, 5, true))
+            .map(new BreakerLinearizedConstrainedExponential(0.1, 9.5, true))
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
 
   //  // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
@@ -142,7 +142,7 @@ public class RobotContainer {
 
     controller.getButtonX().onTrue(elevator.home());
     //controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.F)));
-    controller.getButtonB().onTrue(superstructure.reverseIntake());
+    controller.getButtonB().onTrue(superstructure2.reverseIntake());
     controller.getDPad().getUp().onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure2.removeAlgae(false));
     controller.getDPad().getRight().onTrue(superstructure2.removeAlgae(true));
@@ -270,7 +270,7 @@ public class RobotContainer {
             )
           )
         )
-      ,Set.of(drivetrain, endEffector, elevator)
+      ,Set.of(endEffector, elevator)
     ));
     reefL2.and(allignClosest).onTrue(
       Commands.defer(
@@ -283,7 +283,7 @@ public class RobotContainer {
             )
           )
         )
-      ,Set.of(drivetrain, endEffector, elevator)
+      ,Set.of(endEffector, elevator)
     ));
     reefL3.and(allignClosest).onTrue(
       Commands.defer(
@@ -296,7 +296,7 @@ public class RobotContainer {
             )
           )
         )
-      ,Set.of(drivetrain, endEffector, elevator)
+      ,Set.of(endEffector, elevator)
     ));
     reefL4.and(allignClosest).onTrue(
       Commands.defer(
@@ -309,7 +309,7 @@ public class RobotContainer {
             )
           )
         )
-      ,Set.of(drivetrain, endEffector, elevator)
+      ,Set.of(endEffector, elevator)
     ));
 
     Trigger driverAllignL4 = controller.getDPad().getDown();
@@ -325,7 +325,7 @@ public class RobotContainer {
           )
         )
       )
-    ,Set.of(drivetrain, endEffector, elevator, intake, indexer)));
+    ,Set.of(endEffector, elevator)));
 
     driverAllignL3.and(manualOverride.negate()).onTrue(Commands.defer(
       () -> superstructure2.scoreOnReef(
@@ -337,7 +337,7 @@ public class RobotContainer {
           )
         )
       )
-    ,Set.of(drivetrain, endEffector, elevator, intake, indexer)));
+    ,Set.of(endEffector, elevator)));
 
     driverAllignL4.and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefLevel.L4));
     driverAllignL3.and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefLevel.L3));

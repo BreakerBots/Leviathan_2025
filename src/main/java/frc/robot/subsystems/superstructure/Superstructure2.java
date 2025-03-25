@@ -76,6 +76,17 @@ public class Superstructure2 {
         return setSuperstructureState(SuperstructureState.STOW, false);
     }
 
+    public Command reverseIntake() {
+        return 
+        setSuperstructureState(SuperstructureState.INTEXER_EJECT.withNeutralRollers(), true)
+        .andThen(
+            setSuperstructureState(SuperstructureState.INTEXER_EJECT, false),
+            Commands.waitSeconds(3),
+            setSuperstructureState(SuperstructureState.STOW, false)
+        );
+        
+    }
+
     public Command intakeFromGround() {
         return 
         setSuperstructureState(SuperstructureState.GROUND_INTAKE.withNeutralRollers(), true)
@@ -168,13 +179,17 @@ public class Superstructure2 {
         .until(() -> controller.getButtonA().getAsBoolean());
     }
 
-    private Command conditionalProxy(Command command, BooleanSupplier condition) {
-        return Commands.either(command, command.asProxy(), condition);
+    public Command scoreOnReefAuton(ReefPosition reefPosition) {
+        return scoreOnReefMaster(reefPosition, false);
     }
 
     public Command scoreOnReef(ReefPosition reefPosition) {
-        return conditionalProxy(
-            new DriveToPose(
+        return scoreOnReefMaster(reefPosition, true);
+    }
+
+    private Command scoreOnReefMaster(ReefPosition reefPosition, boolean proxyDrive) {
+
+        Command allignCmd = new DriveToPose(
                 drivetrain, 
                 () -> getReefAlignDriveTarget(
                     drivetrain.getLocalizer().getPose(), 
@@ -182,9 +197,14 @@ public class Superstructure2 {
                         DriverStation.getAlliance().orElse(Alliance.Blue)
                     )
                 )
-            ),
-            () -> !DriverStation.isAutonomous()
-        ).asProxy().withTimeout(10).deadlineFor(
+            );
+
+        if (proxyDrive) {
+            allignCmd = allignCmd.asProxy();
+        }
+
+        return 
+            allignCmd.withTimeout(10).deadlineFor(
             Commands.run(
                 () -> {
                     var tgt = reefPosition.branch().getAlignPose(
@@ -340,17 +360,21 @@ public class Superstructure2 {
 
             if (!isSimulation)  {
                 if ((canEndEffectorFlip && doesSetpointAllowFlipping) || flipDirection == EndEffectorFlipDirection.NONE) { // never flip restricted during travle or we dont flip
+                    BreakerLog.log("gsdjgs", 0);
         
                     cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
         
                 } else if ((canEndEffectorFlip && !doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.FRONT_TO_BACK) {//We can flip now but wont be able to after moving the elevator
+                    BreakerLog.log("gsdjgs", 1);
                     cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(
-                        Commands.waitUntil(() -> isEndEffectorSafe()).andThen(
+                        Commands.waitUntil(() -> isEndEffectorSafe())
+                        .andThen(
                             elevator.set(elevatorSetpoint, waitForSuccess)
                         )
                     );
         
                 } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {//we arnt able to flip now but will be able to after moving the elevator
+                    BreakerLog.log("gsdjgs", 2);
                     var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(25))), endEffectorSetpoint.rollerState());
                     cmd = endEffector.set(intermedairySP, false)
                     .andThen(
@@ -617,6 +641,15 @@ public class Superstructure2 {
             IntakeState.STOW, 
             IndexerState.NEUTRAL, 
             false
+        );
+
+        public static final SuperstructureState INTEXER_EJECT = new SuperstructureState(
+            ElevatorSetpoint.HANDOFF, 
+            EndEffectorSetpoint.CORAL_GROUND_HANDOFF_EXTAKE, 
+            true, 
+            IntakeState.RETRACTED_EXTAKE, 
+            IndexerState.REVERSE, 
+            true
         );
 
 
