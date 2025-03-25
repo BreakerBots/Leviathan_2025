@@ -213,6 +213,12 @@ public class GTSAM {
 
     public TimestampedValue<Pose3d> getAtomicPoseEstimate() {
         TimestampedObject<Pose3d> atomicVal = optimizedPoseSub.getAtomic();
-        return new TimestampedValue<Pose3d>(atomicVal.value, atomicVal.timestamp);
+        if (atomicVal.timestamp != 0) {
+            return new TimestampedValue<Pose3d>(atomicVal.value, atomicVal.timestamp);
+        } else {
+            System.err.println("No pose estimate yet");
+            return new TimestampedValue<Pose3d>(new Pose3d(),0);
+        }
+        
     }
 }

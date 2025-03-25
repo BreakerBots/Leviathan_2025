@@ -93,7 +93,7 @@ public final class Constants {
     }
 
     public static class LocalizationConstants {
-      public static final boolean kUseGTSAM = true;
+      public static final boolean kUseGTSAM = false;
     }
 
     public static class DepthVisionConstants {
