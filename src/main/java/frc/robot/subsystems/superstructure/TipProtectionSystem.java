@@ -43,6 +43,10 @@ public class TipProtectionSystem {
         return new Pair<>(limiter.getLinearInputStream(), limiter.getRotationalInputStream());
     } 
 
+    public Pair<BreakerInputStream2d, BreakerInputStream> getStreams() {
+        return new Pair<>(limiter.getLinearInputStream(), limiter.getRotationalInputStream());
+    }
+
     public void update() {
         if (limiter != null) {
             var elevatorHeight = elevator.getHeight();

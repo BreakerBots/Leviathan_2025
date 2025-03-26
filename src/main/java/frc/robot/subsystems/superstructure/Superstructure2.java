@@ -29,9 +29,12 @@ import frc.robot.CagePosition;
 import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.DriveToPose;
+import frc.robot.commands.HeadingSnap;
 import frc.robot.commands.DriveToPose.NavToPoseConfig;
 import frc.robot.ReefPosition;
 import frc.robot.Robot;
+import frc.robot.BreakerLib.driverstation.BreakerInputStream;
+import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerRumbleType;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.util.commands.RumbleCommand;
@@ -86,6 +89,11 @@ public class Superstructure2 {
             waitForDriverConfirmation(),
             climb.setState(ClimbState.CLIMBING, false)
         );
+    }
+
+    public Command snapHeadingToClosestReefFace(BreakerInputStream2d linearInputStream, BreakerInputStream rotaionalInputStream) {
+        Supplier<Rotation2d> goalSup = () -> ReefPosition.ReefBranch.getClosest(drivetrain.getLocalizer().getPose(), DriverStation.getAlliance().orElse(Alliance.Blue)).getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)).getRotation();
+        return new HeadingSnap(goalSup, drivetrain, linearInputStream).asProxy().onlyWhile(() -> Math.abs(rotaionalInputStream.get()) < 0.2);
     }
 
     public Command climbOnDeepCage() {

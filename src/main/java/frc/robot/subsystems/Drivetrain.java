@@ -40,8 +40,6 @@ public class Drivetrain extends BreakerSwerveDrivetrain {
   }
   
   
-  
-  
   public static record DrivetrainKinematicLimits(LinearVelocity linearVelocity, LinearAcceleration linearAcceleration, AngularVelocity angularVelocity, AngularAcceleration angularAcceleration) {
     
 
