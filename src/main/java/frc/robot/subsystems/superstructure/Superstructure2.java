@@ -6,6 +6,7 @@ import static frc.robot.Constants.SuperstructureConstants.*;
 import java.lang.ModuleLayer.Controller;
 import java.nio.channels.Pipe;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.config.PIDConstants;
 import com.reduxrobotics.sensors.canandcolor.DigoutChannel.Index;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.CagePosition;
 import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.DriveToPose;
@@ -165,6 +167,34 @@ public class Superstructure2 {
             Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
         );
+    }
+
+    private Command alignToCage(CagePosition cagePosition) {
+        final Supplier<Pose2d> pos = () -> cagePosition.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue));
+        return new DriveToPose(drivetrain, pos);
+    }
+
+    private Command alignToCage(Supplier<CagePosition> cagePosition) {
+        return new DriveToPose(drivetrain, () -> cagePosition.get().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)));
+    }
+
+    public Command alignToClosestCage() {
+        return alignToCage(
+            () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), 
+                DriverStation.getAlliance().orElse(Alliance.Blue)));
+    }
+
+    public Command climbDeepClosest() {
+        final var ally = DriverStation.getAlliance().orElse(Alliance.Blue);
+        final Supplier<Pose2d> closest = () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), ally).getClimbPose(ally);
+        return stowAll()
+            .andThen(
+                alignToClosestCage().asProxy().alongWith(climb.setState(ClimbState.EXTENDED, false)),
+                waitForDriverConfirmation(),
+                new DriveToPose(drivetrain, closest).asProxy(),
+                waitForDriverConfirmation(),
+                climb.setState(ClimbState.CLIMBING, true)
+            );
     }
 
     public Command removeAlgae(boolean isHigh) {
