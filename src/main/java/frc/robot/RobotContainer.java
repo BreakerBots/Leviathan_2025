@@ -19,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -36,6 +37,7 @@ import frc.robot.commands.Autos.StartPosition;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
+import frc.robot.BreakerLib.util.commands.RumbleCommand;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.logging.BreakerLog.GitInfo;
 import frc.robot.BreakerLib.util.logging.BreakerLog.Metadata;
@@ -137,6 +139,9 @@ public class RobotContainer {
 
   //  // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
     drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
+    var tipProtectedInputStreams = superstructure.getTipProtectionSystem().getStreams();
+    driverTranslation = tipProtectedInputStreams.getFirst();
+    driverOmega = tipProtectedInputStreams.getSecond();
 
     Trigger manualOverride = buttonBoard.getRightButtons().getHighRightSwitch();
 
@@ -164,7 +169,9 @@ public class RobotContainer {
       superstructure2.intakeCoralFromHumanPlayerManual()
       );
     //controller.getStartButton().onTrue(superstructure2.intakeFromHumanPlayerManual());
-    new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll());
+    new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll().alongWith(new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.2).withTimeout(0.1)));
+    buttonBoard.getRightButtons().getLowRightButton().toggleOnTrue(superstructure2.snapHeadingToClosestReefFace(driverTranslation, driverOmega));
+
     //new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure.stowAllPlus());
 
     buttonBoard.getLevelButtons().getL1Button().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L1));
@@ -316,7 +323,7 @@ public class RobotContainer {
     Trigger driverAllignL4 = controller.getDPad().getDown();
     Trigger driverAllignL3 = controller.getBackButton();
 
-    driverAllignL4.and(manualOverride.negate()).onTrue(Commands.defer(
+    driverAllignL4.and(manualOverride.negate()).and(superstructure::endEffectorHasCoral).onTrue(Commands.defer(
       () -> superstructure2.scoreOnReef(
         new ReefPosition(
           ReefLevel.L4, 
@@ -328,7 +335,7 @@ public class RobotContainer {
       )
     ,Set.of(endEffector, elevator)));
 
-    driverAllignL3.and(manualOverride.negate()).onTrue(Commands.defer(
+    driverAllignL3.and(manualOverride.negate()).and(superstructure::endEffectorHasCoral).onTrue(Commands.defer(
       () -> superstructure2.scoreOnReef(
         new ReefPosition(
           ReefLevel.L3, 

@@ -93,7 +93,7 @@ public class Superstructure2 {
 
     public Command snapHeadingToClosestReefFace(BreakerInputStream2d linearInputStream, BreakerInputStream rotaionalInputStream) {
         Supplier<Rotation2d> goalSup = () -> ReefPosition.ReefBranch.getClosest(drivetrain.getLocalizer().getPose(), DriverStation.getAlliance().orElse(Alliance.Blue)).getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)).getRotation();
-        return new HeadingSnap(goalSup, drivetrain, linearInputStream).asProxy().onlyWhile(() -> Math.abs(rotaionalInputStream.get()) < 0.2);
+        return new HeadingSnap(goalSup, drivetrain, linearInputStream).asProxy().onlyWhile(() -> Math.abs(rotaionalInputStream.get()) < 0.3);
     }
 
     public Command climbOnDeepCage() {
