@@ -89,9 +89,14 @@ public class Superstructure2 {
     }
 
     public Command climbOnDeepCage() {
+        final var ally = DriverStation.getAlliance().orElse(Alliance.Blue);
+        final Supplier<Pose2d> closest = () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), ally).getClimbPose(ally);
         return climb.setState(ClimbState.EXTENDED, true).alongWith(
-            setSuperstructureState(SuperstructureState.CLIMB, false)
+            setSuperstructureState(SuperstructureState.CLIMB, false),
+            alignToClosestCage().asProxy()
         ).andThen(
+            waitForDriverConfirmation(),
+            new DriveToPose(drivetrain, closest).asProxy(),
             waitForDriverConfirmation(),
             climb.setState(ClimbState.CLIMBING, false)
         );
@@ -182,19 +187,6 @@ public class Superstructure2 {
         return alignToCage(
             () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), 
                 DriverStation.getAlliance().orElse(Alliance.Blue)));
-    }
-
-    public Command climbDeepClosest() {
-        final var ally = DriverStation.getAlliance().orElse(Alliance.Blue);
-        final Supplier<Pose2d> closest = () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), ally).getClimbPose(ally);
-        return stowAll()
-            .andThen(
-                alignToClosestCage().asProxy().alongWith(climb.setState(ClimbState.EXTENDED, false)),
-                waitForDriverConfirmation(),
-                new DriveToPose(drivetrain, closest).asProxy(),
-                waitForDriverConfirmation(),
-                climb.setState(ClimbState.CLIMBING, true)
-            );
     }
 
     public Command removeAlgae(boolean isHigh) {
