@@ -28,7 +28,6 @@ public class Autos {
     private final AutoFactory autoFactory;
 
     private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
-    private final SendableChooser<StartPosition> startPositionChooser = new SendableChooser<>();
     private final SendableChooser<Boolean> flipChooser = new SendableChooser<>();
 
 

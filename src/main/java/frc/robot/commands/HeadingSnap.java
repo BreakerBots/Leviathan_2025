@@ -31,7 +31,7 @@ public class HeadingSnap extends Command {
     this.drivetrain = drivetrain;
     request = new SwerveRequest.FieldCentric();
     request.DriveRequestType = DriveRequestType.Velocity;
-    pid = new ProfiledPIDController(2.5, 0, 01, new TrapezoidProfile.Constraints(0.5, 0.5));
+    pid = new ProfiledPIDController(8, 0, 0.1, new TrapezoidProfile.Constraints(6, 8));
     pid.enableContinuousInput(-Math.PI, Math.PI);
     this.headingGoalSupplier = headingGoalSupplier;
     streamX = linearInputStream.getX();
@@ -49,9 +49,10 @@ public class HeadingSnap extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    request.VelocityX = streamX.get();
-    request.VelocityY = streamY.get();
+    request.VelocityX = streamY.get();
+    request.VelocityY = streamX.get();
     request.RotationalRate = pid.calculate(drivetrain.getLocalizer().getPose().getRotation().getRadians(), headingGoalSupplier.get().getRadians());
+    request.RotationalRate += pid.getSetpoint().velocity;
     drivetrain.setControl(request);
   }
 

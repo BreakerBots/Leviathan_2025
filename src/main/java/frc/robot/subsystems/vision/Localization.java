@@ -82,8 +82,10 @@ public class Localization extends SubsystemBase implements Localizer {
         for (var cam : apriltagVision.getCameras()) {
             camNames.add(cam.getName());
         }
-        gtsam = new GTSAM(camNames);
-        depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
+        if (kUseGTSAM) {
+            gtsam = new GTSAM(camNames);
+        }
+        // depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
 
         lastOdometryValue = drivetrain.getStateCopy().Pose;
         drivetrain.registerTelemetry(this::updateWheelOdometry);
@@ -97,7 +99,6 @@ public class Localization extends SubsystemBase implements Localizer {
             Pose2d currentOdom = odometryFusion.getEstimatedPosition();
             Twist2d odomTwist = lastOdometryValue.log(currentOdom);
             lastOdometryValue = currentOdom;
-
 
             double phoenixTimestamp = state.Timestamp;
             double fpgaTime = VisionUtils.phoenixTimeToFPGA(phoenixTimestamp);
@@ -124,18 +125,18 @@ public class Localization extends SubsystemBase implements Localizer {
 
     private void update() {
         ChassisSpeeds speeds = getFieldRelativeSpeeds();
-        Optional<LocalizationResults> zedVIOOpt = depthVision.getUnreadLocalizationResults();
-        if (zedVIOOpt.isPresent()) {
-            var zedVIO = zedVIOOpt.get();
-            boolean confGood = zedVIO.getConfidance() >= DepthVisionConstants.kMinConfidanceVIO;
-            boolean linVelGood = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) <= DepthVisionConstants.kMaxLinearVelVIO.in(Units.MetersPerSecond);
-            boolean angVelGood = speeds.omegaRadiansPerSecond <= DepthVisionConstants.kMaxAngularVelVIO.in(Units.RadiansPerSecond);
-            if (confGood && linVelGood && angVelGood) {
-                var devs = VisionUtils.estimateStdDevsZedVIO(zedVIO, speeds);
-                OdometryRecord odoRec = zedVIO.getFieldRelativeDelta();
-                addExternalOdometry(VisionUtils.toTwist2d(odoRec.delta()), odoRec.startTime(), odoRec.endTime(), devs);
-            }
-        }
+        // Optional<LocalizationResults> zedVIOOpt = depthVision.getUnreadLocalizationResults();
+        // if (zedVIOOpt.isPresent()) {
+        //     var zedVIO = zedVIOOpt.get();
+        //     boolean confGood = zedVIO.getConfidance() >= DepthVisionConstants.kMinConfidanceVIO;
+        //     boolean linVelGood = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) <= DepthVisionConstants.kMaxLinearVelVIO.in(Units.MetersPerSecond);
+        //     boolean angVelGood = speeds.omegaRadiansPerSecond <= DepthVisionConstants.kMaxAngularVelVIO.in(Units.RadiansPerSecond);
+        //     if (confGood && linVelGood && angVelGood) {
+        //         var devs = VisionUtils.estimateStdDevsZedVIO(zedVIO, speeds);
+        //         OdometryRecord odoRec = zedVIO.getFieldRelativeDelta();
+        //         addExternalOdometry(VisionUtils.toTwist2d(odoRec.delta()), odoRec.startTime(), odoRec.endTime(), devs);
+        //     }
+        // }
         
         EstimationStrategy strat = EstimationStrategy.kDefaultNoSeed;
         if (hasOdometryBeenSeeded) {

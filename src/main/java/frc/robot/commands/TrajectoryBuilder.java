@@ -89,7 +89,7 @@ public class TrajectoryBuilder {
     public TrajectoryBuilder runThenGroundForL1(String traj, Command... inParallel) {
         final var trajectory = loadTrajectory(traj);
         
-        final var cmd = superstructure.intakeFromGroundForL1();
+        final var cmd = superstructure.manualIntakeFromGroundForL1();
         trajectories.add(new TrajectoryStep(trajectory, cmd, inParallel));
         return this;
     }

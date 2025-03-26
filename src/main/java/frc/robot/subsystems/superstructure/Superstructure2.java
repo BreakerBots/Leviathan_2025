@@ -92,7 +92,19 @@ public class Superstructure2 {
     }
 
     public Command snapHeadingToClosestReefFace(BreakerInputStream2d linearInputStream, BreakerInputStream rotaionalInputStream) {
-        Supplier<Rotation2d> goalSup = () -> ReefPosition.ReefBranch.getClosest(drivetrain.getLocalizer().getPose(), DriverStation.getAlliance().orElse(Alliance.Blue)).getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)).getRotation();
+        Supplier<Rotation2d> goalSup = () -> {
+            var normalRot = ReefPosition.ReefBranch.getClosest(
+                drivetrain.getLocalizer().getPose(), 
+                DriverStation.getAlliance().orElse(Alliance.Blue))
+            .getAlignPose(
+                DriverStation.getAlliance().orElse(Alliance.Blue)
+            ).getRotation();
+
+            if (!endEffector.hasCoral()) {
+                return normalRot.plus(Rotation2d.k180deg);
+            }
+            return normalRot;
+        };
         return new HeadingSnap(goalSup, drivetrain, linearInputStream).asProxy().onlyWhile(() -> Math.abs(rotaionalInputStream.get()) < 0.3);
     }
 
@@ -206,7 +218,7 @@ public class Superstructure2 {
         );
     }
 
-    public Command intakeFromGroundForL1() {
+    public Command manualIntakeFromGroundForL1() {
         return
         setSuperstructureState(SuperstructureState.INTAKE_L1.withNeutralRollers(), true)
         .andThen(
@@ -214,6 +226,10 @@ public class Superstructure2 {
             intake.waitForCoralGroundIntakeL1AndStopRollers(),
             setSuperstructureState(SuperstructureState.HOLD_L1, false)
         );
+    }
+
+    public Command intakeFromGroundForL1(BreakerInputStream2d linearInputStream, BreakerInputStream rotaionalInputStream) {
+        return manualIntakeFromGroundForL1().asProxy().andThen(snapHeadingToClosestReefFace(linearInputStream, rotaionalInputStream));
     }
 
     public Command extakeForL1FromIntake() {
@@ -719,7 +735,7 @@ public class Superstructure2 {
 
         public static final SuperstructureState INTEXER_EJECT = new SuperstructureState(
             ElevatorSetpoint.HANDOFF, 
-            EndEffectorSetpoint.CORAL_GROUND_HANDOFF_EXTAKE, 
+            EndEffectorSetpoint.FORCE_EJECT, 
             true, 
             IntakeState.RETRACTED_EXTAKE, 
             IndexerState.REVERSE, 

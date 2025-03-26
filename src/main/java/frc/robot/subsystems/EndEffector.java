@@ -362,6 +362,12 @@ public class EndEffector extends SubsystemBase {
                 RollerState.NEUTRAL
         );
 
+        public static final EndEffectorSetpoint FORCE_EJECT = 
+            new EndEffectorSetpoint(
+                new WristSetpoint(Degrees.of(5)), 
+                RollerState.EXTAKE
+        );
+
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_INTAKE = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Degrees.of(180)), 
