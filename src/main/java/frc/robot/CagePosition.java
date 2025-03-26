@@ -11,9 +11,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public enum CagePosition {
-    FAR(new Pose2d(8.7765884, 7.25860023, Rotation2d.fromDegrees(0))),
-    MID(new Pose2d(8.7765884, 6.15860023, Rotation2d.fromDegrees(0))),
-    CLOSE(new Pose2d(8.7765884, 5.06598472, Rotation2d.fromDegrees(0)));
+    FAR(new Pose2d(8.7765884, 7.25860023, Rotation2d.fromDegrees(-90))),
+    MID(new Pose2d(8.7765884, 6.15860023, Rotation2d.fromDegrees(-90))),
+    CLOSE(new Pose2d(8.7765884, 5.06598472, Rotation2d.fromDegrees(-90)));
 
     private final Pose2d pose;
 
@@ -34,11 +34,11 @@ public enum CagePosition {
             ? Rotation2d.fromDegrees(0)
             : Rotation2d.fromDegrees(180);
         final var trans = getClimbPose(alliance).getTranslation().plus(new Translation2d(desiredOffset, desiredAngleOffset));
-        return new Pose2d(trans, trans.getAngle());
+        return new Pose2d(trans, getClimbPose(alliance).getRotation());
     }
 
     public Pose2d getAlignPose(Alliance alliance) {
-        return getLinearOffsetPose(alliance, 0.3);
+        return getLinearOffsetPose(alliance, 0.5);
     }
 
     public static CagePosition getClosest(Pose2d robotPose, Alliance alliance) {

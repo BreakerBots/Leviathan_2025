@@ -1,5 +1,7 @@
 package frc.robot.BreakerLib.drivers.gtsam;
 
+import java.security.CryptoPrimitive;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,15 +64,23 @@ public class GTSAM {
 
         public TagDetection undistort(TagDetection distorted) {
             if (this.cameraCal == null) {
-                System.err.println("Camera cal still null -- is your camera connected?");
+                //System.err.println("Camera cal still null -- is your camera connected?");
                 return distorted;
             }
 
-            var mat = new MatOfPoint2f(distorted.corners.stream().map(it -> new Point(it.x, it.y))
-                    .collect(Collectors.toList()).toArray(new Point[0]));
+            Point[] distPts = new Point[distorted.corners.size()];
+            for (int i = 0; i < distPts.length; i++) {
+                distPts[i] = new Point(distorted.corners.get(i).x, distorted.corners.get(i).y);
+            }
+
+            var mat = new MatOfPoint2f(distPts);
             Calib3d.undistortImagePoints(mat, mat, cameraCal.cameraMat, cameraCal.distCoeffs, new TermCriteria(3, 30, 1e-6));
+            ArrayList<TargetCorner> corners = new ArrayList<>();
+            for (var pt : mat.toList()) {
+                corners.add(new TargetCorner(pt.x, pt.y));
+            }
             return new TagDetection(distorted.id,
-                    mat.toList().stream().map(it -> new TargetCorner(it.x, it.y)).collect(Collectors.toList()));
+                    corners);
         }
 
         public CameraInterface(String name) {
@@ -199,14 +209,14 @@ public class GTSAM {
 
             if (poseAtSample.isEmpty()) {
                 // huh
-                System.err.println("pose outside buffer?");
+                //System.err.println("pose outside buffer?");
                 return new Pose3d();
             }
 
             var poseDelta = poseNow.minus(poseAtSample.get());
             return poseEst.value.transformBy(poseDelta);
         } else {
-            System.err.println("No pose estimate yet");
+            //System.err.println("No pose estimate yet");
             return new Pose3d();
         }
     }
@@ -216,7 +226,7 @@ public class GTSAM {
         if (atomicVal.timestamp != 0) {
             return new TimestampedValue<Pose3d>(atomicVal.value, atomicVal.timestamp);
         } else {
-            System.err.println("No pose estimate yet");
+            //System.err.println("No pose estimate yet");
             return new TimestampedValue<Pose3d>(new Pose3d(),0);
         }
         

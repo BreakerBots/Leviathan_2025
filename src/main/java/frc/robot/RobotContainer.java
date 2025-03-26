@@ -176,7 +176,8 @@ public class RobotContainer {
     // buttonBoard.getRightButtons().getHighRightButton().and(() -> !superstructure.endEffectorHasCoral()).onTrue(superstructure.scoreInBarge());
 
 
-    buttonBoard.getRightButtons().getLowRightSwitch().onTrue(superstructure.climbOnDeepCage());
+    buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride.negate()).onTrue(superstructure2.climbOnDeepCage());
+    buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride).onTrue(superstructure2.climbOnDeepCageManual());
     buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
 
     // controller.getButtonY().onTrue(Commands.runOnce(() -> apriltagVision.setEstimationType(EstimationType.TRIG)));
