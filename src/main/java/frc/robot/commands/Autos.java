@@ -88,9 +88,11 @@ public class Autos {
         autoChooser.addOption("Start1 -> JK", () -> startThenJKLA(StartPosition.ONE));
         autoChooser.addOption("Start3 -> JK", () -> startThenJKLA(StartPosition.THREE));
 
-        autoChooser.addOption("L1 Start1 -> JK", () -> startThenJKGroundForL1(StartPosition.ONE));
-        autoChooser.addOption("L1 Start2 -> JK", () -> startThenJKGroundForL1(StartPosition.TWO));
-        autoChooser.addOption("L1 Start3 -> JK", () -> startThenJKGroundForL1(StartPosition.THREE));
+        autoChooser.addOption("L1 Start1 -> JK", () -> startThenL1JK(StartPosition.ONE));
+
+        autoChooser.addOption("Ground L1 Start1 -> JK", () -> startThenJKGroundForL1(StartPosition.ONE));
+        autoChooser.addOption("Ground L1 Start2 -> JK", () -> startThenJKGroundForL1(StartPosition.TWO));
+        autoChooser.addOption("Ground L1 Start3 -> JK", () -> startThenJKGroundForL1(StartPosition.THREE));
         // autoChooser.setDefaultOption("Start -> JK", () -> startThenJKLA(StartPosition.fromDriverStation()));
         // autoChooser.addOption("Start -> GFED", () -> startThenGFED(StartPosition.fromDriverStation())); // weird path
         // autoChooser.addOption("Start Low -> GFED", () -> startLowThenGFED(StartPosition.fromDriverStation()));
@@ -142,6 +144,19 @@ public class Autos {
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("I"))
             .setFlipped(flippedHorizontally)
             .runThenScore("Start 3 to Reef G", new ReefPosition(ReefLevel.L4, ReefBranch.G))
+            .build();
+    }
+
+    public Command startThenL1JK(StartPosition startPosition) {
+        final var start = switch (startPosition) {
+            case ONE -> "Start 1 to Reef J L1";
+            default -> null;
+        };
+        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("L1JK"))
+            .setFlipped(flippedHorizontally)
+            .runThenScore(start, new ReefPosition(ReefLevel.L1, ReefBranch.J))
+            .runThenCommand("Reef J to Coral PSG to Reef K", superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.K)), superstructure.intakeFromGroundAuton())
+            .runThenCommand("Reef K to Coral PSG to Reef L", superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.L)), superstructure.intakeFromGroundAuton())
             .build();
     }
 

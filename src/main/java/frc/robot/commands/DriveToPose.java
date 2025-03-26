@@ -86,7 +86,6 @@ public class DriveToPose extends Command {
 
     driveController.setPID(config.drivePID.kP, config.drivePID.kI, config.drivePID.kD);
     thetaController.setPID(config.thetaPID.kP, config.thetaPID.kI, config.thetaPID.kD);
-    BreakerLog.log("maxacc", config.driveMaxAcceleration);
     driveController.setConstraints(new TrapezoidProfile.Constraints(config.driveMaxVelocity.in(MetersPerSecond), config.driveMaxAcceleration.in(MetersPerSecondPerSecond)));
     thetaController.setConstraints(new TrapezoidProfile.Constraints(config.thetaMaxVelocity.in(RadiansPerSecond), config.thetaMaxAcceleration.in(RadiansPerSecondPerSecond)));
 
