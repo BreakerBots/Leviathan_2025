@@ -135,7 +135,7 @@ public class RobotContainer {
             .clamp(1.0)
             .deadband(Constants.OperatorConstants.ROTATIONAL_DEADBAND, 1.0)
             .map(new BreakerLinearizedConstrainedExponential(0.1, 9.5, true))
-            .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond));
+            .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.minus(Units.RadiansPerSecond.of(4)).in(Units.RadiansPerSecond));
 
   //  // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
     drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
@@ -192,7 +192,7 @@ public class RobotContainer {
     //scoreOnReefScheduler.bind();
 
     controller.getRightBumper().and(manualOverride).onTrue(superstructure2.manualIntakeFromGroundForL1());
-    controller.getRightBumper().and(manualOverride.negate()).onTrue(superstructure2.intakeFromGroundForL1());
+    controller.getRightBumper().and(manualOverride.negate()).onTrue(superstructure2.intakeFromGroundForL1(driverTranslation, driverOmega));
     controller.getButtonY().onTrue(superstructure.extakeCoralL1());
 
     Trigger reefA = buttonBoard.getReefButtons().getReefButtonA();
