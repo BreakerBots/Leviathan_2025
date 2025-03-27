@@ -7,12 +7,17 @@ package frc.robot.subsystems.vision;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.fasterxml.jackson.databind.deser.std.ArrayBlockingQueueDeserializer;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
@@ -31,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.drivers.ZED.LocalizationResults;
 import frc.robot.BreakerLib.drivers.ZED.LocalizationResults.OdometryRecord;
 import frc.robot.BreakerLib.drivers.gtsam.GTSAM;
+import frc.robot.BreakerLib.drivers.gtsam.GTSAM.CameraCalibration;
 import frc.robot.BreakerLib.physics.ChassisAccels;
 import frc.robot.BreakerLib.util.Localizer;
 import frc.robot.BreakerLib.util.TimestampedValue;
@@ -38,6 +44,7 @@ import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.math.OdometryFusion;
 import frc.robot.Constants.DepthVisionConstants;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.vision.ApriltagVision2.Camera;
 import frc.robot.subsystems.vision.ApriltagVision2.CameraResult;
 import frc.robot.subsystems.vision.ApriltagVision2.EstimationStrategy;
 
@@ -55,6 +62,8 @@ public class Localization extends SubsystemBase implements Localizer {
     private Pose2d lastOdometryValue;
     private Drivetrain drivetrain;
     private boolean useTrigStrat;
+    private HashSet<String> cameraCalibrations = new HashSet<>();
+    private int numLoops;
     public Localization(Drivetrain drivetrain) {
         this.drivetrain = drivetrain;
         SwerveDriveOdometry wheelOdometry = new SwerveDriveOdometry(
@@ -91,6 +100,8 @@ public class Localization extends SubsystemBase implements Localizer {
         drivetrain.registerTelemetry(this::updateWheelOdometry);
 
         drivetrain.setLocalizer(this);
+
+        numLoops = 0;
     }
 
     private void updateWheelOdometry(SwerveDriveState state) {
@@ -124,7 +135,7 @@ public class Localization extends SubsystemBase implements Localizer {
     }
 
     private void update() {
-        ChassisSpeeds speeds = getFieldRelativeSpeeds();
+        // ChassisSpeeds speeds = getFieldRelativeSpeeds();
         // Optional<LocalizationResults> zedVIOOpt = depthVision.getUnreadLocalizationResults();
         // if (zedVIOOpt.isPresent()) {
         //     var zedVIO = zedVIOOpt.get();
@@ -137,6 +148,26 @@ public class Localization extends SubsystemBase implements Localizer {
         //         addExternalOdometry(VisionUtils.toTwist2d(odoRec.delta()), odoRec.startTime(), odoRec.endTime(), devs);
         //     }
         // }
+
+        if (kUseGTSAM) {
+            numLoops++;
+            for (Camera cam : apriltagVision.getCameras()) {
+                if (!cameraCalibrations.contains(cam.getName())) {
+                    var intrinsics = cam.getCameraMatrix();
+                    var distCoeffs = cam.getDistanceCoeffs();
+                    if (intrinsics.isPresent() && distCoeffs.isPresent()) {
+                        cameraCalibrations.add(cam.getName());
+                        gtsam.setCamIntrinsics(cam.getName(), intrinsics, distCoeffs);
+                        gtsam.sendVisionUpdate(cam.getName(), Timer.getFPGATimestamp(), new ArrayList<>(), cam.getRobotTCam());
+                    }
+                }
+            }
+            if (numLoops > 50) {
+                numLoops = 0;
+                cameraCalibrations.clear();
+            }
+            
+        }   
         
         EstimationStrategy strat = EstimationStrategy.kDefaultNoSeed;
         if (hasOdometryBeenSeeded) {
@@ -158,7 +189,6 @@ public class Localization extends SubsystemBase implements Localizer {
             poses[i++] = res.est().estimatedPose;
             visionFilter.addVisionMeasurement(res);
             if (kUseGTSAM) {
-                gtsam.setCamIntrinsics(res.camera().getName(), res.camera().getCameraMatrix(), res.camera().getDistanceCoeffs());
                 gtsam.sendVisionUpdate(res.camera().getName(), res.est().timestampSeconds, VisionUtils.photonTrackedTargetsToGTSAM(res.est().targetsUsed), res.camera().getRobotTCam());
             }
         }
@@ -177,11 +207,29 @@ public class Localization extends SubsystemBase implements Localizer {
         this.useTrigStrat = useTrigStrat;
     }
 
+    private TimestampedValue<Pose2d> getGTSAMAtomicPoseSafe() {
+        var val = gtsam.getAtomicPoseEstimate();
+        Pose2d pose = val.getValue().toPose2d();
+        if (MathUtil.isNear(pose.getX(), 0, 1e6) && MathUtil.isNear(pose.getY(), 0, 1e6)) {
+            return new TimestampedValue<>(visionFilter.getEstimatedPosition(), Timer.getTimestamp());
+        }
+        return new TimestampedValue<Pose2d>(val.getValue().toPose2d(), val.getTimestamp());
+    }
+
+    private Pose2d getGTSAMPoseSafe() {
+        var val = gtsam.getLatencyCompensatedPoseEstimate();
+        Pose2d pose = val.toPose2d();
+        if (MathUtil.isNear(pose.getX(), 0.0, 1e3) && MathUtil.isNear(pose.getY(), 0.0, 1e3)) {
+            return visionFilter.getEstimatedPosition();
+        }
+        return pose;
+    }
+
+
     @Override
     public TimestampedValue<Pose2d> getAtomicPose() {
         if (kUseGTSAM) {
-            var val = gtsam.getAtomicPoseEstimate();
-            return new TimestampedValue<Pose2d>(val.getValue().toPose2d(), val.getTimestamp());
+            return getGTSAMAtomicPoseSafe();
         }
         return new TimestampedValue<>(visionFilter.getEstimatedPosition(), Timer.getTimestamp());
     }
@@ -190,7 +238,7 @@ public class Localization extends SubsystemBase implements Localizer {
     @Override
     public Pose2d getPose() {
         if (kUseGTSAM) {
-            return gtsam.getLatencyCompensatedPoseEstimate().toPose2d();
+            return getGTSAMPoseSafe();
         }
         return visionFilter.getEstimatedPosition();
     }

@@ -196,8 +196,9 @@ public class GTSAM {
 
         long tagDetTime = (long) (captureTimestamp * 1e6);
 
-        cam.tagPub.set(camDetectedTags.stream().map(it -> cam.undistort(it)).collect(Collectors.toList())
-                .toArray(new TagDetection[0]), tagDetTime);
+        camDetectedTags.forEach((TagDetection det) -> cam.undistort(det));
+
+        cam.tagPub.set(camDetectedTags.toArray(new TagDetection[camDetectedTags.size()]), tagDetTime);
         cam.robotTcamPub.set(robotTcam, tagDetTime);
     }
 

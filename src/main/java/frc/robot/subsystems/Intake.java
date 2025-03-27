@@ -249,7 +249,7 @@ public class Intake extends SubsystemBase{
         // INTAKE_ALGAE(0.5),
         // HOLD_ALGAE(0.1),
         // EXTAKE_ALGAE(-0.8),
-        EXTAKE(1),
+        EXTAKE(0.65),
         NEUTRAL(0.0);
         private double dutyCycleOut;
 

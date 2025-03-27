@@ -72,6 +72,11 @@ public class ApriltagVision2 {
         for (var cam : cameras) {
             List<CameraResult> results = cam.update(context);
             for (var r : results) {
+                if (strategy.primaryStrategy == PoseStrategy.PNP_DISTANCE_TRIG_SOLVE) {
+                    if (cam.getName().equals(kTopFrontCameraName) || cam.getName().equals(kTopLeftCameraName)) {
+                        continue;
+                    }
+                }
                 allCameraResults.add(r);
             }
         }
