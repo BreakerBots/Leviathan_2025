@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -105,7 +106,7 @@ public class Superstructure2 {
             }
             return normalRot;
         };
-        return new HeadingSnap(goalSup, drivetrain, linearInputStream).asProxy().onlyWhile(() -> Math.abs(rotaionalInputStream.get()) < 0.3);
+        return new HeadingSnap(goalSup, drivetrain, linearInputStream).asProxy().raceWith(Commands.waitSeconds(0.75).andThen(Commands.waitUntil(() -> Math.abs(rotaionalInputStream.get()) > 0.75)));
     }
 
     public Command climbOnDeepCage() {
