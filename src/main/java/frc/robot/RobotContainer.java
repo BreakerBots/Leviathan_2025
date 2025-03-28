@@ -79,7 +79,6 @@ public class RobotContainer {
   private final BreakerXboxController controller =
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
   private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
-
   
   //private final SimpleClimb climb = new SimpleClimb();
   
@@ -170,6 +169,7 @@ public class RobotContainer {
       );
     //controller.getStartButton().onTrue(superstructure2.intakeFromHumanPlayerManual());
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll().alongWith(new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.2).withTimeout(0.1)));
+    new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll().alongWith(new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.2).withTimeout(0.1)));
     buttonBoard.getRightButtons().getLowRightButton().toggleOnTrue(superstructure2.snapHeadingToClosestReefFace(driverTranslation, driverOmega).onlyWhile(manualOverride.negate()));
 
     //new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure.stowAllPlus());
