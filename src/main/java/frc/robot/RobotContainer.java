@@ -48,7 +48,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.ScoreOnReefScheduler;
 import frc.robot.subsystems.SimpleClimb;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.Superstructure2;
@@ -78,13 +77,14 @@ public class RobotContainer {
 
   private final BreakerXboxController controller =
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
-  private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
+  // private final ButtonBoard buttonBoard = new ButtonBoard(OperatorConstants.kButtonBoardPort);
+  private final BreakerXboxController opController = new BreakerXboxController(OperatorConstants.kButtonBoardPort);
   
   //private final SimpleClimb climb = new SimpleClimb();
   
   
   private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake, climb, ap, controller, buttonBoard);
+  intake, climb, ap, controller);
 
   private final Superstructure2 superstructure2 = new Superstructure2(endEffector, elevator, intake, indexer, climb, drivetrain, localization, controller);
 
@@ -142,7 +142,7 @@ public class RobotContainer {
     driverTranslation = tipProtectedInputStreams.getFirst();
     driverOmega = tipProtectedInputStreams.getSecond();
 
-    Trigger manualOverride = buttonBoard.getRightButtons().getHighRightSwitch();
+    Trigger manualOverride = opController.getLeftBumper();
 
     controller.getButtonX().onTrue(elevator.home());
     //controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.F)));
@@ -170,22 +170,22 @@ public class RobotContainer {
     //controller.getStartButton().onTrue(superstructure2.intakeFromHumanPlayerManual());
     new Trigger(() -> (controller.getRightTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll().alongWith(new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.2).withTimeout(0.1)));
     new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll().alongWith(new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.2).withTimeout(0.1)));
-    buttonBoard.getRightButtons().getLowRightButton().toggleOnTrue(superstructure2.snapHeadingToClosestReefFace(driverTranslation, driverOmega).onlyWhile(manualOverride.negate()));
+    opController.getButtonA().toggleOnTrue(superstructure2.snapHeadingToClosestReefFace(driverTranslation, driverOmega).onlyWhile(manualOverride.negate()));
 
     //new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure.stowAllPlus());
 
-    buttonBoard.getLevelButtons().getL1Button().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L1));
-    buttonBoard.getLevelButtons().getL2Button().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L2));
-    buttonBoard.getLevelButtons().getL3Button().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L3));
-    buttonBoard.getLevelButtons().getL4Button().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L4));
+    //opController.getDPad().getDown().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L1));
+    opController.getDPad().getDown().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L2));
+    opController.getDPad().getLeft().or(opController.getDPad().getRight()).and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L3));
+    opController.getDPad().getUp().and(manualOverride).onTrue(superstructure2.scoreOnReefManual(ReefPosition.ReefLevel.L4));
 
     // buttonBoard.getRightButtons().getLowRightButton().and(() -> !superstructure.endEffectorHasCoral()).onTrue(superstructure.scoreInProcessor());
     // buttonBoard.getRightButtons().getHighRightButton().and(() -> !superstructure.endEffectorHasCoral()).onTrue(superstructure.scoreInBarge());
 
 
-    buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride.negate()).onTrue(superstructure2.climbOnDeepCage());
-    buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride).onTrue(superstructure2.climbOnDeepCageManual());
-    buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
+    opController.getButtonB().and(manualOverride.negate()).onTrue(superstructure2.climbOnDeepCage());
+    opController.getButtonB().and(manualOverride).onTrue(superstructure2.climbOnDeepCageManual());
+    opController.getButtonY().onTrue(superstructure.stowClimb());
 
     // controller.getButtonY().onTrue(Commands.runOnce(() -> apriltagVision.setEstimationType(EstimationType.TRIG)));
 
@@ -195,92 +195,92 @@ public class RobotContainer {
     controller.getRightBumper().and(manualOverride.negate()).onTrue(superstructure2.intakeFromGroundForL1(driverTranslation, driverOmega));
     controller.getButtonY().onTrue(superstructure.extakeCoralL1());
 
-    Trigger reefA = buttonBoard.getReefButtons().getReefButtonA();
-    Trigger reefB = buttonBoard.getReefButtons().getReefButtonB();
-    Trigger reefC = buttonBoard.getReefButtons().getReefButtonC();  
-    Trigger reefD = buttonBoard.getReefButtons().getReefButtonD();
-    Trigger reefE = buttonBoard.getReefButtons().getReefButtonE();
-    Trigger reefF = buttonBoard.getReefButtons().getReefButtonF();
-    Trigger reefG = buttonBoard.getReefButtons().getReefButtonG();
-    Trigger reefH = buttonBoard.getReefButtons().getReefButtonH();
-    Trigger reefI = buttonBoard.getReefButtons().getReefButtonI();
-    Trigger reefJ = buttonBoard.getReefButtons().getReefButtonJ();
-    Trigger reefK = buttonBoard.getReefButtons().getReefButtonK();
-    Trigger reefL = buttonBoard.getReefButtons().getReefButtonL();
+    // Trigger reefA = buttonBoard.getReefButtons().getReefButtonA();
+    // Trigger reefB = buttonBoard.getReefButtons().getReefButtonB();
+    // Trigger reefC = buttonBoard.getReefButtons().getReefButtonC();  
+    // Trigger reefD = buttonBoard.getReefButtons().getReefButtonD();
+    // Trigger reefE = buttonBoard.getReefButtons().getReefButtonE();
+    // Trigger reefF = buttonBoard.getReefButtons().getReefButtonF();
+    // Trigger reefG = buttonBoard.getReefButtons().getReefButtonG();
+    // Trigger reefH = buttonBoard.getReefButtons().getReefButtonH();
+    // Trigger reefI = buttonBoard.getReefButtons().getReefButtonI();
+    // Trigger reefJ = buttonBoard.getReefButtons().getReefButtonJ();
+    // Trigger reefK = buttonBoard.getReefButtons().getReefButtonK();
+    // Trigger reefL = buttonBoard.getReefButtons().getReefButtonL();
 
-    Trigger reefL1 = buttonBoard.getLevelButtons().getL1Button();
-    Trigger reefL2 = buttonBoard.getLevelButtons().getL2Button();
-    Trigger reefL3 = buttonBoard.getLevelButtons().getL3Button();
-    Trigger reefL4 = buttonBoard.getLevelButtons().getL4Button();
+    // Trigger reefL1 = buttonBoard.getLevelButtons().getL1Button();
+    Trigger reefL2 = opController.getDPad().getDown();
+    Trigger reefL3 = opController.getDPad().getLeft().or(opController.getDPad().getRight());
+    Trigger reefL4 = opController.getDPad().getUp();
 
-    Trigger allignClosest = buttonBoard.getRightButtons().getHighRightButton()
+    Trigger allignClosest = opController.getRightBumper()
       .and(superstructure::endEffectorHasCoral);
 
-    reefA.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.A)));
-    reefB.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.B)));
-    reefC.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.C)));
-    reefD.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.D)));
-    reefE.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.E)));
-    reefF.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.F)));
-    reefG.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.G)));
-    reefH.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.H)));
-    reefI.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.I)));
-    reefJ.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.J)));
-    reefK.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.K)));
-    reefL.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.L)));
+    // reefA.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.A)));
+    // reefB.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.B)));
+    // reefC.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.C)));
+    // reefD.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.D)));
+    // reefE.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.E)));
+    // reefF.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.F)));
+    // reefG.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.G)));
+    // reefH.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.H)));
+    // reefI.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.I)));
+    // reefJ.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.J)));
+    // reefK.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.K)));
+    // reefL.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.L)));
 
-    reefA.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.A)));
-    reefB.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.B)));
-    reefC.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.C)));
-    reefD.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.D)));
-    reefE.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.E)));
-    reefF.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.F)));
-    reefG.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.G)));
-    reefH.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.H)));
-    reefI.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.I)));
-    reefJ.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.J)));
-    reefK.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.K)));
-    reefL.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.L)));
-    
-    reefA.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.A)));
-    reefB.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.B)));
-    reefC.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.C)));
-    reefD.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.D)));
-    reefE.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.E)));
-    reefF.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.F)));
-    reefG.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.G)));
-    reefH.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.H)));
-    reefI.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.I)));
-    reefJ.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.J)));
-    reefK.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.K)));
-    reefL.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.L)));
+    // reefA.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.A)));
+    // reefB.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.B)));
+    // reefC.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.C)));
+    // reefD.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.D)));
+    // reefE.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.E)));
+    // reefF.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.F)));
+    // reefG.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.G)));
+    // reefH.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.H)));
+    // reefI.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.I)));
+    // reefJ.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.J)));
+    // reefK.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.K)));
+    // reefL.and(reefL2).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L2, ReefBranch.L)));
+    // 
+    // reefA.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.A)));
+    // reefB.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.B)));
+    // reefC.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.C)));
+    // reefD.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.D)));
+    // reefE.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.E)));
+    // reefF.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.F)));
+    // reefG.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.G)));
+    // reefH.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.H)));
+    // reefI.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.I)));
+    // reefJ.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.J)));
+    // reefK.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.K)));
+    // reefL.and(reefL3).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L3, ReefBranch.L)));
 
-    reefA.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.A)));
-    reefB.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.B)));
-    reefC.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C)));
-    reefD.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.D)));
-    reefE.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.E)));
-    reefF.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.F)));
-    reefG.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.G)));
-    reefH.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.H)));
-    reefI.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.I)));
-    reefJ.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.J)));
-    reefK.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
-    reefL.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.L)));
+    // reefA.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.A)));
+    // reefB.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.B)));
+    // reefC.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.C)));
+    // reefD.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.D)));
+    // reefE.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.E)));
+    // reefF.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.F)));
+    // reefG.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.G)));
+    // reefH.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.H)));
+    // reefI.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.I)));
+    // reefJ.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.J)));
+    // reefK.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
+    // reefL.and(reefL4).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.L)));
 
-    reefL1.and(allignClosest).onTrue(
-      Commands.defer(
-        () -> superstructure2.scoreOnReef(
-          new ReefPosition(
-            ReefLevel.L1, 
-            ReefBranch.getClosest(
-              drivetrain.getLocalizer().getPose(),
-               DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
-            )
-          )
-        )
-      ,Set.of(endEffector, elevator)
-    ));
+    // reefL1.and(allignClosest).onTrue(
+      // Commands.defer(
+        // () -> superstructure2.scoreOnReef(
+          // new ReefPosition(
+            // ReefLevel.L1, 
+            // ReefBranch.getClosest(
+              // drivetrain.getLocalizer().getPose(),
+              //  DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+            // )
+          // )
+        // )
+      // ,Set.of(endEffector, elevator)
+    // ));
     reefL2.and(allignClosest).onTrue(
       Commands.defer(
         () -> superstructure2.scoreOnReef(

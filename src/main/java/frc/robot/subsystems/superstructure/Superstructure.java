@@ -71,7 +71,7 @@ public class Superstructure extends SubsystemBase {
     private Drivetrain drivetrain;
     //private ApriltagVision apriltagVision;
     private AutoPilot autoPilot;
-    private ButtonBoard buttonBoard;
+    // private ButtonBoard buttonBoard;
 
     private final TipProtectionSystem tipProtectionSystem;
 
@@ -79,7 +79,7 @@ public class Superstructure extends SubsystemBase {
     private HolonomicSlewRateLimiter limiter;
     
 
-    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, AutoPilot autoPilot, BreakerXboxController controller, ButtonBoard buttonBoard) {
+    public Superstructure(Drivetrain drivetrain, EndEffector endEffector, Elevator elevator, Indexer indexer, Intake intake, Climb climb, AutoPilot autoPilot, BreakerXboxController controller/* , ButtonBoard buttonBoard*/) {
         this.elevator = elevator;
         this.intake = intake;
         this.indexer = indexer;
@@ -89,7 +89,7 @@ public class Superstructure extends SubsystemBase {
         this.controller = controller;
         //this.apriltagVision = apriltagVision;
         this.autoPilot = autoPilot;
-        this.buttonBoard = buttonBoard;
+        // this.buttonBoard = buttonBoard;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
         // tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
@@ -207,25 +207,25 @@ public class Superstructure extends SubsystemBase {
         );
     }
 
-    public Command intakeCoralFromHumanPlayerAligned(CoralHumanPlayerStation pos) {
-        if (Robot.isSimulation()) {
-            return Commands.deferredProxy(() -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
-                .andThen(Commands.waitTime(SimulationConstants.kWaitTime))
-            );
-        }
+    // public Command intakeCoralFromHumanPlayerAligned(CoralHumanPlayerStation pos) {
+        // if (Robot.isSimulation()) {
+            // return Commands.deferredProxy(() -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig)
+                // .andThen(Commands.waitTime(SimulationConstants.kWaitTime))
+            // );
+        // }
 
-        return Commands.deferredProxy(
-            () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), RobotState.isAutonomous() ? AutoPilotConstants.kAutoNavToPoseConfig : AutoPilotConstants.kDefaultNavToPoseConfig)
-                .onlyWhile(() -> !buttonBoard.getRightButtons().getHighRightSwitch().getAsBoolean() || RobotState.isAutonomous())
-                .alongWith(setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true)
-                .andThen(
-                    setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
-                    Commands.waitUntil(endEffector::hasCoral),
-                    new WaitCommand(0.1),
-                    setMastState(MastState.PARTIAL_STOW, false)
-                ))
-        );
-    }
+        // return Commands.deferredProxy(
+            // () -> autoPilot.navigateToPose(pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), RobotState.isAutonomous() ? AutoPilotConstants.kAutoNavToPoseConfig : AutoPilotConstants.kDefaultNavToPoseConfig)
+                // .onlyWhile(() -> !buttonBoard.getRightButtons().getHighRightSwitch().getAsBoolean() || RobotState.isAutonomous())
+                // .alongWith(setMastState(MastState.HUMAN_PLAYER_NEUTRAL, true)
+                // .andThen(
+                    // setMastState(MastState.HUMAN_PLAYER_INTAKE, false),
+                    // Commands.waitUntil(endEffector::hasCoral),
+                    // new WaitCommand(0.1),
+                    // setMastState(MastState.PARTIAL_STOW, false)
+                // ))
+        // );
+    // }
 
     public Command scoreOnReefManual(ReefLevel level) {
         return setMastState(level.getNeutralMastState(), true).andThen(
@@ -337,21 +337,21 @@ public class Superstructure extends SubsystemBase {
     }
 
 
-    public Command scoreOnReef(ReefPosition position) {
-        return Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.3))
-            .andThen(
-                Commands.deferredProxy(
-            () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
-                .alongWith(
-                    setMastState(position.level().getNeutralMastState(), false)
-                ))
-            .andThen(
-                Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
-                scoreOnReefManual(position.level())
-            )
-            .finallyDo(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0))
-            .onlyWhile(() -> !buttonBoard.getRightButtons().getHighRightSwitch().getAsBoolean());
-    }
+    // public Command scoreOnReef(ReefPosition position) {
+        // return Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.3))
+            // .andThen(
+                // Commands.deferredProxy(
+            // () -> autoPilot.navigateToPose(position.branch().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)), AutoPilotConstants.kDefaultNavToPoseConfig))
+                // .alongWith(
+                    // setMastState(position.level().getNeutralMastState(), false)
+                // ))
+            // .andThen(
+                // Commands.runOnce(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0)),
+                // scoreOnReefManual(position.level())
+            // )
+            // .finallyDo(() -> controller.setRumble(BreakerControllerRumbleType.MIXED, 0.0))
+            // .onlyWhile(() -> !buttonBoard.getRightButtons().getHighRightSwitch().getAsBoolean());
+    // }
 
     // public Command climb()
 
