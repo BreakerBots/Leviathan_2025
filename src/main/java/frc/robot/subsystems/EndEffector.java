@@ -370,19 +370,19 @@ public class EndEffector extends SubsystemBase {
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_INTAKE = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(180)), 
+                new WristSetpoint(Degrees.of(185)), 
                 RollerState.INTAKE
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_EXTAKE = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(180)), 
+                new WristSetpoint(Degrees.of(185)), 
                 RollerState.EXTAKE
         );
 
         public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_NEUTRAL = 
             new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(180)), 
+                new WristSetpoint(Degrees.of(185)), 
                 RollerState.NEUTRAL
         );
 
