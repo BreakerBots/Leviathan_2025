@@ -125,11 +125,10 @@ public class Elevator extends SubsystemBase {
             Commands.runOnce(() -> setVoltageOut(0.0)),
             Commands.waitSeconds(0.2),
             Commands.runOnce(this::homePosition),
-            Commands.runOnce(() -> setHomeingCurrents(false)),
             set(ElevatorSetpoint.STOW, false),
             Commands.runOnce(() -> isHomeingAlert.set(false))
 
-        );
+        ).finallyDo((boolean interupted) -> setHomeingCurrents(false));
     }
 
     private void setHomeingCurrents(boolean isHomeing) {
