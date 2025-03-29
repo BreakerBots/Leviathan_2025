@@ -155,8 +155,8 @@ public class Autos {
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("L1JK"))
             .setFlipped(flippedHorizontally)
             .runThenScore(start, new ReefPosition(ReefLevel.L1, ReefBranch.J))
-            .runThenCommand("Reef J L1 to Coral PSG to Reef K", superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.K)), superstructure.intakeFromGroundAuton())
-            .runThenCommand("Reef K to Coral PSG to Reef L", superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.L)), superstructure.intakeFromGroundAuton())
+            .runThenScore("Reef J L1 to Coral PSG to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K), superstructure.intakeFromGroundAuton())
+            .runThenScore("Reef K to Coral PSG to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L), superstructure.intakeFromGroundAuton())
             .build();
     }
 
@@ -174,9 +174,9 @@ public class Autos {
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("JKLA"))
             .setFlipped(flippedHorizontally)
             // .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenCommand(start, superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.J)))
-            .runThenCommand("Reef J to Coral PSG to Reef K", superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.K)), superstructure.intakeFromGroundAuton())
-            .runThenCommand("Reef K to Coral PSG to Reef L", superstructure.scoreOnReefAuton(new ReefPosition(ReefLevel.L4, ReefBranch.L)), superstructure.intakeFromGroundAuton())
+            .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
+            .runThenScore("Reef J to Coral PSG to Reef K", new ReefPosition(ReefLevel.L4, ReefBranch.K), superstructure.intakeFromGroundAuton())
+            .runThenScore("Reef K to Coral PSG to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L), superstructure.intakeFromGroundAuton())
             // .runThenHP("Reef K to Coral PS")
             // .runThenScore("Coral PS to Reef L", new ReefPosition(ReefLevel.L4, ReefBranch.L))
             // .runThenHP("Reef L to Coral PS")
