@@ -335,7 +335,7 @@ public final class Constants {
 
     public static final MechanismRatio kRotationsToMeters = new MechanismRatio(kMaxHeight.in(Meters), kMaxRotorRevs.in(Rotations));
 
-    public static final Distance kDefaultHeightTolerence = Millimeters.of(15);
+    public static final Distance kDefaultHeightTolerence = Millimeters.of(22.5);
     public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
 
     public static final double kHomeingVoltage = -2; 
