@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import java.util.Set;
 
+import com.ctre.phoenix6.SignalLogger;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import dev.doglog.DogLogOptions;
@@ -98,6 +100,7 @@ public class RobotContainer {
   }
 
   private void startLog() {
+    SignalLogger.enableAutoLogging(false);
     BreakerLog.setOptions(new DogLogOptions(() -> !DriverStation.isFMSAttached(), false, true, true, true, 20000));
     // BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
     BreakerLog.addCANBus(DriveConstants.kCANBus);
