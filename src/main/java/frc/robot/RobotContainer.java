@@ -48,9 +48,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.ScoreOnReefScheduler;
 import frc.robot.subsystems.SimpleClimb;
-import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.Superstructure2;
 import frc.robot.subsystems.vision.ApriltagVision;
 import frc.robot.subsystems.vision.Localization;
@@ -82,9 +80,6 @@ public class RobotContainer {
   
   //private final SimpleClimb climb = new SimpleClimb();
   
-  
-  private final Superstructure superstructure = new Superstructure(drivetrain, endEffector, elevator, indexer, 
-  intake, climb, ap, controller, buttonBoard);
 
   private final Superstructure2 superstructure2 = new Superstructure2(endEffector, elevator, intake, indexer, climb, drivetrain, localization, controller);
 
@@ -137,8 +132,8 @@ public class RobotContainer {
             .scale(Constants.DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.minus(Units.RadiansPerSecond.of(4)).in(Units.RadiansPerSecond));
 
   //  // drivetrain.setDefaultCommand(drivetrain.getTeleopControlCommand(driverX, driverY, driverOmega, Constants.DriveConstants.TELEOP_CONTROL_CONFIG));
-    drivetrain.setDefaultCommand(superstructure.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
-    var tipProtectedInputStreams = superstructure.getTipProtectionSystem().getStreams();
+    drivetrain.setDefaultCommand(superstructure2.getDriveTeleopControlCommand(driverTranslation, driverOmega, DriveConstants.TELEOP_CONTROL_CONFIG));
+    var tipProtectedInputStreams = superstructure2.getTipProtectionSystem().getStreams();
     driverTranslation = tipProtectedInputStreams.getFirst();
     driverOmega = tipProtectedInputStreams.getSecond();
 
@@ -185,7 +180,7 @@ public class RobotContainer {
 
     buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride.negate()).onTrue(superstructure2.climbOnDeepCage());
     buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride).onTrue(superstructure2.climbOnDeepCageManual());
-    buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure.stowClimb());
+    buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure2.stowClimb());
 
     // controller.getButtonY().onTrue(Commands.runOnce(() -> apriltagVision.setEstimationType(EstimationType.TRIG)));
 
@@ -193,7 +188,7 @@ public class RobotContainer {
 
     controller.getRightBumper().and(manualOverride).onTrue(superstructure2.manualIntakeFromGroundForL1());
     controller.getRightBumper().and(manualOverride.negate()).onTrue(superstructure2.intakeFromGroundForL1(driverTranslation, driverOmega));
-    controller.getButtonY().onTrue(superstructure.extakeCoralL1());
+    controller.getButtonY().onTrue(superstructure2.extakeForL1FromIntake());
 
     Trigger reefA = buttonBoard.getReefButtons().getReefButtonA();
     Trigger reefB = buttonBoard.getReefButtons().getReefButtonB();
@@ -214,7 +209,7 @@ public class RobotContainer {
     Trigger reefL4 = buttonBoard.getLevelButtons().getL4Button();
 
     Trigger allignClosest = buttonBoard.getRightButtons().getHighRightButton()
-      .and(superstructure::endEffectorHasCoral);
+      .and(endEffector::hasCoral);
 
     reefA.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.A)));
     reefB.and(reefL1).onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L1, ReefBranch.B)));
@@ -324,7 +319,7 @@ public class RobotContainer {
     Trigger driverAllignL4 = controller.getDPad().getDown();
     Trigger driverAllignL3 = controller.getBackButton();
 
-    driverAllignL4.and(manualOverride.negate()).and(superstructure::endEffectorHasCoral).onTrue(Commands.defer(
+    driverAllignL4.and(manualOverride.negate()).and(endEffector::hasCoral).onTrue(Commands.defer(
       () -> superstructure2.scoreOnReef(
         new ReefPosition(
           ReefLevel.L4, 
@@ -336,7 +331,7 @@ public class RobotContainer {
       )
     ,Set.of(endEffector, elevator)));
 
-    driverAllignL3.and(manualOverride.negate()).and(superstructure::endEffectorHasCoral).onTrue(Commands.defer(
+    driverAllignL3.and(manualOverride.negate()).and(endEffector::hasCoral).onTrue(Commands.defer(
       () -> superstructure2.scoreOnReef(
         new ReefPosition(
           ReefLevel.L3, 

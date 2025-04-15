@@ -26,18 +26,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.EndEffectorConstants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.AllianceFlipUtil;
 import frc.robot.CagePosition;
 import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.HeadingSnap;
 import frc.robot.commands.DriveToPose.NavToPoseConfig;
+import frc.robot.commands.DriveToPose2;
 import frc.robot.ReefPosition;
 import frc.robot.Robot;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerRumbleType;
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
+import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.commands.RumbleCommand;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Climb.ClimbState;
@@ -55,7 +58,6 @@ import frc.robot.subsystems.EndEffector.WristSetpoint;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake.IntakeRollerState;
 import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.superstructure.Superstructure.MastState;
 import frc.robot.subsystems.vision.Localization;
 
 public class Superstructure2 {
@@ -67,6 +69,7 @@ public class Superstructure2 {
     private Drivetrain drivetrain;
     private Localization localization;
     private BreakerXboxController controller;
+    private TipProtectionSystem tipProtectionSystem;
 
     public Superstructure2(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Climb climb, Drivetrain drivetrain, Localization localization, BreakerXboxController controller) {
         this.drivetrain = drivetrain;
@@ -77,6 +80,7 @@ public class Superstructure2 {
         this.climb = climb;
         this.localization = localization;
         this.controller = controller;
+        tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
     }
 
     public Drivetrain getDrivetrain() {
@@ -271,8 +275,9 @@ public class Superstructure2 {
 
     private Command scoreOnReefMaster(ReefPosition reefPosition, boolean proxyDrive) {
 
-        Command allignCmd = new DriveToPose(
-                drivetrain, 
+        Command allignCmd = new DriveToPose2(
+                drivetrain,
+                tipProtectionSystem, 
                 () -> getReefAlignDriveTarget(
                     drivetrain.getLocalizer().getPose(), 
                     reefPosition.branch().getAlignPose(
@@ -558,11 +563,39 @@ public class Superstructure2 {
         return false;
     }
 
-    private Pose2d getReefAlignDriveTarget(Pose2d robot, Pose2d goal) {
-        // double xOffset =  robot.getX() - goal.getX();
-        // double yOffset =  robot.getY() - goal.getY();
+    public Command getDriveTeleopControlCommand(BreakerInputStream2d linear, BreakerInputStream rotational, TeleopControlConfig config) {
+        var streams = tipProtectionSystem.setStreams(linear, rotational);
+        return drivetrain.getTeleopControlCommand(streams.getFirst().getY(), streams.getFirst().getX(), streams.getSecond(), config);
+    }
 
-        return goal;
+    public TipProtectionSystem getTipProtectionSystem() {
+        return tipProtectionSystem;
+    }
+
+    private Pose2d getReefAlignDriveTarget(Pose2d robot, Pose2d goal) {
+    //     Rotation2d angleToGoal =
+    //     robot
+    //         .getTranslation()
+    //         .minus(AllianceFlipUtil.apply(FieldConstants.Reef.center))
+    //         .getAngle()
+    //         .minus(goal.getTranslation().minus(AllianceFlipUtil.apply(FieldConstants.Reef.center)).getAngle());
+    // var offset = robot.relativeTo(goal);
+    // double yDistance = Math.abs(offset.getY());
+    // double xDistance = Math.abs(offset.getX());
+    // double shiftXT =
+    //     MathUtil.clamp(
+    //         (yDistance / (FieldConstants.Reef.faceLength * 2)) + ((xDistance - 0.3) / (FieldConstants.Reef.faceLength * 4)),
+    //         0.0,
+    //         1.0);
+    // double shiftYT =
+    //     MathUtil.clamp(yDistance <= 0.2 ? 0.0 : offset.getX() / FieldConstants.Reef.faceLength, 0.0, 1.0);
+    // return goal.transformBy(
+    //     new Transform2d(
+    //         -shiftXT * 1.0,
+    //         Math.copySign(shiftYT * 1.2, offset.getY()),
+    //         Rotation2d.kZero
+    //         ));
+    return goal;
     }
 
     public static record IntexerState(

@@ -51,6 +51,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -209,8 +210,12 @@ public final class Constants {
 
     public static class FieldConstants {
       public static final AprilTagFieldLayout kAprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
-      public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(7);
-      public static final Distance kReefFaceLength = Inches.of(36.792600);
+      public static class Reef {
+        public static final Distance kReefBranchOffsetFromFaceApriltagStrafe = Inches.of(7);
+        public static final double faceLength = Units.inchesToMeters(36.792600);
+        public static final Translation2d center =
+          new Translation2d(Units.inchesToMeters(176.746), kAprilTagFieldLayout.getFieldWidth() / 2.0);
+      }
       
     }
 

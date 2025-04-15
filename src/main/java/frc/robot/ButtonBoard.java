@@ -15,7 +15,6 @@ import frc.robot.BreakerLib.util.logging.Elastic.Notification.NotificationLevel;
 import frc.robot.Constants.ButtonBoardConstants;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
-import frc.robot.subsystems.superstructure.Superstructure;
 
 public class ButtonBoard {
     private final GenericHID hid;

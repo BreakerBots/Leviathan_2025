@@ -12,33 +12,21 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.subsystems.superstructure.Superstructure.MastState;
 import frc.robot.subsystems.superstructure.Superstructure2.SuperstructureState;
 
 public record ReefPosition(ReefLevel level, ReefBranch branch) {
     public static enum ReefLevel {
-        L1(MastState.L1_NEUTRAL, MastState.L1_EXTAKE, SuperstructureState.L2),
-        L2(MastState.L2_NEUTRAL, MastState.L2_EXTAKE, SuperstructureState.L2),
-        L3(MastState.L3_NEUTRAL, MastState.L3_EXTAKE, SuperstructureState.L3),
-        L4(MastState.L4_NEUTRAL, MastState.L4_EXTAKE, SuperstructureState.L4);
-        private MastState neutral, extake;
+        L1(SuperstructureState.L2),
+        L2(SuperstructureState.L2),
+        L3(SuperstructureState.L3),
+        L4(SuperstructureState.L4);
         private SuperstructureState extakeState;
-        private ReefLevel(MastState neutral, MastState extake, SuperstructureState extakeState) {
-            this.extake = extake;
-            this.neutral = neutral;
+        private ReefLevel(SuperstructureState extakeState) {
             this.extakeState = extakeState;
         }
 
         public SuperstructureState getExtakeSuperstructureState() {
             return extakeState;
-        }
-
-        public MastState getExtakeMastState() {
-            return extake;
-        }
-
-        public MastState getNeutralMastState() {
-            return neutral;
         }
     }
 
@@ -69,7 +57,7 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
             Distance endEffectorOffset = Units.Inches.of(0.5);
             Translation2d allignOffsetRel = new Translation2d(
                 -AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
-                ((isLeft ? 1 : -1) * -FieldConstants.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters) + endEffectorOffset.in(Units.Meter)));
+                ((isLeft ? 1 : -1) * -FieldConstants.Reef.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters) + endEffectorOffset.in(Units.Meter)));
 
             Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));
 

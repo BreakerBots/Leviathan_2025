@@ -32,8 +32,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.BreakerLib.util.factory.BreakerCANCoderFactory;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.Constants.SuperstructureConstants;
-import frc.robot.subsystems.superstructure.Superstructure;
-
 public class Climb extends SubsystemBase {
     private TalonFX climbMotor;
     private CANcoder climbEncoder;
@@ -44,6 +42,8 @@ public class Climb extends SubsystemBase {
     private PIDController pid;
     private VoltageOut voltageOut = new VoltageOut(0);
     private CoastOut coastOutRequest = new CoastOut();
+
+    private boolean emergencyLockout = false;
     
     public Climb(Pigeon2 imu) {
         this.imu = imu;
@@ -55,32 +55,10 @@ public class Climb extends SubsystemBase {
     
     private void setupConfigs() {
         var climbConfig = new TalonFXConfiguration();
-        // climbConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        // climbConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = kClimbReverseLimit.in(Rotations);
-        // climbConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // climbConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = kClimbForwardLimit.in(Rotations);
-        // climbConfig.Commutation.AdvancedHallSupport = AdvancedHallSupportValue.Enabled;
-        // climbConfig.Commutation.MotorArrangement = MotorArrangementValue.Minion_JST;
-        // climbConfig.ExternalFeedback.ExternalFeedbackSensorSource = ExternalFeedbackSensorSourceValue.FusedCANcoder;
-
-        // climbConfig.ExternalFeedback.FeedbackRemoteSensorID = kClimbCoder;
-        // climbConfig.ExternalFeedback.RotorToSensorRatio = kClimbGearRatio.getRatioToOne();
-        // climbConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        // climbConfig.Feedback.FeedbackRemoteSensorID = kClimbCoder;
-        // climbConfig.Feedback.RotorToSensorRatio = 1;
-
-        // climbConfig.Slot0.kP = 5;
-        //climbConfig.Slot0.kV = 15;
 
         climbConfig.CurrentLimits = kClimbCurrentLimits;
         climbConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         climbConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-        // var magicConfig = new MotionMagicConfigs();
-        // magicConfig.MotionMagicAcceleration = kClimbMotionMagicAcceleration;
-        // magicConfig.MotionMagicCruiseVelocity = kClimbMotionMagicCruiseVelocity;
-
-        // climbConfig.MotionMagic = magicConfig;
         
         climbMotor.getConfigurator().apply(climbConfig);
     }
@@ -121,40 +99,6 @@ public class Climb extends SubsystemBase {
         };
     }
 
-    // public boolean isWinchAtTargetState() {
-    //     if (currentClimbState.getWinchState() == WinchState.NEUTRAL) {
-    //         return true;
-    //     }
-    //     boolean atPos = MathUtil.isNear(
-    //         currentClimbState.getWinchState().getPosition().in(Rotations),
-    //         getWinchAngle().in(Rotations), 
-    //         currentClimbState.getWinchState().getTolerence().in(Rotations));
-
-    //     boolean atVel = MathUtil.isNear(
-    //         0.0,
-    //         getWinchVelocity().in(RotationsPerSecond), 
-    //         currentClimbState.getWinchState().getVelocityTolerence().in(RotationsPerSecond));
-
-    //     return atPos && atVel;
-    // }
-
-    // public boolean isForkAtTargetState() {
-    //     if (currentClimbState.getWinchState() == WinchState.NEUTRAL) {
-    //         return true;
-    //     }
-    //     boolean atPos = MathUtil.isNear(
-    //         currentClimbState.getForkState().getPosition().in(Rotations),
-    //         getForkAngle().in(Rotations), 
-    //         currentClimbState.getWinchState().getTolerence().in(Rotations));
-
-    //     boolean atVel = MathUtil.isNear(
-    //         0.0,
-    //         getForkVelocity().in(RotationsPerSecond), 
-    //         currentClimbState.getForkState().getVelocityTolerence().in(RotationsPerSecond));
-
-    //     return atPos && atVel;
-    // }
-
  
     public Angle getClimbCoderAngle() {
         return climbEncoder.getAbsolutePosition().getValue();
@@ -187,12 +131,18 @@ public class Climb extends SubsystemBase {
 
         boolean fwdLim = angle >= kClimbForwardLimit.in(Rotations);
         boolean revLim = angle <= kClimbReverseLimit.in(Rotations);
+        boolean lockoutTrigger = angle <= kClimbReverseLimit.plus(Degrees.of(5)).in(Rotations);
         if (fwdLim) {
             output = MathUtil.clamp(output, -16, 0);
         }
 
         if (revLim) {
             output = MathUtil.clamp(output, 0, 16);
+        }
+
+        if (lockoutTrigger || emergencyLockout) {
+            emergencyLockout = true;
+            output = 0;
         }
 
 

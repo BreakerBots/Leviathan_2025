@@ -18,7 +18,6 @@ import frc.robot.ReefPosition;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
-import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.Superstructure2;
 import frc.robot.subsystems.superstructure.Superstructure2.SuperstructureState;
 

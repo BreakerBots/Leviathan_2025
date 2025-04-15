@@ -17,7 +17,6 @@ import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
-import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.Superstructure2;
 
 public class TrajectoryBuilder {
