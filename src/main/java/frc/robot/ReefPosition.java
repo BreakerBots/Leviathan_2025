@@ -12,7 +12,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.AutoPilotConstants;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.subsystems.superstructure.Superstructure2.SuperstructureState;
+import frc.robot.subsystems.superstructure.Superstructure.SuperstructureState;
 
 public record ReefPosition(ReefLevel level, ReefBranch branch) {
     public static enum ReefLevel {
@@ -83,6 +83,16 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
             }
             return closestBranchAndDist.getFirst();
 
+        }
+
+        public ReefBranch getAlternate() {
+            for (ReefBranch branch : ReefBranch.values()) {
+                boolean tagMatch = branch.blueReefFaceApriltagID == this.blueReefFaceApriltagID;
+                if (tagMatch && branch != this) {
+                    return branch;
+                }
+            }
+            return ReefBranch.A;
         }
     }
 }

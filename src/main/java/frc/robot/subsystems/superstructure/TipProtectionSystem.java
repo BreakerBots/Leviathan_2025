@@ -77,7 +77,7 @@ public class TipProtectionSystem extends SubsystemBase {
                 if (angles.getMagnitude() > TipProtectionSystemConstants.kTippingThreshold.in(Radian)) {
                     // CommandScheduler
                     //     .getInstance()
-                    //     .schedule(elevator.set(ElevatorSetpoint.STOW, false).withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
+                    //     .schedule(elevator.forceStow().withInterruptBehavior(InterruptionBehavior.kCancelIncoming));
                 }
             } else {
                 kinematicLimits = Constants.TipProtectionSystemConstants.kBaseKinimaticLimits;

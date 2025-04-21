@@ -17,11 +17,11 @@ import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
-import frc.robot.subsystems.superstructure.Superstructure2;
+import frc.robot.subsystems.superstructure.Superstructure;
 
 public class TrajectoryBuilder {
     private final AutoRoutine routine;
-    private final Superstructure2 superstructure;
+    private final Superstructure superstructure;
     private boolean flippedHorizontally = false;
 
     private static record TrajectoryStep(AutoTrajectory getFirst, Command getSecond, Command[] getParallels) {
@@ -36,7 +36,7 @@ public class TrajectoryBuilder {
 
     private final List<TrajectoryStep> trajectories = new ArrayList<>();
 
-    public TrajectoryBuilder(Superstructure2 superstructure, AutoRoutine routine) {
+    public TrajectoryBuilder(Superstructure superstructure, AutoRoutine routine) {
         this.superstructure = superstructure;
         this.routine = routine;
     }

@@ -112,6 +112,18 @@ public class Elevator extends SubsystemBase {
 
     }
 
+    public Command forceStow() {
+        return Commands.runOnce(() -> {
+            setVoltageOut(-6.0);
+        }).andThen(
+            Commands.waitUntil(() -> Math.abs(getHeight().in(Meters)) < 0.15)
+        ).finallyDo((boolean interupted) -> {
+            setVoltageOut(0.0);
+            setFunc(ElevatorSetpoint.STOW);
+        }
+        );
+    }
+
     public Command home() {
         return Commands.sequence(
             Commands.runOnce(() -> isHomeingAlert.set(true)),

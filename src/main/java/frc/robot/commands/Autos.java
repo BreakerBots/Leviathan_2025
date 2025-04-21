@@ -18,12 +18,12 @@ import frc.robot.ReefPosition;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
-import frc.robot.subsystems.superstructure.Superstructure2;
-import frc.robot.subsystems.superstructure.Superstructure2.SuperstructureState;
+import frc.robot.subsystems.superstructure.Superstructure;
+import frc.robot.subsystems.superstructure.Superstructure.SuperstructureState;
 
 /** Add your docs here. */
 public class Autos {
-    private final Superstructure2 superstructure;
+    private final Superstructure superstructure;
     private final AutoFactory autoFactory;
 
     private final SendableChooser<Supplier<Command>> autoChooser = new SendableChooser<>();
@@ -52,7 +52,7 @@ public class Autos {
         }
     }
 
-    public Autos(Superstructure2 superstructure) {
+    public Autos(Superstructure superstructure) {
         this.superstructure = superstructure;
         autoFactory = superstructure.getDrivetrain().getAutoFactory();
         setupChooser();

@@ -341,7 +341,7 @@ public final class Constants {
     public static final MechanismRatio kRotationsToMeters = new MechanismRatio(kMaxHeight.in(Meters), kMaxRotorRevs.in(Rotations));
 
     public static final Distance kDefaultHeightTolerence = Millimeters.of(22.5);
-    public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(2);
+    public static final LinearVelocity kDefaultVelocityTolerence = Millimeters.per(Second).of(3);
 
     public static final double kHomeingVoltage = -2; 
     public static final Current kHomeDetectCurrentThreshold = Amps.of(0.3);
@@ -412,7 +412,7 @@ public final class Constants {
     public static final double kHasAlgaeProximityThresh = 0.1;
 
     public static final Angle kDefaultWristAngleTolerence = Degrees.of(4); //Degrees.of(3.5);
-    public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(2);
+    public static final AngularVelocity kDefaultWristVelocityTolerence = DegreesPerSecond.of(5);
 
 
     public static final SoftwareLimitSwitchConfigs kElevatorExtendedLimits = new SoftwareLimitSwitchConfigs();//.withForwardSoftLimitThreshold(kMaxElevatorRestrictedSafeAngle).withForwardSoftLimitEnable(true).withReverseSoftLimitThreshold(Degrees.of(-35)).withReverseSoftLimitEnable(true);

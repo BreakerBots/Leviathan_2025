@@ -77,7 +77,7 @@ public class LocalADStar implements Pathfinder {
   private List<GridPosition> currentPathFull = new ArrayList<>();
 
   /** Create a new pathfinder that runs AD* locally in a background thread */
-  public LocalADStar() {
+  public LocalADStar(String navgridName) {
     planningThread = new Thread(this::runThread);
 
     requestStart = new GridPosition(0, 0);
@@ -88,7 +88,7 @@ public class LocalADStar implements Pathfinder {
     staticObstacles.clear();
     dynamicObstacles.clear();
 
-    File navGridFile = new File(Filesystem.getDeployDirectory(), "pathplanner-symmetrical/navgrid.json");
+    File navGridFile = new File(Filesystem.getDeployDirectory(), navgridName);
     if (navGridFile.exists()) {
       try (BufferedReader br = new BufferedReader(new FileReader(navGridFile))) {
         StringBuilder fileContentBuilder = new StringBuilder();
@@ -137,6 +137,10 @@ public class LocalADStar implements Pathfinder {
     planningThread.setDaemon(true);
     planningThread.setName("ADStar Planning Thread");
     planningThread.start();
+  }
+
+  public Translation2d getRequestRealGoalPos() {
+      return requestRealGoalPos;
   }
 
   /**
