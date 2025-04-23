@@ -5,10 +5,14 @@ import static frc.robot.Constants.SuperstructureConstants.*;
 
 import java.lang.ModuleLayer.Controller;
 import java.nio.channels.Pipe;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.PathConstraints;
 import com.reduxrobotics.sensors.canandcolor.DigoutChannel.Index;
 
 import edu.wpi.first.math.MathUtil;
@@ -29,10 +33,11 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.AllianceFlipUtil;
 import frc.robot.CagePosition;
 import frc.robot.CoralHumanPlayerStation;
+import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.HeadingSnap;
-import frc.robot.commands.AutoPilot2;
 import frc.robot.commands.DriveToPose;
+import frc.robot.commands.DriveToPose.NavToPoseConfig;
 import frc.robot.ReefPosition;
 import frc.robot.Robot;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
@@ -69,7 +74,6 @@ public class Superstructure {
     private Localization localization;
     private BreakerXboxController controller;
     private TipProtectionSystem tipProtectionSystem;
-    // private AutoPilot2 autoPilot2;
 
     public Superstructure(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Climb climb, Drivetrain drivetrain, Localization localization, BreakerXboxController controller) {
         this.drivetrain = drivetrain;
@@ -82,6 +86,10 @@ public class Superstructure {
         this.controller = controller;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
         // autoPilot2 = new AutoPilot2(this);
+    }
+
+    public static Alliance getAllianceSafe() {
+        return DriverStation.getAlliance().orElse(Alliance.Blue);
     }
 
     public Drivetrain getDrivetrain() {
@@ -101,9 +109,9 @@ public class Superstructure {
         Supplier<Rotation2d> goalSup = () -> {
             var normalRot = ReefPosition.ReefBranch.getClosest(
                 drivetrain.getLocalizer().getPose(), 
-                DriverStation.getAlliance().orElse(Alliance.Blue))
+                getAllianceSafe())
             .getAlignPose(
-                DriverStation.getAlliance().orElse(Alliance.Blue)
+                getAllianceSafe()
             ).getRotation();
 
             if (!endEffector.hasCoral()) {
@@ -115,7 +123,7 @@ public class Superstructure {
     }
 
     public Command climbOnDeepCage() {
-        final var ally = DriverStation.getAlliance().orElse(Alliance.Blue);
+        final var ally = getAllianceSafe();
         final Supplier<Pose2d> closest = () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), ally).getClimbPose(ally);
         return climb.setState(ClimbState.EXTENDED, true).alongWith(
             setSuperstructureState(SuperstructureState.CLIMB, false),
@@ -178,8 +186,20 @@ public class Superstructure {
 
     }
 
+    private Command navigateToHumanPlayer(CoralHumanPlayerStation pos) {
+        return Commands.defer(() -> navigateToHumanPlayer(pos, getAllianceSafe()), Set.of(drivetrain));
+    }
+
+    private Command navigateToHumanPlayer(CoralHumanPlayerStation pos, Alliance alliance){
+        var alignPose = pos.getAlignPose(alliance);
+        BooleanSupplier shouldUsePathfinder = () -> {
+           return alignPose.getTranslation().getDistance(drivetrain.getLocalizer().getPose().getTranslation()) > 2;
+        };
+        return navigateToPose(alignPose, pos.getOffsetPathfindingPose(alliance), shouldUsePathfinder, shouldUsePathfinder, new NavToPoseConfig());
+    }
+
     public Command intakeCoralFromHumanPlayer(CoralHumanPlayerStation pos) {
-        return new DriveToPose(drivetrain, tipProtectionSystem, () -> pos.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)))
+        return navigateToHumanPlayer(pos).asProxy()
         .andThen(
             setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true),
             setSuperstructureState(SuperstructureState.HP_INTAKE, false),
@@ -201,18 +221,18 @@ public class Superstructure {
     }
 
     private Command alignToCage(CagePosition cagePosition) {
-        final Supplier<Pose2d> pos = () -> cagePosition.getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue));
+        final Supplier<Pose2d> pos = () -> cagePosition.getAlignPose(getAllianceSafe());
         return new DriveToPose(drivetrain, tipProtectionSystem, pos);
     }
 
     private Command alignToCage(Supplier<CagePosition> cagePosition) {
-        return new DriveToPose(drivetrain, tipProtectionSystem, () -> cagePosition.get().getAlignPose(DriverStation.getAlliance().orElse(Alliance.Blue)));
+        return new DriveToPose(drivetrain, tipProtectionSystem, () -> cagePosition.get().getAlignPose(getAllianceSafe()));
     }
 
     public Command alignToClosestCage() {
         return alignToCage(
             () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), 
-                DriverStation.getAlliance().orElse(Alliance.Blue)));
+                getAllianceSafe()));
     }
 
     public Command removeAlgae(boolean isHigh) {
@@ -276,22 +296,24 @@ public class Superstructure {
 
     private Command scoreOnReefMaster(ReefPosition reefPosition, boolean proxyDrive) {
 
-        Command allignCmd = new DriveToPose(
-                drivetrain,
-                tipProtectionSystem, 
-                () -> getReefAlignDriveTarget(
-                    drivetrain.getLocalizer().getPose(), 
-                    reefPosition.branch().getAlignPose(
-                        DriverStation.getAlliance().orElse(Alliance.Blue)
-                    )
-                )
-            );
+        // Command allignCmd = new DriveToPose(
+        //         drivetrain,
+        //         tipProtectionSystem, 
+        //         () -> getReefAlignDriveTarget(
+        //             drivetrain.getLocalizer().getPose(), 
+        //             reefPosition.branch().getAlignPose(
+        //                 getAllianceSafe()
+        //             )
+        //         )
+        //     );
 
         // Command allignCmd = autoPilot2.navigateToPose(() -> getReefAlignDriveTarget(
         //                 drivetrain.getLocalizer().getPose(), 
         //                 reefPosition.branch().getAlignPose(
-        //                     DriverStation.getAlliance().orElse(Alliance.Blue)
+        //                     getAllianceSafe()
         //                 )));
+
+        Command allignCmd = navigateToReef(reefPosition.branch());
 
         if (proxyDrive) {
             allignCmd = allignCmd.asProxy();
@@ -302,7 +324,7 @@ public class Superstructure {
             Commands.run(
                 () -> {
                     var tgt = reefPosition.branch().getAlignPose(
-                        DriverStation.getAlliance().orElse(Alliance.Blue)
+                        getAllianceSafe()
                     );
 
                     double dist = tgt.getTranslation().getDistance(drivetrain.getLocalizer().getPose().getTranslation());
@@ -312,7 +334,7 @@ public class Superstructure {
                     }
                 }
             ),
-            setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), false)
+            waitAndExtendMastToScore(reefPosition)
         ).andThen(
             setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), true),
             waitForDriverConfirmation().onlyIf(() -> !DriverStation.isAutonomous()),
@@ -323,11 +345,35 @@ public class Superstructure {
         ).finallyDo(()->localization.useTrigApriltagStragey(false));
     }
 
+    private Command navigateToReef(ReefBranch branch) {
+        return Commands.defer(() -> navigateToReef(branch, getAllianceSafe(), new NavToPoseConfig()), Set.of(drivetrain));
+    }
+    
+    private Command navigateToReef(ReefBranch branch, Alliance alliance, NavToPoseConfig navConfig) {
+        Pose2d allignGoal = branch.getAlignPose(alliance);
+        Pose2d pathfindGoal = branch.getOffsetPathfindingPose(alliance);
+        BooleanSupplier keepPathfiderActive = () -> {
+            var closestBranch = ReefBranch.getClosest(drivetrain.getLocalizer().getPose(), alliance);
+            return !closestBranch.equals(branch);
+        };
+        BooleanSupplier shouldUsePathfinder = () -> {
+            var closestBranch = ReefBranch.getClosest(drivetrain.getLocalizer().getPose(), alliance);
+            return closestBranch.getBlueReefFaceApriltagID() != branch.getBlueReefFaceApriltagID();
+        };
+        return navigateToPose(allignGoal, pathfindGoal, shouldUsePathfinder, keepPathfiderActive, navConfig);
+    }
+
+    private Command navigateToPose(Pose2d allignGoal, Pose2d pathfindGoal, BooleanSupplier shouldUsePathfinder, BooleanSupplier shouldKeepPathfiderActive, NavToPoseConfig navConfig) {
+        var pathfindingConstraints = new PathConstraints(navConfig.driveMaxVelocity(), navConfig.driveMaxAcceleration(), navConfig.thetaMaxVelocity(), navConfig.thetaMaxAcceleration());
+        return AutoBuilder.pathfindToPose(pathfindGoal, pathfindingConstraints).onlyIf(shouldUsePathfinder).onlyWhile(shouldKeepPathfiderActive)
+        .andThen(new DriveToPose(drivetrain, tipProtectionSystem, ()-> allignGoal, navConfig));
+    }
+
     private Command waitAndExtendMastToScore(ReefPosition reefPosition) {
         BooleanSupplier canExtend = () -> {
             Pose2d robotPose = drivetrain.getLocalizer().getPose();
             Pose2d goalPose = reefPosition.branch().getAlignPose(
-                DriverStation.getAlliance().orElse(Alliance.Blue));
+                getAllianceSafe());
             
             double distance = robotPose.getTranslation().getDistance(goalPose.getTranslation());
 

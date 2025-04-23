@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,10 +31,18 @@ public enum CoralHumanPlayerStation {
     }
 
     public Pose2d getAlignPose(Alliance alliance) {
+        return getAlignPose(alliance, Inches.of(22));
+    }
+
+    public Pose2d getOffsetPathfindingPose(Alliance alliance) {
+        return getAlignPose(alliance, Meters.of(1.5));
+    }
+
+    private Pose2d getAlignPose(Alliance alliance, Distance offsetFromFace) {
         Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueTag : redTag).get().toPose2d();
         
         final var pos = new BreakerVector2(tagPose.getTranslation());
-        final Distance backupOffset = Inches.of(22);
+        final Distance backupOffset = offsetFromFace;
         final Distance sideOffset = Inches.of(0);
 
         final var offsetVec = new BreakerVector2(tagPose.getRotation(), backupOffset.in(Meter))

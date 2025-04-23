@@ -32,9 +32,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
-import frc.robot.commands.AutoPilot;
-import frc.robot.commands.AutoPilot.ProfiledPIDControllerConfig;
-import frc.robot.commands.AutoPilot.NavToPoseConfig;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Autos.StartPosition;
 import frc.robot.BreakerLib.driverstation.BreakerInputStream;
@@ -75,7 +72,6 @@ public class RobotContainer {
   private final Climb climb = new Climb(drivetrain.getPigeon2());
   // private final ApriltagVision apriltagVision = new ApriltagVision(drivetrain);
   private final Localization localization = new Localization(drivetrain);
-  private final AutoPilot ap = new AutoPilot(drivetrain, drivetrain.getLocalizer());
 
   private final BreakerXboxController controller =
       new BreakerXboxController(OperatorConstants.kDriverControllerPort);
@@ -104,7 +100,7 @@ public class RobotContainer {
 
   private void startLog() {
     SignalLogger.enableAutoLogging(false);
-    BreakerLog.setOptions(new DogLogOptions(() -> !DriverStation.isFMSAttached(), false, true, true, true, 20000));
+    BreakerLog.setOptions(new DogLogOptions().withLogExtras(true).withCaptureDs(true));
     // BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
     BreakerLog.addCANBus(DriveConstants.kCANBus);
     BreakerLog.setEnabled(true);
@@ -146,7 +142,8 @@ public class RobotContainer {
 
     scoreOnReefScheduler.bind();
 
-    controller.getButtonX().onTrue(elevator.home());
+    // controller.getButtonX().onTrue(elevator.home());
+    controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
     controller.getButtonB().onTrue(superstructure2.reverseIntake());
     controller.getDPad().getUp().and(manualOverride).onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure2.removeAlgae(false));

@@ -52,11 +52,27 @@ public record ReefPosition(ReefLevel level, ReefBranch branch) {
             this.isLeft = isLeft;
         }
 
+        public int getBlueReefFaceApriltagID() {
+            return blueReefFaceApriltagID;
+        }
+
+        public int getRedReefFaceApriltagID() {
+            return redReefFaceApriltagID;
+        }
+
         public Pose2d getAlignPose(Alliance alliance) {
+            return getAlignPose(alliance, AutoPilotConstants.kReefAutoAllignOffsetFromReefFace);
+        }
+
+        public Pose2d getOffsetPathfindingPose(Alliance alliance) {
+            return getAlignPose(alliance, Units.Meters.of(1));
+        }
+
+        private Pose2d getAlignPose(Alliance alliance, Distance offsetFromReefFace) {
             Pose2d tagPose = FieldConstants.kAprilTagFieldLayout.getTagPose(alliance == Alliance.Blue ? blueReefFaceApriltagID : redReefFaceApriltagID).get().toPose2d();
             Distance endEffectorOffset = Units.Inches.of(0.5);
             Translation2d allignOffsetRel = new Translation2d(
-                -AutoPilotConstants.kReefAutoAllignOffsetFromReefFace.in(Units.Meters), 
+                -offsetFromReefFace.in(Units.Meters), 
                 ((isLeft ? 1 : -1) * -FieldConstants.Reef.kReefBranchOffsetFromFaceApriltagStrafe.in(Units.Meters) + endEffectorOffset.in(Units.Meter)));
 
             Translation2d allignOffset = allignOffsetRel.rotateBy(tagPose.getRotation().minus(new Rotation2d(Math.PI)));

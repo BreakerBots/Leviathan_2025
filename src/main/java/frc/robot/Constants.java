@@ -70,8 +70,6 @@ import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.HeadingCompensatio
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.SetpointGenerationConfig;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.MechanismRatio;
-import frc.robot.commands.AutoPilot.NavToPoseConfig;
-import frc.robot.commands.AutoPilot.ProfiledPIDControllerConfig;
 import frc.robot.subsystems.Drivetrain.DrivetrainKinematicLimits;
 
 /**
@@ -185,27 +183,6 @@ public final class Constants {
     public static class AutoPilotConstants {
       public static final Distance kReefAutoAllignOffsetFromReefFace = Inches.of(18);
 
-      public static final  ProfiledPIDControllerConfig kDefaultTranslationConfig = new ProfiledPIDControllerConfig(4.5, 0.001, 0, new Constraints(1.0, 1.5));
-      public static final  ProfiledPIDControllerConfig kDefaultRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
-
-      public static final NavToPoseConfig kDefaultNavToPoseConfig = new NavToPoseConfig(
-        true,
-        new Pose2d(0.025, 0.025, Rotation2d.fromDegrees(2)),
-        new ChassisSpeeds(0.15, 0.15, 0.015), 
-        kDefaultTranslationConfig, 
-        kDefaultTranslationConfig, 
-        kDefaultRotationConfig);
-
-      public static final  ProfiledPIDControllerConfig kAutoTranslationConfig = new ProfiledPIDControllerConfig(4.4, 0.001, 0, new Constraints(1.5, 3));
-      public static final  ProfiledPIDControllerConfig kAutoRotationConfig = new ProfiledPIDControllerConfig(3.5, 0, 0, new Constraints(2.0, 5.0));
-
-      public static final NavToPoseConfig kAutoNavToPoseConfig = new NavToPoseConfig(
-        true,
-        new Pose2d(0.025, 0.025, Rotation2d.fromDegrees(2)),
-        new ChassisSpeeds(0.15, 0.15, 0.015), 
-        kAutoTranslationConfig, 
-        kAutoTranslationConfig, 
-        kAutoRotationConfig);
     }
 
     public static class FieldConstants {
