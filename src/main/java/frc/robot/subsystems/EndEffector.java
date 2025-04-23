@@ -380,12 +380,6 @@ public class EndEffector extends SubsystemBase {
                 RollerState.EXTAKE
         );
 
-        public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE_NEUTRAL = 
-            new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(-15)), 
-                RollerState.INTAKE
-        );
-        
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(43)), 
@@ -428,48 +422,10 @@ public class EndEffector extends SubsystemBase {
             RollerState.INTAKE_ALGAE
         );
 
-
-        public static final EndEffectorSetpoint REEF_ALGAE_LOW_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(9)), 
-            RollerState.NEUTRAL
-        );
-
         public static final EndEffectorSetpoint REEF_ALGAE_HIGH_INTAKE = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(-5)), 
             RollerState.INTAKE_ALGAE
-        );
-
-
-        public static final EndEffectorSetpoint REEF_ALGAE_HIGH_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(30)), 
-            RollerState.NEUTRAL
-        );
-
-        public static final EndEffectorSetpoint HOLD_ALGAE = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(25)), 
-            RollerState.HOLD_ALGAE
-        );
-
-        public static final EndEffectorSetpoint EXTAKE_ALGAE_PROCESSOR = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(25)), 
-            RollerState.EXTAKE
-        );
-
-        public static final EndEffectorSetpoint BARGE_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(48)), 
-            RollerState.HOLD_ALGAE
-        );
-
-        public static final EndEffectorSetpoint BARGE_EXTAKE = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(48)), 
-            RollerState.EXTAKE
         );
 
 
