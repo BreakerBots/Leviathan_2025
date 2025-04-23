@@ -230,7 +230,6 @@ public class Intake extends SubsystemBase{
 
         public static final IntakeState CLIMB = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.CLIMB);
         public static final IntakeState STOW = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED);
-        public static final IntakeState STOW2 = new IntakeState(IntakeRollerState.NEUTRAL, IntakePivotState.RETRACTED2);
 
         public static final IntakeState RETRACTED_EXTAKE = new IntakeState(IntakeRollerState.EXTAKE, IntakePivotState.RETRACTED); 
 
@@ -264,12 +263,9 @@ public class Intake extends SubsystemBase{
 
     public static enum IntakePivotState {
         EXTENDED(Rotations.of(0.035).minus(Degrees.of(3))),
-        // ALGAE(Rotations.of(0.22)),
-        // ALGAE_HOLD(Rotations.of(0.34)),
         CLEAR(Degrees.of(0.25)),
         CLIMB(Degrees.of(45)),
         RETRACTED(Rotations.of(0.35)),
-        RETRACTED2(Rotations.of(0.4)),
         L1(Rotations.of(0.3));
 
 

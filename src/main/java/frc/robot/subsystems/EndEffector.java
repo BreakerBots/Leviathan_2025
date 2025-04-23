@@ -380,36 +380,12 @@ public class EndEffector extends SubsystemBase {
                 RollerState.EXTAKE
         );
 
-        public static final EndEffectorSetpoint CORAL_GROUND_HANDOFF_NEUTRAL = 
-            new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(185)), 
-                RollerState.NEUTRAL
-        );
-
         public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE_NEUTRAL = 
             new EndEffectorSetpoint(
                 new WristSetpoint(Degrees.of(-15)), 
                 RollerState.INTAKE
         );
-
-        public static final EndEffectorSetpoint ALGAE_GROUND_INTAKE = 
-            new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(-15)), 
-                RollerState.INTAKE
-        );
-
-        public static final EndEffectorSetpoint ALGAE_HOLD_GROUND = 
-            new EndEffectorSetpoint(
-                new WristSetpoint(Degrees.of(-15)), 
-                RollerState.HOLD_ALGAE
-        );
-
-        public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(43)), 
-            RollerState.NEUTRAL
-        );
-
+        
         public static final EndEffectorSetpoint INTAKE_HUMAN_PLAYER = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(43)), 
@@ -419,30 +395,6 @@ public class EndEffector extends SubsystemBase {
         public static final EndEffectorSetpoint CLIMB = 
         new EndEffectorSetpoint(
             new WristSetpoint(Degrees.of(70)), 
-            RollerState.NEUTRAL
-        );
-
-        public static final EndEffectorSetpoint L1_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-20)), 
-            RollerState.NEUTRAL
-        );
-
-        public static final EndEffectorSetpoint L2_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-32.0)), 
-            RollerState.NEUTRAL
-        );
-
-        public static final EndEffectorSetpoint L3_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-32)), 
-            RollerState.NEUTRAL
-        );
-
-        public static final EndEffectorSetpoint L4_NEUTRAL = 
-        new EndEffectorSetpoint(
-            new WristSetpoint(Degrees.of(-32)), 
             RollerState.NEUTRAL
         );
 
