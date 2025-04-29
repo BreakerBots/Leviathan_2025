@@ -139,7 +139,6 @@ public class EndEffector extends SubsystemBase {
     private void setControl(EndEffectorSetpoint setpoint) {
         
         setRollerState(setpoint.rollerState());
-        // setKicker(setpoint.kickerState());
         setWrist(setpoint.wristSetpoint().getSetpoint());
         this.setpoint = setpoint;
     }
@@ -151,11 +150,6 @@ public class EndEffector extends SubsystemBase {
         rollers.setControl(rollerRequest.withOutput(rollerState.getDutyCycle()));
     }
 
-    // private void setKicker(KickerState kickerState) {
-    //     kicker.configSupplyCurrentLimit(kickerState.getCurrentLimitConfig());
-    //     kicker.set(ControlMode.PercentOutput, kickerState.getDutyCycle());
-    // }
-
     private void setWrist(Angle setpoint) {
         wrist.setControl(wristRequest.withPosition(setpoint));
     }
@@ -163,18 +157,6 @@ public class EndEffector extends SubsystemBase {
 
     public boolean hasCoral() {
         return coralSensor.getAsBoolean();
-    }
-
-    public boolean isAlgaeVisable() {
-        return false; //getColorDelta(algaeSensor.getColor().toWpilibColor(), kAlgaeColor) <= kMaxColorDelta;
-    }
-
-    private boolean isAlgaeProximityBelowThresh() {
-        return false; //algaeSensor.getProximity() <= kHasAlgaeProximityThresh;
-    }
-
-    public boolean hasAlgae() {
-        return false;//isAlgaeVisable() && isAlgaeProximityBelowThresh();
     }
 
     public Angle getWristAngle() {
@@ -201,13 +183,6 @@ public class EndEffector extends SubsystemBase {
         return MathUtil.isNear(0.0, getWristVelocity().in(RadiansPerSecond), setpoint.wristSetpoint().getVelocityTolerence().in(RadiansPerSecond));
     }
 
-
-    public static double getColorDelta(Color a, Color b) {
-        var at = new Translation3d(a.red, a.green, a.blue);
-        var bt = new Translation3d(b.red, b.green, b.blue);
-        return at.getDistance(bt);
-    }
-
     private void refreshLogs() {
         BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         
@@ -217,7 +192,6 @@ public class EndEffector extends SubsystemBase {
         BreakerLog.log("EndEffector/Wrist/Angle", getWristAngle().in(Degrees));
 
         BreakerLog.log("EndEffector/HasCoral", hasCoral());
-        BreakerLog.log("EndEffector/AlgaeSensor/HasAlgae", hasAlgae());
         BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
         BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));

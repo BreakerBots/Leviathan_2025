@@ -60,7 +60,6 @@ public class ZED extends SubsystemBase {
   private Timer timeSinceLastUpdate;
 
   private RefrenceFrame cameraRefrenceFrameInRobotSpace;
-  private RefrenceFrame cameraGlobalRefrenceFrameInCameraSpace;
   private TimeInterpolatableBuffer<Pose3d> robotPoseHistory;
   private Supplier<TimestampedValue<Pose3d>> robotPoseAtTimeSupplier;
 
@@ -68,9 +67,8 @@ public class ZED extends SubsystemBase {
   private LocalizationResults latestLocalization;
 
 
-  public ZED(String cameraName, Supplier<TimestampedValue<Pose3d>> robotPoseAtTimeSupplier, Transform3d robotToZedLeftEye, Transform3d zedLeftEyeRobotSpaceToZedGlobal) {
+  public ZED(String cameraName, Supplier<TimestampedValue<Pose3d>> robotPoseAtTimeSupplier, Transform3d robotToZedLeftEye) {
     cameraRefrenceFrameInRobotSpace = new RefrenceFrame(robotToZedLeftEye);
-    cameraGlobalRefrenceFrameInCameraSpace = new RefrenceFrame(zedLeftEyeRobotSpaceToZedGlobal);
     this.robotPoseAtTimeSupplier = robotPoseAtTimeSupplier;
     latestResult = new DetectionResults(new TreeMap<>(), Timer.getTimestamp());
     robotPoseHistory = TimeInterpolatableBuffer.createBuffer(10);
@@ -275,7 +273,7 @@ public class ZED extends SubsystemBase {
 
   
   public static final record ObjectDimensions(double width, double height, double length) {
-    private ObjectDimensions(Translation3d translationRepresentation) {
+    public ObjectDimensions(Translation3d translationRepresentation) {
       this(translationRepresentation.getX(), translationRepresentation.getZ(), translationRepresentation.getY());
     }
   }

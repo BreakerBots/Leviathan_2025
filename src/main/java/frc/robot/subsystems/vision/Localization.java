@@ -104,6 +104,10 @@ public class Localization extends SubsystemBase implements Localizer {
         numLoops = 0;
     }
 
+    public DepthVision getDepthVision() {
+        return depthVision;
+    }
+
     private void updateWheelOdometry(SwerveDriveState state) {
         Pose2d guess = visionFilter.update(state.RawHeading, state.ModulePositions);
         if (kUseGTSAM) {

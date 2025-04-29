@@ -21,6 +21,11 @@ public class BreakerMath {
         return diff < tolerence || diff > ((2*Math.PI)-tolerence);
     }
 
+    public static double getDifferenceBetweenWrapedValues(double val1, double val2, double min, double max) {
+        double errorBound = (max - min) / 2.0;
+        return MathUtil.inputModulus(val1 - val2, -errorBound, errorBound);
+    }
+
     public static double getCircumferenceFromDiameter(double diameter) {
         return diameter * Math.PI;
     }

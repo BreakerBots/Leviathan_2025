@@ -87,7 +87,7 @@ public class ScoreOnReefScheduler extends SubsystemBase{
       .and(manualOverrideNegated)
       .and(new Trigger(superstructure::endEffectorHasCoral))
       .whileTrue(
-        queueBranchSelection(() -> ReefBranch.A)
+        queueBranchSelection(this::getClosestBranch)
       );
 
     Trigger driverAllignL4 = controller.getDPad().getDown();

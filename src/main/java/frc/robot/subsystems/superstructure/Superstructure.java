@@ -96,6 +96,10 @@ public class Superstructure {
         return drivetrain;
     }
 
+    public Localization getLocalization() {
+        return localization;
+    }
+
     public Command climbOnDeepCageManual() {
         return climb.setState(ClimbState.EXTENDED, true).alongWith(
             setSuperstructureState(SuperstructureState.CLIMB, false)
@@ -296,23 +300,6 @@ public class Superstructure {
 
     private Command scoreOnReefMaster(ReefPosition reefPosition, boolean proxyDrive) {
 
-        // Command allignCmd = new DriveToPose(
-        //         drivetrain,
-        //         tipProtectionSystem, 
-        //         () -> getReefAlignDriveTarget(
-        //             drivetrain.getLocalizer().getPose(), 
-        //             reefPosition.branch().getAlignPose(
-        //                 getAllianceSafe()
-        //             )
-        //         )
-        //     );
-
-        // Command allignCmd = autoPilot2.navigateToPose(() -> getReefAlignDriveTarget(
-        //                 drivetrain.getLocalizer().getPose(), 
-        //                 reefPosition.branch().getAlignPose(
-        //                     getAllianceSafe()
-        //                 )));
-
         Command allignCmd = navigateToReef(reefPosition.branch());
 
         if (proxyDrive) {
@@ -353,8 +340,11 @@ public class Superstructure {
         Pose2d allignGoal = branch.getAlignPose(alliance);
         Pose2d pathfindGoal = branch.getOffsetPathfindingPose(alliance);
         BooleanSupplier keepPathfiderActive = () -> {
-            var closestBranch = ReefBranch.getClosest(drivetrain.getLocalizer().getPose(), alliance);
-            return !closestBranch.equals(branch);
+            var botPose = drivetrain.getLocalizer().getPose();
+            var closestBranch = ReefBranch.getClosest(botPose, alliance);
+            boolean isClosestBranchTheTarget = closestBranch.equals(branch);
+            boolean isTargetInAngleRange = Math.abs(allignGoal.getTranslation().minus(botPose.getTranslation()).getAngle().getDegrees()) < 15;
+            return !(isClosestBranchTheTarget && isTargetInAngleRange);
         };
         BooleanSupplier shouldUsePathfinder = () -> {
             var closestBranch = ReefBranch.getClosest(drivetrain.getLocalizer().getPose(), alliance);
