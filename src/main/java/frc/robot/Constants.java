@@ -90,6 +90,7 @@ public final class Constants {
     public static final RGBWColor kWhite = new RGBWColor(255, 255, 255, 0);
     public static final RGBWColor kLimeGreen = new RGBWColor(Color.kLimeGreen);
     public static final RGBWColor kMidDeepBlue = RGBWColor.fromHex("#1629F5").get();
+    public static final RGBWColor kYellow = new RGBWColor(Color.kYellow);
   }
 
   public static class SimulationConstants {

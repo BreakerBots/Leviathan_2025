@@ -13,6 +13,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.CoordinateSystem;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist3d;
@@ -89,6 +90,7 @@ public class ZED extends SubsystemBase {
     boxSub = table.getStructArrayTopic("box", Translation3d.struct).subscribe(new Translation3d[0]);
     confSub = table.getDoubleArrayTopic("conf").subscribe(new double[0]);
     isVisSub = table.getBooleanArrayTopic("is_visible").subscribe(new boolean[0]);
+    isMovingSub = table.getBooleanArrayTopic("is_moving").subscribe(new boolean[0]);
     customValueSub = table.getDoubleArrayTopic("rotation").subscribe(new double[0]);
     NetworkTable camPoseTable = mainTable.getSubTable("pose");
     cameraPoseSub = camPoseTable.getStructTopic("cam_pose", Pose3d.struct).subscribe(new Pose3d());
@@ -106,12 +108,12 @@ public class ZED extends SubsystemBase {
 
   public DetectionResults getDetectionResults() {
     updateRobotPoseHistory();
-    TimestampedInteger[] latencyQueue = latencySub.readQueue();
-    if (latencyQueue.length > 0) {
-      TimestampedInteger latency = latencyQueue[latencyQueue.length - 1];
+    // TimestampedInteger[] latencyQueue = latencySub.readQueue();
+    // if (latencyQueue.length > 0) {
+      TimestampedInteger latency = latencySub.getAtomic(); //latencyQueue[latencyQueue.length - 1];
       double captureTimestamp = (((double)(latency.timestamp)) - (((double)(latency.value)) / 1000.0)) / ((double)(1e6));
       updateDetections(captureTimestamp);
-    }
+    // }
     return latestResult;
   }
 
@@ -174,8 +176,17 @@ public class ZED extends SubsystemBase {
     double[] cvArr = customValueSub.get();
 
     latestResult.results.clear();
+
+    int[] arrLens = new int[]{ids.length, lables.length, translations.length, boxes.length, confs.length, isVisArr.length, isMovArr.length, cvArr.length};
+
+    int minLen = ids.length;
+    for (int len : arrLens) {
+      if (len < minLen) {
+        minLen = len;
+      }
+    }
     
-    for (int i = 0; i < ids.length; i++) {
+    for (int i = 0; i < minLen; i++) {
       long id = ids[i];
       Optional<TrackedObject> prevInstance = Optional.ofNullable(prevTrackedObjects.get(id));
       String lable = lables[i];
@@ -296,10 +307,10 @@ public class ZED extends SubsystemBase {
 
   private static class RefrenceFrame {
     private Transform3d parentToFrameTransfrom;
-    private CoordinateSystem coordinateSystem;
+    // private CoordinateSystem coordinateSystem;
     public RefrenceFrame(Transform3d parentToFrameTransfrom) {
       this.parentToFrameTransfrom = parentToFrameTransfrom;
-      coordinateSystem = BreakerMath.getCoordinateSystemFromRotation(parentToFrameTransfrom.getRotation());
+      // coordinateSystem = BreakerMath.getCoordinateSystemFromRotation(parentToFrameTransfrom.getRotation());
     }
 
     public RefrenceFrame(Pose3d frameOriginInParentSpace) {
@@ -307,20 +318,27 @@ public class ZED extends SubsystemBase {
     }
 
     public Translation3d convertToParentFrame(Translation3d val) {
-      val = CoordinateSystem.convert(val, coordinateSystem, CoordinateSystem.NWU());
+      //  val = CoordinateSystem.convert(val, coordinateSystem, CoordinateSystem.NWU());
+      val.rotateBy(parentToFrameTransfrom.getRotation().unaryMinus());
       val = val.minus(parentToFrameTransfrom.getTranslation());
       return val;
     }
 
-    public Pose3d convertToParentFrame(Pose3d val) {
-      val = CoordinateSystem.convert(val, coordinateSystem, CoordinateSystem.NWU());
-      val = val.transformBy(parentToFrameTransfrom.inverse());
+    public Rotation3d convertToParentFrame(Rotation3d val) {
+      val.rotateBy(parentToFrameTransfrom.getRotation().unaryMinus());
       return val;
     }
 
-    public CoordinateSystem getCoordinateSystem() {
-        return coordinateSystem;
+
+    public Pose3d convertToParentFrame(Pose3d val) {
+      // val = CoordinateSystem.convert(val, coordinateSystem, CoordinateSystem.NWU());
+      return new Pose3d(convertToParentFrame(val.getTranslation()), convertToParentFrame(val.getRotation()));
     }
+
+
+    // public CoordinateSystem getCoordinateSystem() {
+    //     return coordinateSystem;
+    // }
 
     public Transform3d getParentToFrameTransform() {
         return parentToFrameTransfrom;

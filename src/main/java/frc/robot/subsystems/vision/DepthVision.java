@@ -15,7 +15,7 @@ public class DepthVision {
     private ZED zed;
 
     public DepthVision(Supplier<TimestampedValue<Pose3d>> atomicRobotPoseSupplier) {
-        zed = new ZED("", atomicRobotPoseSupplier, new Transform3d());
+        zed = new ZED("ZED", atomicRobotPoseSupplier, new Transform3d());
     }
 
     public Optional<LocalizationResults> getUnreadLocalizationResults() {

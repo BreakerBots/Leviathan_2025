@@ -113,8 +113,8 @@ public class Superstructure {
         return Animations.kDisabled;
     }
 
-    private Command yealdLed() {
-        return led.set(this::defaultLedSupplier);
+    private void yealdLed() {
+        led.setFunctional(this::defaultLedSupplier);
     }
 
     public static Alliance getAllianceSafe() {
@@ -193,33 +193,36 @@ public class Superstructure {
     }
 
     public Command intakeFromGroundAuton() {
-        return setSuperstructureState(SuperstructureState.GROUND_INTAKE, false).andThen(
-        Commands.waitUntil(endEffector::hasCoral),
+        return led.set(Animations.kIntakeing).andThen(
+            setSuperstructureState(SuperstructureState.GROUND_INTAKE, false),
+            Commands.waitUntil(endEffector::hasCoral),
             Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
-        );
+        ).finallyDo(this::yealdLed);
     }
 
     public Command intakeFromGround() {
         return 
         setSuperstructureState(SuperstructureState.GROUND_INTAKE.withNeutralRollers(), true)
         .andThen(
+            led.set(Animations.kIntakeing),
             setSuperstructureState(SuperstructureState.GROUND_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
             Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
-        );
+        ).finallyDo(this::yealdLed);
     }
 
     public Command intakeFromHumanPlayerManual() {
         return
         setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true)
         .andThen(
+            led.set(Animations.kIntakeingHP),
             setSuperstructureState(SuperstructureState.HP_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
             Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
-        );
+        ).finallyDo(this::yealdLed);
 
     }
 
@@ -236,25 +239,27 @@ public class Superstructure {
     }
 
     public Command intakeCoralFromHumanPlayer(CoralHumanPlayerStation pos) {
-        return navigateToHumanPlayer(pos).asProxy()
+        return navigateToHumanPlayer(pos).asProxy().alongWith(led.set(Animations.kAutoAllignHP))
         .andThen(
             setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true),
+            led.set(Animations.kIntakeingHP),
             setSuperstructureState(SuperstructureState.HP_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
             Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
-        );
+        ).finallyDo(this::yealdLed);
     }
 
     public Command intakeCoralFromHumanPlayerManual() {
         return 
         Commands.sequence(
             setSuperstructureState(SuperstructureState.HP_INTAKE.withNeutralRollers(), true),
+            led.set(Animations.kIntakeingHP),
             setSuperstructureState(SuperstructureState.HP_INTAKE, false),
             Commands.waitUntil(endEffector::hasCoral),
             Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
-        );
+        ).finallyDo(this::yealdLed);
     }
 
     private Command alignToCage(CagePosition cagePosition) {
@@ -309,13 +314,15 @@ public class Superstructure {
     public Command scoreOnReefManual(ReefLevel reefLevel) {
         return setSuperstructureState(reefLevel.getExtakeSuperstructureState().withNeutralRollers(), true)
         .andThen(
+            led.set(Animations.kAwaitHuman),
             new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.7)
                 .until(() -> controller.getButtonA().getAsBoolean()),
+            led.set(Animations.kScoreing),
             setSuperstructureState(reefLevel.getExtakeSuperstructureState(), false),
             Commands.waitUntil(() -> !endEffector.hasCoral()),
             Commands.waitSeconds(0.1),
             stowAll()
-        );
+        ).finallyDo(this::yealdLed);
     }
 
     public Command waitForDriverConfirmation() {
@@ -354,15 +361,18 @@ public class Superstructure {
                     }
                 }
             ),
+            led.set(Animations.kAutoAllignScoreing),
             waitAndExtendMastToScore(reefPosition)
         ).andThen(
             setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), true),
+            led.set(Animations.kAwaitHuman),
             waitForDriverConfirmation().onlyIf(() -> !DriverStation.isAutonomous()),
+            led.set(Animations.kScoreing),
             setSuperstructureState(reefPosition.level().getExtakeSuperstructureState(), false),
             Commands.waitUntil(() -> !endEffector.hasCoral()).withTimeout(1.0),
             Commands.waitSeconds(0.1),
             setSuperstructureState(SuperstructureState.STOW, false)
-        ).finallyDo(()->localization.useTrigApriltagStragey(false));
+        ).finallyDo(()->localization.useTrigApriltagStragey(false)).finallyDo(this::yealdLed);
     }
 
     private Command navigateToReef(ReefBranch branch) {
