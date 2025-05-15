@@ -35,6 +35,7 @@ public class IntakeAssist extends Command{
     private DriveToPose driveToPose;
     // private HeadingSnap snap;
     private Pose2d targetPose;
+    private Translation2d coralTrans;
     
 
     public IntakeAssist(Supplier<Optional<TrackedObject>> targetSupplier, Superstructure superstructure) {
@@ -61,21 +62,24 @@ public class IntakeAssist extends Command{
         Pose2d pose = superstructure.getLocalization().getPose();
         if (targetSupplier.get().isPresent()) {
             TrackedObject target = targetSupplier.get().get();
-            Translation2d targetTrans = target.position().getPositionFieldSpace(false).toTranslation2d();
-            BreakerLog.log("fhgdgfgd", targetTrans);
+            Translation2d coralTrans = target.position().getPositionFieldSpace(false).toTranslation2d();
+            Translation2d targetTransRobot = target.position().getPositionRobotSpace(false).toTranslation2d();
+            BreakerLog.log("fhgdgfgd", coralTrans);
             Rotation2d targetAngleCamera = new Rotation2d(target.customValue());
             var tar = targetAngleCamera.minus(new Rotation2d(Constants.DepthVisionConstants.kCameraTransform.getRotation().getMeasureZ()));
-            var taf = tar.rotateBy(pose.getRotation().unaryMinus());
-            
-            var offset = new BreakerVector2(taf, 0.5);
-            var tgtA = targetTrans.plus(offset.getAsTranslation());
-            var tgtB = targetTrans.minus(offset.getAsTranslation());
-            if (tgtA.getDistance(pose.getTranslation()) > tgtB.getDistance(pose.getTranslation())) {
-                targetPose = new Pose2d(tgtB, taf.plus(Rotation2d.k180deg));
-            } else {
-                targetPose = new Pose2d(tgtA, taf);
-            }
+        
+            var offset = new BreakerVector2(tar,0.5);
 
+
+            var goalTransRobotSpace = targetTransRobot.minus(offset.getAsTranslation());
+
+            var goalTransFieldSpace =  goalTransRobotSpace.rotateBy(pose.getRotation().unaryMinus()).plus(pose.getTranslation());
+
+
+            
+            targetPose = new Pose2d(goalTransFieldSpace, coralTrans.minus(pose.getTranslation()).getAngle());
+
+        
             driveToPose.initialize();
         } else {
             this.cancel();
@@ -85,6 +89,8 @@ public class IntakeAssist extends Command{
     }
     
     public void execute() {
+        Pose2d pose = superstructure.getLocalization().getPose();
+        targetPose = new Pose2d(targetPose.getTranslation(), coralTrans.minus(pose.getTranslation()).getAngle());
         driveToPose.execute();
     }
 

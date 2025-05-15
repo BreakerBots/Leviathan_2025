@@ -10,12 +10,13 @@ import frc.robot.BreakerLib.drivers.ZED.DetectionResults;
 import frc.robot.BreakerLib.drivers.ZED.LocalizationResults;
 import frc.robot.BreakerLib.drivers.ZED.TrackedObject;
 import frc.robot.BreakerLib.util.TimestampedValue;
+import frc.robot.Constants.DepthVisionConstants;
 
 public class DepthVision {
     private ZED zed;
 
     public DepthVision(Supplier<TimestampedValue<Pose3d>> atomicRobotPoseSupplier) {
-        zed = new ZED("ZED", atomicRobotPoseSupplier, new Transform3d());
+        zed = new ZED("ZED", atomicRobotPoseSupplier, DepthVisionConstants.kCameraTransform);
     }
 
     public Optional<LocalizationResults> getUnreadLocalizationResults() {

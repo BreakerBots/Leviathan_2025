@@ -107,7 +107,18 @@ public final class Constants {
     }
 
     public static class DepthVisionConstants {
-      public static final Transform3d kCameraTransform = new Transform3d();
+      public static final Transform3d kCameraTransform = new Transform3d(
+        new Translation3d(
+          Inches.of(-3.547), 
+          Inches.of(2.362), 
+          Inches.of(30.335).plus(Inches.of(1.544))
+        ), 
+        new Rotation3d(
+          Degrees.of(0), 
+          Degrees.of(-15), 
+          Degrees.of(0)
+        )
+      );//new Transform3d(new Translation3d(Inches.of(-3.547), Inches.of(2.362), Inches.of(30.335).plus(Inches.of(1.544))), new Rotation3d(Degrees.of(0), Degrees.of(-17), Degrees.of(0)));
       public static final LinearVelocity kMaxLinearVelVIO = MetersPerSecond.of(2.5);
       public static final double kLinearVelStdDevScalarVIO = 1.5;
       public static final AngularVelocity kMaxAngularVelVIO = DegreesPerSecond.of(360);

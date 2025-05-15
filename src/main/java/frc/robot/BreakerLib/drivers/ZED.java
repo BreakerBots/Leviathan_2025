@@ -108,12 +108,18 @@ public class ZED extends SubsystemBase {
 
   public DetectionResults getDetectionResults() {
     updateRobotPoseHistory();
-    // TimestampedInteger[] latencyQueue = latencySub.readQueue();
-    // if (latencyQueue.length > 0) {
-      TimestampedInteger latency = latencySub.getAtomic(); //latencyQueue[latencyQueue.length - 1];
-      double captureTimestamp = (((double)(latency.timestamp)) - (((double)(latency.value)) / 1000.0)) / ((double)(1e6));
-      updateDetections(captureTimestamp);
-    // }
+   
+    try {
+       // TimestampedInteger[] latencyQueue = latencySub.readQueue();
+      // if (latencyQueue.length > 0) {
+        TimestampedInteger latency = latencySub.getAtomic(); //latencyQueue[latencyQueue.length - 1];
+        double captureTimestamp = (((double)(latency.timestamp)) - (((double)(latency.value)) / 1000.0)) / ((double)(1e6));
+        updateDetections(captureTimestamp);
+      // }
+    } catch (Exception e) {
+      System.err.print("ZED: Error reading detections: " + e.getMessage());
+    }
+      
     return latestResult;
   }
 
