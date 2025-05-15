@@ -59,20 +59,25 @@ public class LED extends SubsystemBase {
         public static final LarsonAnimation kEnabledAuto =  new LarsonAnimation(0, kOverallMaxIndex).withColor(kMidDeepBlue).withBounceMode(LarsonBounceValue.Front).withSize(12).withFrameRate(80);
         public static final RainbowAnimation kDisabled = new RainbowAnimation(0, kOverallMaxIndex).withBrightness(1.0);
         
-        public static final StrobeAnimation kHasCoralAuto = new StrobeAnimation(0, kOverallMaxIndex).withColor(kWhite).withFrameRate(7);
-        public static final StrobeAnimation kHasCoralTeleop = new StrobeAnimation(0, kOverallMaxIndex).withColor(kWhite).withFrameRate(7);
+        public static final StrobeAnimation kHasCoralAuto = new StrobeAnimation(0, kOverallMaxIndex).withColor(kWhite).withFrameRate(15);
+        public static final StrobeAnimation kHasCoralTeleop = new StrobeAnimation(0, kOverallMaxIndex).withColor(kWhite).withFrameRate(15);
 
-        public static final SolidColor kScoreing = new SolidColor(0, kOverallMaxIndex).withColor(kLimeGreen);
-        public static final StrobeAnimation kAwaitHuman = new StrobeAnimation(0, kOverallMaxIndex).withColor(kLimeGreen).withFrameRate(30);
+        public static final StrobeAnimation kReverseIntake = new StrobeAnimation(0, kOverallMaxIndex).withColor(kRed).withFrameRate(15);
+
+        public static final StrobeAnimation kScoreing = new StrobeAnimation(0, kOverallMaxIndex).withColor(kYellow).withFrameRate(45);
+        public static final StrobeAnimation kAwaitHuman = new StrobeAnimation(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kAqua)).withFrameRate(15);
         public static final SingleFadeAnimation kAutoAllignScoreing = new SingleFadeAnimation(0, kOverallMaxIndex).withColor(kLimeGreen).withFrameRate(7);
 
         public static final ColorFlowAnimation kRemoveAlgae = new ColorFlowAnimation(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kPurple));
 
         public static final ColorFlowAnimation kIntakeing = new ColorFlowAnimation(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kOrange)).withFrameRate(25);
         public static final SolidColor kIntakeingL1 = new SolidColor(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kOrange));
-        public static final ColorFlowAnimation kAutoAllignHP = new ColorFlowAnimation(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kPink)).withFrameRate(25);
-        public static final StrobeAnimation kIntakeingHP = new StrobeAnimation(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kPink)).withFrameRate(30);
 
+        public static final ColorFlowAnimation kAutoAllignHP = new ColorFlowAnimation(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kFuchsia)).withFrameRate(25);
+        public static final StrobeAnimation kIntakeingHP = new StrobeAnimation(0, kOverallMaxIndex).withColor(new RGBWColor(Color.kPink)).withFrameRate(15);
+
+        public static final ColorFlowAnimation kClimbExtended = new ColorFlowAnimation(0, kOverallMaxIndex).withColor(kMidDeepBlue).withFrameRate(25);
+        public static final StrobeAnimation kClimbing = new StrobeAnimation(0, kOverallMaxIndex).withColor(kMidDeepBlue).withFrameRate(15);
 
     }
     

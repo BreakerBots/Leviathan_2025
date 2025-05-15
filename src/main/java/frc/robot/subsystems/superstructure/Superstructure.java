@@ -135,9 +135,12 @@ public class Superstructure {
 
     public Command climbOnDeepCageManual() {
         return climb.setState(ClimbState.EXTENDED, true).alongWith(
-            setSuperstructureState(SuperstructureState.CLIMB, false)
+            setSuperstructureState(SuperstructureState.CLIMB, false),
+            led.set(Animations.kClimbExtended)
         ).andThen(
+            led.set(Animations.kAwaitHuman),
             waitForDriverConfirmation(),
+            led.set(Animations.kClimbing),
             climb.setState(ClimbState.CLIMBING, false)
         );
     }
@@ -164,17 +167,22 @@ public class Superstructure {
         final Supplier<Pose2d> closest = () -> CagePosition.getClosest(drivetrain.getLocalizer().getPose(), ally).getClimbPose(ally);
         return climb.setState(ClimbState.EXTENDED, true).alongWith(
             setSuperstructureState(SuperstructureState.CLIMB, false),
-            alignToClosestCage().asProxy()
+            alignToClosestCage().asProxy(),
+            led.set(Animations.kClimbExtended)
         ).andThen(
+            led.set(Animations.kAwaitHuman),
             waitForDriverConfirmation(),
+            led.set(Animations.kClimbExtended),
             new DriveToPose(drivetrain, tipProtectionSystem, closest).asProxy(),
+            led.set(Animations.kAwaitHuman),
             waitForDriverConfirmation(),
+            led.set(Animations.kClimbing),
             climb.setState(ClimbState.CLIMBING, false)
         );
     }
  
     public Command stowClimb() {
-        return climb.setState(ClimbState.STOW, true);
+        return climb.setState(ClimbState.STOW, true).andThen(this::yealdLed);
     }
 
     public Command stowAll() {
@@ -185,10 +193,11 @@ public class Superstructure {
         return 
         setSuperstructureState(SuperstructureState.INTEXER_EJECT.withNeutralRollers(), true)
         .andThen(
+            led.set(Animations.kReverseIntake),
             setSuperstructureState(SuperstructureState.INTEXER_EJECT, false),
             Commands.waitSeconds(3),
             setSuperstructureState(SuperstructureState.STOW, false)
-        );
+        ).finallyDo(this::yealdLed);
         
     }
 
@@ -290,8 +299,10 @@ public class Superstructure {
         return
         setSuperstructureState(SuperstructureState.INTAKE_L1.withNeutralRollers(), true)
         .andThen(
+            led.set(Animations.kIntakeingL1),
             setSuperstructureState(SuperstructureState.INTAKE_L1, false),
             intake.waitForCoralGroundIntakeL1AndStopRollers(),
+            led.set(Animations.kHasCoralTeleop),
             setSuperstructureState(SuperstructureState.HOLD_L1, false)
         );
     }
@@ -304,11 +315,12 @@ public class Superstructure {
         return
         setSuperstructureState(SuperstructureState.EXTAKE_L1.withNeutralRollers(), true)
         .andThen(
+            led.set(Animations.kScoreing),
             setSuperstructureState(SuperstructureState.EXTAKE_L1, false),
             Commands.waitUntil(() -> !intake.hasCoral())
                 .andThen(Commands.waitSeconds(0.1)),
             setSuperstructureState(SuperstructureState.HOLD_L1, false)
-        );
+        ).finallyDo(this::yealdLed);
     }
 
     public Command scoreOnReefManual(ReefLevel reefLevel) {

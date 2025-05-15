@@ -85,7 +85,6 @@ public class IntakeAssist extends Command{
     }
     
     public void execute() {
-        Pose2d pose = superstructure.getLocalization().getPose();
         driveToPose.execute();
     }
 
@@ -132,7 +131,6 @@ public class IntakeAssist extends Command{
     
     public void end(boolean interrupted) {
         driveToPose.end(interrupted);
-        // Logic to run when the command ends
     }
 
     @Override
