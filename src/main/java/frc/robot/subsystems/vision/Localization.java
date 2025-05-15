@@ -94,7 +94,7 @@ public class Localization extends SubsystemBase implements Localizer {
         if (kUseGTSAM) {
             gtsam = new GTSAM(camNames);
         }
-        // depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
+        depthVision = new DepthVision(() -> new TimestampedValue<Pose3d>(new Pose3d(getPose()), Timer.getTimestamp()));
 
         lastOdometryValue = drivetrain.getStateCopy().Pose;
         drivetrain.registerTelemetry(this::updateWheelOdometry);

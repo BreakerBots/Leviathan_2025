@@ -142,9 +142,10 @@ public class RobotContainer {
 
     scoreOnReefScheduler.bind();
 
-    // controller.getButtonX().onTrue(elevator.home());
-    controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
-    controller.getButtonB().onTrue(superstructure2.reverseIntake());
+    controller.getButtonX().onTrue(elevator.home());
+    //controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
+    //controller.getButtonB().onTrue(superstructure2.reverseIntake());
+    controller.getButtonB().onTrue(superstructure2.smartIntake());
     controller.getDPad().getUp().and(manualOverride).onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure2.removeAlgae(false));
     controller.getDPad().getRight().onTrue(superstructure2.removeAlgae(true));

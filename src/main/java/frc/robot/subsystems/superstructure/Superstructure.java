@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -36,6 +38,7 @@ import frc.robot.CoralHumanPlayerStation;
 import frc.robot.ReefPosition.ReefBranch;
 import frc.robot.ReefPosition.ReefLevel;
 import frc.robot.commands.HeadingSnap;
+import frc.robot.commands.IntakeAssist;
 import frc.robot.commands.DriveToPose;
 import frc.robot.commands.DriveToPose.NavToPoseConfig;
 import frc.robot.ReefPosition;
@@ -62,6 +65,8 @@ import frc.robot.subsystems.EndEffector.WristSetpoint;
 import frc.robot.subsystems.Indexer.IndexerState;
 import frc.robot.subsystems.Intake.IntakeRollerState;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.LED.Animations;
+import frc.robot.subsystems.LED;
 import frc.robot.subsystems.vision.Localization;
 
 public class Superstructure {
@@ -74,6 +79,7 @@ public class Superstructure {
     private Localization localization;
     private BreakerXboxController controller;
     private TipProtectionSystem tipProtectionSystem;
+    private LED led;
 
     public Superstructure(EndEffector endEffector, Elevator elevator, Intake intake, Indexer indexer, Climb climb, Drivetrain drivetrain, Localization localization, BreakerXboxController controller) {
         this.drivetrain = drivetrain;
@@ -85,7 +91,30 @@ public class Superstructure {
         this.localization = localization;
         this.controller = controller;
         tipProtectionSystem = new TipProtectionSystem(elevator, drivetrain.getPigeon2());
+        led = new LED();
+        led.setFunctional(this::defaultLedSupplier);
         // autoPilot2 = new AutoPilot2(this);
+    }
+
+    private ControlRequest defaultLedSupplier() {
+        if (RobotState.isDisabled()) {
+            return Animations.kDisabled;
+        } else if (RobotState.isTeleop()) {
+            if (endEffectorHasCoral()) {
+                return Animations.kHasCoralTeleop;
+            }
+            return Animations.kEnabledTeleop;
+        } else if (RobotState.isAutonomous()) {
+            if (endEffectorHasCoral()) {
+                return Animations.kHasCoralAuto;
+            }
+            return Animations.kEnabledAuto;
+        }
+        return Animations.kDisabled;
+    }
+
+    private Command yealdLed() {
+        return led.set(this::defaultLedSupplier);
     }
 
     public static Alliance getAllianceSafe() {
@@ -98,6 +127,10 @@ public class Superstructure {
 
     public Localization getLocalization() {
         return localization;
+    }
+
+    public Command smartIntake() {
+        return new IntakeAssist(this);
     }
 
     public Command climbOnDeepCageManual() {

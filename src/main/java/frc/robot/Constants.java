@@ -13,7 +13,6 @@ import javax.print.attribute.standard.PrintQuality;
 
 import org.photonvision.simulation.SimCameraProperties;
 
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -22,6 +21,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.ClosedLoopOutputType;
@@ -82,6 +82,16 @@ import frc.robot.subsystems.Drivetrain.DrivetrainKinematicLimits;
  */
 public final class Constants {
 
+  public static class LedConstants {
+    public static final int kOverallMaxIndex = 47;
+    public static final int kInegratedLedMaxIndex = 7;
+
+    public static final RGBWColor kRed = new RGBWColor(255, 0, 0, 0);
+    public static final RGBWColor kWhite = new RGBWColor(255, 255, 255, 0);
+    public static final RGBWColor kLimeGreen = new RGBWColor(Color.kLimeGreen);
+    public static final RGBWColor kMidDeepBlue = RGBWColor.fromHex("#1629F5").get();
+  }
+
   public static class SimulationConstants {
     public static Time kWaitTime = Seconds.of(1.2);
   }
@@ -96,6 +106,7 @@ public final class Constants {
     }
 
     public static class DepthVisionConstants {
+      public static final Transform3d kCameraTransform = new Transform3d();
       public static final LinearVelocity kMaxLinearVelVIO = MetersPerSecond.of(2.5);
       public static final double kLinearVelStdDevScalarVIO = 1.5;
       public static final AngularVelocity kMaxAngularVelVIO = DegreesPerSecond.of(360);

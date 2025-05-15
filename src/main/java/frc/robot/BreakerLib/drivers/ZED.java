@@ -51,6 +51,7 @@ public class ZED extends SubsystemBase {
   private DoubleArraySubscriber confSub;
   private BooleanArraySubscriber isVisSub;
   private BooleanArraySubscriber isMovingSub;
+  private DoubleArraySubscriber customValueSub;
 
   private StructSubscriber<Pose3d> cameraPoseSub;
   private DoubleSubscriber camPoseLatencySub;
@@ -88,6 +89,7 @@ public class ZED extends SubsystemBase {
     boxSub = table.getStructArrayTopic("box", Translation3d.struct).subscribe(new Translation3d[0]);
     confSub = table.getDoubleArrayTopic("conf").subscribe(new double[0]);
     isVisSub = table.getBooleanArrayTopic("is_visible").subscribe(new boolean[0]);
+    customValueSub = table.getDoubleArrayTopic("rotation").subscribe(new double[0]);
     NetworkTable camPoseTable = mainTable.getSubTable("pose");
     cameraPoseSub = camPoseTable.getStructTopic("cam_pose", Pose3d.struct).subscribe(new Pose3d());
     camPoseLatencySub = camPoseTable.getDoubleTopic("cam_pose_latency").subscribe(0.0);  
@@ -169,6 +171,7 @@ public class ZED extends SubsystemBase {
     double[] confs = confSub.get();
     boolean[] isVisArr = isVisSub.get();
     boolean[] isMovArr = isMovingSub.get();
+    double[] cvArr = customValueSub.get();
 
     latestResult.results.clear();
     
@@ -179,6 +182,7 @@ public class ZED extends SubsystemBase {
       boolean isVis = isVisArr[i];
       boolean isMov = isMovArr[i]; 
       double conf = confs[i];
+      double cv = cvArr[i];
 
       Translation3d transCamSpace = translations[i];
       RawObjectPosition positionRaw = RawObjectPosition.fromCamSpaceTranslation(transCamSpace, cameraRefrenceFrameInRobotSpace, robotFrameInWorld, timestamp);
@@ -192,7 +196,7 @@ public class ZED extends SubsystemBase {
       ObjectDimensions dimensions = new ObjectDimensions(boxes[i]);
 
 
-      TrackedObject object = new TrackedObject(id, lable, timestamp, vel, position, dimensions, conf, isVis, isMov);
+      TrackedObject object = new TrackedObject(id, lable, timestamp, vel, position, dimensions, conf, cv, isVis, isMov);
       latestResult.results.put(id, object);
     }
     return latestResult;
@@ -332,6 +336,7 @@ public class ZED extends SubsystemBase {
       ObjectPosition position,
       ObjectDimensions cameraRelitiveDimensions,
       double confidance,
+      double customValue,
       boolean isVisible,
       boolean isMoveing) implements Comparable<TrackedObject> {
 
