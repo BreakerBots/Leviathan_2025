@@ -100,7 +100,7 @@ public class RobotContainer {
 
   private void startLog() {
     SignalLogger.enableAutoLogging(false);
-    BreakerLog.setOptions(new DogLogOptions().withLogExtras(true).withCaptureDs(true));
+    BreakerLog.setOptions(new DogLogOptions().withLogExtras(true).withCaptureDs(true).withNtPublish(false));
     // BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
     BreakerLog.addCANBus(DriveConstants.kCANBus);
     BreakerLog.setEnabled(true);
@@ -145,7 +145,8 @@ public class RobotContainer {
     controller.getButtonX().onTrue(elevator.home());
     //controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
     //controller.getButtonB().onTrue(superstructure2.reverseIntake());
-    controller.getButtonB().onTrue(superstructure2.smartIntake());
+    controller.getButtonB().whileTrue(superstructure2.smartIntake());
+    controller.getButtonB().onFalse(superstructure2.stowAll());
     controller.getDPad().getUp().and(manualOverride).onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure2.removeAlgae(false));
     controller.getDPad().getRight().onTrue(superstructure2.removeAlgae(true));

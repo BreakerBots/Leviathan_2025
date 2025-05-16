@@ -10,6 +10,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.RobotCentricFacingAngle;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
@@ -130,7 +132,10 @@ public class Superstructure {
     }
 
     public Command smartIntake() {
-        return new IntakeAssist(this);
+        RobotCentricFacingAngle driveMoveReq = new RobotCentricFacingAngle().withDriveRequestType(DriveRequestType.Velocity).withHeadingPID(3.0, 0, 0);
+        return new IntakeAssist(this).andThen(
+            Commands.run(() -> drivetrain.setControl(driveMoveReq.withTargetDirection(localization.getPose().getRotation()).withVelocityX(MetersPerSecond.of(1.0))), drivetrain).onlyWhile(() -> !endEffectorHasCoral())
+        ).alongWith(intakeFromGround());
     }
 
     public Command climbOnDeepCageManual() {

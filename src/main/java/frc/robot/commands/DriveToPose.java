@@ -159,9 +159,34 @@ public class DriveToPose extends Command {
                 0.1,
                 Meters.of(0.3),
                 Degrees.of(15), 
-                new PIDConstants(9.5, 0.1, 0), //9.5
-                new PIDConstants(8.0, 0.0, 0) //
+                new PIDConstants(12.5, 0.1, 0), //9.5
+                new PIDConstants(10.5, 0.2, 0) //
             );
+        }
+
+        public static NavToPoseConfig getIntakeAssistConfig() {
+            return new NavToPoseConfig(
+                Meters.of(0.015), 
+                Degrees.of(1.0), 
+                MetersPerSecond.of(3.0), 
+                DegreesPerSecond.of(360), 
+                MetersPerSecondPerSecond.of(4.0), 
+                RadiansPerSecondPerSecond.of(8), 
+                MetersPerSecond.of(-0.5),
+                Meters.of(0.01),
+                Meters.of(0.01),
+                Meters.of(0.05),
+                Radians.of(0),
+                Radians.of(0),
+                0.2,
+                0.1,
+                Meters.of(0.3),
+                Degrees.of(15), 
+                new PIDConstants(12.5, 0.1, 0), //9.5
+                new PIDConstants(10.5, 0.2, 0) //
+            );
+            
+
         }
   }
 

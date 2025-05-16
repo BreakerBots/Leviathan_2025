@@ -25,6 +25,7 @@ import frc.robot.BreakerLib.driverstation.BreakerInputStream2d;
 import frc.robot.BreakerLib.physics.BreakerVector2;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.BreakerLib.util.math.BreakerMath;
+import frc.robot.commands.DriveToPose.NavToPoseConfig;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.vision.DepthVision;
@@ -36,15 +37,16 @@ public class IntakeAssist extends Command{
     // private HeadingSnap snap;
     private Pose2d targetPose;
     private Translation2d coralTrans;
+    private boolean endFlag;
     
 
     public IntakeAssist(Supplier<Optional<TrackedObject>> targetSupplier, Superstructure superstructure) {
         this.superstructure = superstructure;
         this.targetSupplier = targetSupplier;
-        targetPose = superstructure.getLocalization().getPose();
+        // targetPose = superstructure.getLocalization().getPose();
         // snap = new HeadingSnap(this::getTargetPose, superstructure.getDrivetrain(), inputStream2d);
         // addRequirements(snap.getRequirements());
-        driveToPose = new DriveToPose(superstructure.getDrivetrain(), superstructure.getTipProtectionSystem(), this::getTargetPose);
+        driveToPose = new DriveToPose(superstructure.getDrivetrain(), superstructure.getTipProtectionSystem(), this::getTargetPose, NavToPoseConfig.getIntakeAssistConfig());
         addRequirements(driveToPose.getRequirements());
     }
 
@@ -58,39 +60,41 @@ public class IntakeAssist extends Command{
 
     @Override
     public void initialize() {
-        
+        endFlag = false;
+        targetPose = new Pose2d();
         Pose2d pose = superstructure.getLocalization().getPose();
         if (targetSupplier.get().isPresent()) {
             TrackedObject target = targetSupplier.get().get();
-            Translation2d coralTrans = target.position().getPositionFieldSpace(false).toTranslation2d();
+            // coralTrans = target.position().getPositionFieldSpace(false).toTranslation2d();
             Translation2d targetTransRobot = target.position().getPositionRobotSpace(false).toTranslation2d();
+            coralTrans = targetTransRobot;
             BreakerLog.log("fhgdgfgd", coralTrans);
             Rotation2d targetAngleCamera = new Rotation2d(target.customValue());
             var tar = targetAngleCamera.minus(new Rotation2d(Constants.DepthVisionConstants.kCameraTransform.getRotation().getMeasureZ()));
         
-            var offset = new BreakerVector2(tar,0.5);
+            var offset = new BreakerVector2(tar, 0.7 + (Math.abs(tar.getRadians()) * 0.2));
 
 
             var goalTransRobotSpace = targetTransRobot.minus(offset.getAsTranslation());
 
-            var goalTransFieldSpace =  goalTransRobotSpace.rotateBy(pose.getRotation().unaryMinus()).plus(pose.getTranslation());
+            var goalTransFieldSpace =  goalTransRobotSpace.rotateBy(pose.getRotation()).plus(pose.getTranslation());
 
 
             
-            targetPose = new Pose2d(goalTransFieldSpace, coralTrans.minus(pose.getTranslation()).getAngle());
+            targetPose = new Pose2d(goalTransFieldSpace, pose.getRotation().plus(tar));
 
         
             driveToPose.initialize();
         } else {
-            this.cancel();
+            endFlag = true;
         }
        
         // driveToPose.initialize();
     }
     
     public void execute() {
-        Pose2d pose = superstructure.getLocalization().getPose();
-        targetPose = new Pose2d(targetPose.getTranslation(), coralTrans.minus(pose.getTranslation()).getAngle());
+        // Pose2d pose = superstructure.getLocalization().getPose();
+        // targetPose = new Pose2d(targetPose.getTranslation(), targetPose.getRotation());
         driveToPose.execute();
     }
 
@@ -141,7 +145,7 @@ public class IntakeAssist extends Command{
 
     @Override
     public boolean isFinished() {
-        return driveToPose.isFinished();
+        return driveToPose.isFinished() || endFlag;
     }
     
 }
