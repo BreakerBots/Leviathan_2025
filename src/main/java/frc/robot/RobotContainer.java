@@ -139,14 +139,15 @@ public class RobotContainer {
     driverOmega = tipProtectedInputStreams.getSecond();
 
     Trigger manualOverride = buttonBoard.getRightButtons().getHighRightSwitch();
+    Trigger manualOverrideNegated = manualOverride.negate();
 
     scoreOnReefScheduler.bind();
 
     controller.getButtonX().onTrue(elevator.home());
     //controller.getButtonX().onTrue(superstructure2.scoreOnReef(new ReefPosition(ReefLevel.L4, ReefBranch.K)));
-    //controller.getButtonB().onTrue(superstructure2.reverseIntake());
-    controller.getButtonB().whileTrue(superstructure2.smartIntake());
-    controller.getButtonB().onFalse(superstructure2.stowAll());
+    controller.getButtonB().and(manualOverride).onTrue(superstructure2.reverseIntake());
+    controller.getButtonB().and(manualOverrideNegated).whileTrue(superstructure2.intakeAssist());
+    // controller.getButtonB().onFalse(superstructure2.stowAll());
     controller.getDPad().getUp().and(manualOverride).onTrue(Commands.runOnce(drivetrain::seedFieldCentric));
     controller.getDPad().getLeft().onTrue(superstructure2.removeAlgae(false));
     controller.getDPad().getRight().onTrue(superstructure2.removeAlgae(true));
@@ -171,12 +172,12 @@ public class RobotContainer {
     new Trigger(() -> (controller.getLeftTrigger().get() >= 0.5)).onTrue(superstructure2.stowAll().alongWith(new RumbleCommand(controller.getBaseHID(), RumbleType.kBothRumble, 0.15).withTimeout(0.05)));
     buttonBoard.getRightButtons().getLowRightButton().toggleOnTrue(superstructure2.snapHeadingToClosestReefFace(driverTranslation, driverOmega).onlyWhile(manualOverride.negate()));
 
-    buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride.negate()).onTrue(superstructure2.climbOnDeepCage());
+    buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverrideNegated).onTrue(superstructure2.climbOnDeepCage());
     buttonBoard.getRightButtons().getLowRightSwitch().and(manualOverride).onTrue(superstructure2.climbOnDeepCageManual());
     buttonBoard.getRightButtons().getLowRightSwitch().onFalse(superstructure2.stowClimb());
 
     controller.getRightBumper().and(manualOverride).onTrue(superstructure2.manualIntakeFromGroundForL1());
-    controller.getRightBumper().and(manualOverride.negate()).onTrue(superstructure2.intakeFromGroundForL1(driverTranslation, driverOmega));
+    controller.getRightBumper().and(manualOverrideNegated).onTrue(superstructure2.intakeFromGroundForL1(driverTranslation, driverOmega));
     controller.getButtonY().onTrue(superstructure2.extakeForL1FromIntake());
 
 

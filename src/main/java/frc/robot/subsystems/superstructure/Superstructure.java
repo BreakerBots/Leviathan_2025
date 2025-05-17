@@ -131,11 +131,11 @@ public class Superstructure {
         return localization;
     }
 
-    public Command smartIntake() {
+    public Command intakeAssist() {
         RobotCentricFacingAngle driveMoveReq = new RobotCentricFacingAngle().withDriveRequestType(DriveRequestType.Velocity).withHeadingPID(3.0, 0, 0);
         return new IntakeAssist(this).andThen(
             Commands.run(() -> drivetrain.setControl(driveMoveReq.withTargetDirection(localization.getPose().getRotation()).withVelocityX(MetersPerSecond.of(1.0))), drivetrain).onlyWhile(() -> !endEffectorHasCoral())
-        ).alongWith(intakeFromGround());
+        ).onlyIf(() -> !endEffectorHasCoral());
     }
 
     public Command climbOnDeepCageManual() {
@@ -313,7 +313,7 @@ public class Superstructure {
     }
 
     public Command intakeFromGroundForL1(BreakerInputStream2d linearInputStream, BreakerInputStream rotaionalInputStream) {
-        return manualIntakeFromGroundForL1().asProxy().andThen(snapHeadingToClosestReefFace(linearInputStream, rotaionalInputStream));
+        return manualIntakeFromGroundForL1().asProxy().andThen(snapHeadingToClosestReefFace(linearInputStream, rotaionalInputStream).asProxy());
     }
 
     public Command extakeForL1FromIntake() {
