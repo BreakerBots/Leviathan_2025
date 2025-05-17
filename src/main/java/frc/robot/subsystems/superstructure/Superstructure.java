@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -51,6 +52,7 @@ import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerControllerR
 import frc.robot.BreakerLib.driverstation.gamepad.controllers.BreakerXboxController;
 import frc.robot.BreakerLib.swerve.BreakerSwerveTeleopControl.TeleopControlConfig;
 import frc.robot.BreakerLib.util.commands.RumbleCommand;
+import frc.robot.BreakerLib.util.commands.TimedWaitUntilCommand;
 import frc.robot.BreakerLib.util.logging.BreakerLog;
 import frc.robot.subsystems.Climb.ClimbState;
 import frc.robot.subsystems.Climb;
@@ -355,9 +357,14 @@ public class Superstructure {
         return scoreOnReefMaster(reefPosition, true);
     }
 
+    private boolean linearVelNearZero() {
+        ChassisSpeeds speeds = drivetrain.getChassisSpeeds();
+        return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) < 0.005;
+    }
+
     private Command scoreOnReefMaster(ReefPosition reefPosition, boolean proxyDrive) {
 
-        Command allignCmd = navigateToReef(reefPosition.branch());
+        Command allignCmd = navigateToReef(reefPosition.branch()).raceWith(new TimedWaitUntilCommand(this::linearVelNearZero, 1.0));
 
         if (proxyDrive) {
             allignCmd = allignCmd.asProxy();
