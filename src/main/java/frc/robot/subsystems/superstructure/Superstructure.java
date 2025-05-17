@@ -325,7 +325,7 @@ public class Superstructure {
             led.set(Animations.kScoreing),
             setSuperstructureState(SuperstructureState.EXTAKE_L1, false),
             Commands.waitUntil(() -> !intake.hasCoral())
-                .andThen(Commands.waitSeconds(0.1)),
+                .andThen(Commands.waitSeconds(0.35)),
             setSuperstructureState(SuperstructureState.HOLD_L1, false)
         ).finallyDo(this::yealdLed);
     }
