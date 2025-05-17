@@ -143,8 +143,8 @@ public class DriveToPose extends Command {
 
         public NavToPoseConfig() {
             this(
-                Meters.of(0.01), 
-                Degrees.of(1.0), 
+                Meters.of(0.015), 
+                Degrees.of(1.5), 
                 MetersPerSecond.of(3.0), 
                 DegreesPerSecond.of(360), 
                 MetersPerSecondPerSecond.of(4.0), 

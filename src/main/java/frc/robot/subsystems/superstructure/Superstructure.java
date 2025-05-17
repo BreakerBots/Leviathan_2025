@@ -364,7 +364,7 @@ public class Superstructure {
         }
 
         return 
-            allignCmd.withTimeout(10).deadlineFor(
+            allignCmd.withTimeout(10).until(() -> controller.getButtonA().getAsBoolean()).deadlineFor(
             Commands.run(
                 () -> {
                     var tgt = reefPosition.branch().getAlignPose(

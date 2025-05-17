@@ -131,7 +131,7 @@ public class Climb extends SubsystemBase {
 
         boolean fwdLim = angle >= kClimbForwardLimit.in(Rotations);
         boolean revLim = angle <= kClimbReverseLimit.in(Rotations);
-        boolean lockoutTrigger = angle <= kClimbReverseLimit.plus(Degrees.of(10)).in(Rotations);
+        boolean lockoutTrigger = angle <= kClimbReverseLimit.minus(Degrees.of(10)).in(Rotations);
         if (fwdLim) {
             output = MathUtil.clamp(output, -16, 0);
         }
