@@ -1,0 +1,34 @@
+{
+ "name":"Start 1 No Op",
+ "version":1,
+ "snapshot":{
+  "waypoints":[
+    {"x":7.598789691925049, "y":7.310201644897461, "heading":0.01440386413966038, "intervals":1, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":7.598789691925049, "y":7.310201644897461, "heading":0.01450386413966038, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+  "constraints":[
+    {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true}],
+  "targetDt":0.05
+ },
+ "params":{
+  "waypoints":[
+    {"x":{"exp":"7.598789691925049 m", "val":7.598789691925049}, "y":{"exp":"7.310201644897461 m", "val":7.310201644897461}, "heading":{"exp":"0.01440386413966038 rad", "val":0.01440386413966038}, "intervals":1, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"7.598789691925049 m", "val":7.598789691925049}, "y":{"exp":"7.310201644897461 m", "val":7.310201644897461}, "heading":{"exp":"0.01450386413966038 rad", "val":0.01450386413966038}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+  "constraints":[
+    {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
+    {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true}],
+  "targetDt":{
+   "exp":"0.05 s",
+   "val":0.05
+  }
+ },
+ "trajectory":{
+  "sampleType":"Swerve",
+  "waypoints":[0.0,0.00001],
+  "samples":[
+    {"t":0.0, "x":7.59879, "y":7.3102, "heading":0.01444, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.00043, "fx":[-0.00137,-0.00134,0.00138,0.00133], "fy":[0.00134,-0.00138,-0.00134,0.00138]},
+    {"t":0.00001, "x":7.59879, "y":7.3102, "heading":0.01447, "vx":0.0, "vy":0.0, "omega":0.0, "ax":0.0, "ay":0.0, "alpha":0.0, "fx":[0.0,0.0,0.0,0.0], "fy":[0.0,0.0,0.0,0.0]}],
+  "splits":[0]
+ },
+ "events":[]
+}

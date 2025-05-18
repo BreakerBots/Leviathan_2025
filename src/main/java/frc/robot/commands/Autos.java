@@ -195,6 +195,11 @@ public class Autos {
      * Intake assisted version of the above.
      */
     public Command assistedStartThenJKL(StartPosition startPosition) {
+        final var noop = switch (startPosition) {
+            case ONE -> "Start 1 No Op";
+            case TWO -> "Start 2 No Op";
+            case THREE -> "Start 3 No Op";
+        };
         final var start = switch (startPosition) {
             case ONE -> "Start 1 to Reef J";
             case TWO -> "Start 2 to Reef J";
@@ -202,9 +207,10 @@ public class Autos {
         };
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("assJKL"))
             .setFlipped(flippedHorizontally)
+            .run(noop)
             .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenCommandAndScore("Reef J to Coral Assist", superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral), new ReefPosition(ReefLevel.L4, ReefBranch.K))
-            .runThenCommandAndScore("Reef K to Coral Assist", superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral), new ReefPosition(ReefLevel.L4, ReefBranch.L))
+            .runThenCommandAndScore("Reef J to Coral Assist", Commands.waitSeconds(0.033).andThen(superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral)), new ReefPosition(ReefLevel.L4, ReefBranch.K))
+            .runThenCommandAndScore("Reef K to Coral Assist", Commands.waitSeconds(0.033).andThen(superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral)), new ReefPosition(ReefLevel.L4, ReefBranch.L))
             .build();
     }
 
