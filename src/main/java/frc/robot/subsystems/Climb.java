@@ -125,7 +125,7 @@ public class Climb extends SubsystemBase {
             setStateFunc(ClimbState.STOW);
         }
 
-        double output = pid.calculate(getClimbCoderAngle().in(Rotations), currentClimbState.getAngle().in(Rotations));
+        double output = -pid.calculate(getClimbCoderAngle().in(Rotations), currentClimbState.getAngle().in(Rotations));
         double angle = getClimbCoderAngle().in(Rotations);
 
 
@@ -133,11 +133,11 @@ public class Climb extends SubsystemBase {
         boolean revLim = angle <= kClimbReverseLimit.in(Rotations);
         boolean lockoutTrigger = angle <= kClimbReverseLimit.minus(Degrees.of(10)).in(Rotations);
         if (fwdLim) {
-            output = MathUtil.clamp(output, -16, 0);
+            output = MathUtil.clamp(output, 0, 16);
         }
 
         if (revLim) {
-            output = MathUtil.clamp(output, 0, 16);
+            output = MathUtil.clamp(output, -16, 0);
         }
 
         if (lockoutTrigger || emergencyLockout) {

@@ -463,7 +463,7 @@ public final class Constants {
     public static final int kClimbCoder = 61;
 
     public static final double kClimbCoderAbsoluteSensorDiscontinuityPoint = 0.5;
-    public static final Angle kClimbCoderOffset = Rotations.of(0.30810546875);
+    public static final Angle kClimbCoderOffset = Rotations.of(0.485107421875);
     public static final Angle kExtendedThreshold = Degrees.of(8);
     public static final Angle kStowThreshold = Degrees.of(8);
 
