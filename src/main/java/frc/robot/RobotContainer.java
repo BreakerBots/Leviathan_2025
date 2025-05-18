@@ -100,7 +100,7 @@ public class RobotContainer {
 
   private void startLog() {
     SignalLogger.enableAutoLogging(false);
-    BreakerLog.setOptions(new DogLogOptions().withLogExtras(true).withCaptureDs(true).withNtPublish(false));
+    BreakerLog.setOptions(new DogLogOptions().withLogExtras(true).withCaptureDs(true).withNtPublish(true));
     // BreakerLog.setPdh(new PowerDistribution(MiscConstants.PDH_ID, ModuleType.kRev));
     BreakerLog.addCANBus(DriveConstants.kCANBus);
     BreakerLog.setEnabled(true);

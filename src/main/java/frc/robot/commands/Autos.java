@@ -87,12 +87,12 @@ public class Autos {
         autoChooser.addOption("Start1 -> JK", () -> startThenJKLA(StartPosition.ONE));
         autoChooser.addOption("Start3 -> JK", () -> startThenJKLA(StartPosition.THREE));
 
-        autoChooser.addOption("ass Start2 -> JK", () -> assistedStartThenJK(StartPosition.TWO));
-        autoChooser.addOption("ass Start1 -> JK", () -> assistedStartThenJK(StartPosition.ONE));
-        autoChooser.addOption("ass Start3 -> JK", () -> assistedStartThenJK(StartPosition.THREE));
+        //autoChooser.addOption("ass Start2 -> JK", () -> assistedStartThenJK(StartPosition.TWO));
+        //autoChooser.addOption("ass Start1 -> JK", () -> assistedStartThenJK(StartPosition.ONE));
+        //autoChooser.addOption("ass Start3 -> JK", () -> assistedStartThenJK(StartPosition.THREE));
 
-        autoChooser.addOption("ass Start2 -> JKL", () -> assistedStartThenJKL(StartPosition.TWO));
         autoChooser.addOption("ass Start1 -> JKL", () -> assistedStartThenJKL(StartPosition.ONE));
+        autoChooser.addOption("ass Start2 -> JKL", () -> assistedStartThenJKL(StartPosition.TWO));
         autoChooser.addOption("ass Start3 -> JKL", () -> assistedStartThenJKL(StartPosition.THREE));
 
         autoChooser.addOption("L1 Start1 -> JK", () -> startThenL1JK(StartPosition.ONE));
@@ -194,23 +194,6 @@ public class Autos {
     /**
      * Intake assisted version of the above.
      */
-    public Command assistedStartThenJK(StartPosition startPosition) {
-        final var start = switch (startPosition) {
-            case ONE -> "Start 1 to Reef J";
-            case TWO -> "Start 2 to Reef J";
-            case THREE -> "Start 3 to Reef J";
-        };
-        return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("assJK"))
-            .setFlipped(flippedHorizontally)
-            // .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenCommandAndScore("Reef J to Coral Assist", new IntakeAssist(superstructure), new ReefPosition(ReefLevel.L4, ReefBranch.K), superstructure.intakeFromGroundAuton())
-            .build();
-    }
-
-    /**
-     * Intake assisted version of the above.
-     */
     public Command assistedStartThenJKL(StartPosition startPosition) {
         final var start = switch (startPosition) {
             case ONE -> "Start 1 to Reef J";
@@ -220,9 +203,8 @@ public class Autos {
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("assJKL"))
             .setFlipped(flippedHorizontally)
             // .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
-            .runThenCommandAndScore("Reef J to Coral Assist", new IntakeAssist(superstructure), new ReefPosition(ReefLevel.L4, ReefBranch.K), superstructure.intakeFromGroundAuton())
-            .runThenCommandAndScore("Reef K to Coral Assist", new IntakeAssist(superstructure), new ReefPosition(ReefLevel.L4, ReefBranch.L), superstructure.intakeFromGroundAuton())
+            .runThenCommandAndScore("Reef J to Coral Assist", superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral), new ReefPosition(ReefLevel.L4, ReefBranch.K))
+            .runThenCommandAndScore("Reef K to Coral Assist", superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral), new ReefPosition(ReefLevel.L4, ReefBranch.L))
             .build();
     }
 
