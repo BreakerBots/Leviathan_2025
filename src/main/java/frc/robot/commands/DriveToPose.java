@@ -317,6 +317,7 @@ public class DriveToPose extends Command {
     drivetrain.setControl(driveRequest);
 
     // Log data
+    /*
     BreakerLog.log("DriveToPose/DistanceMeasured", driveErrorAbs);
     BreakerLog.log("DriveToPose/DistanceSetpoint", driveSetpoint.position);
     BreakerLog.log(
@@ -336,6 +337,7 @@ public class DriveToPose extends Command {
               Rotation2d.fromRadians(thetaController.getSetpoint().position))
         });
     BreakerLog.log("DriveToPose/Goal", new Pose2d[] {targetPose});
+    */
   }
 
   private void resetProfile() {
@@ -369,8 +371,8 @@ public class DriveToPose extends Command {
 
     running = false;
     // Clear logs
-    BreakerLog.log("DriveToPose/Setpoint", new Pose2d[] {});
-    BreakerLog.log("DriveToPose/Goal", new Pose2d[] {});
+    //BreakerLog.log("DriveToPose/Setpoint", new Pose2d[] {});
+    //BreakerLog.log("DriveToPose/Goal", new Pose2d[] {});
   }
 
 /** Checks if the robot pose is within the allowed drive and theta tolerances. */

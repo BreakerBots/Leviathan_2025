@@ -68,7 +68,6 @@ public class IntakeAssist extends Command{
             // coralTrans = target.position().getPositionFieldSpace(false).toTranslation2d();
             Translation2d targetTransRobot = target.position().getPositionRobotSpace(false).toTranslation2d();
             coralTrans = targetTransRobot;
-            BreakerLog.log("fhgdgfgd", coralTrans);
             Rotation2d targetAngleCamera = new Rotation2d(target.customValue());
             var tar = targetAngleCamera.minus(new Rotation2d(Constants.DepthVisionConstants.kCameraTransform.getRotation().getMeasureZ()));
         

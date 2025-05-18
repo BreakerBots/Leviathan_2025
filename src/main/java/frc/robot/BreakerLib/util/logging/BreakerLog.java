@@ -47,22 +47,26 @@ public class BreakerLog extends DogLog implements Subsystem {
 
     @Override
     public void periodic() {
+        if (true) return;
         BreakerLog.periodicLog();
     }
 
     public static void log(String key, Measure<?> value) {
+        if (true) return;
         log(key + "/Value", value.magnitude());
         log(key + "/Units", value.unit().toString());
     }
 
     
     public static void log(String key, BreakerVector2 value) {
+        if (true) return;
         log(key + "/X", value.getX());
         log(key + "/Y", value.getY());
         log(key + "/Angle", value.getAngle());
     }
 
     public static void log(String key, BreakerVector3 value) {
+        if (true) return;
         log(key + "/X", value.getX());
         log(key + "/Y", value.getY());
         log(key + "/Z", value.getZ());
@@ -70,12 +74,14 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, ChassisAccels value) {
+        if (true) return;
         log(key + "/X", value.getX());
         log(key + "/Y", value.getY());
         log(key + "/Alpha", value.getAlpha());
     }
 
     public static void log(String key, Trajectory<SwerveSample> value) {
+        if (true) return;
         log(key + "/Poses", value.getPoses());
         log(key + "/InitialSample", value.getInitialSample(false).orElse(new SwerveSample(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new double[4], new double[4])));
         log(key + "/FinalSample", value.getFinalSample(false).orElse(new SwerveSample(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new double[4], new double[4])));
@@ -83,6 +89,7 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, SwerveSample value) {
+        if (true) return;
         log(key + "/Pose", new Pose2d(value.x, value.y, Rotation2d.fromRadians(value.heading)));
         log(key + "/ChassisSpeeds", new ChassisSpeeds(value.vx, value.vy, value.omega));
         log(key + "/ChassisAccels", new ChassisAccels(value.ax, value.ay, value.alpha));
@@ -90,6 +97,7 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, TalonFXS value) {
+        if (true) return;
         log(key + "/StatorCurrent", value.getStatorCurrent().getValueAsDouble());
         log(key + "/SupplyCurrent", value.getSupplyCurrent().getValueAsDouble());
         log(key + "/Position", value.getPosition().getValueAsDouble());
@@ -97,6 +105,7 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, TalonFX value) {
+        if (true) return;
         log(key + "/StatorCurrent", value.getStatorCurrent().getValueAsDouble());
         log(key + "/SupplyCurrent", value.getSupplyCurrent().getValueAsDouble());
         log(key + "/Position", value.getPosition().getValueAsDouble());
@@ -104,12 +113,14 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, CANcoder value) {
+        if (true) return;
         log(key + "/AbsolutePosition", value.getAbsolutePosition().getValueAsDouble());
         log(key + "/PositionSinceBoot", value.getPositionSinceBoot().getValueAsDouble());
         log(key + "/Velocity", value.getVelocity().getValueAsDouble());
     }
 
     public static void log(String key, Pigeon2 value) {
+        if (true) return;
         Rotation3d rot = value.getRotation3d();
         log(key + "/Gyro/AnglesRad/Yaw", rot.getZ());
         log(key + "/Gyro/AnglesRad/Pitch", rot.getY());
@@ -123,6 +134,7 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, SwerveModule<TalonFX, TalonFX, CANcoder> value) {
+        if (true) return;
         log(key + "/DriveMotor", value.getDriveMotor());
         log(key + "/SteerMotor", value.getSteerMotor());
         log(key + "/SteerEncoder", value.getEncoder());
@@ -130,12 +142,14 @@ public class BreakerLog extends DogLog implements Subsystem {
 
     @SafeVarargs
     public static void log(String key, SwerveModule<TalonFX, TalonFX, CANcoder>... value) {
+        if (true) return;
         for (int i = 0; i < value.length; i++) {
             log(key + "/" + i, value[i]);
         }
     }
 
     public static void log(String key, CANBus value) {
+        if (true) return;
         log(key + "/Name", value.getName());
         log(key + "/IsNetworkFD", value.isNetworkFD());
         // CANBusStatus status = value.getStatus(); // too slow
@@ -147,12 +161,14 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void log(String key, Alert value) {
+        if (true) return;
         log(key + "/IsActive", value.get());
         log(key + "/Text", value.getText());
         log(key + "/Type", value.getType());
     }
 
     public static void log(String key, ProfiledPIDController value) {
+        if (true) return;
         log(key + "/PositionError", value.getPositionError());
         log(key + "/VelocityError", value.getVelocityError());
         log(key + "/SetPosition", value.getSetpoint().position);
@@ -160,27 +176,32 @@ public class BreakerLog extends DogLog implements Subsystem {
     }
 
     public static void addCANBus(CANBus value) {
+        if (true) return;
         loggedCANBuses.add(value);
         
     }
 
-    private static void logCANBuses() {{
-        for (CANBus bus: loggedCANBuses) 
+    private static void logCANBuses() {
+        if (true) return;
+        for (CANBus bus: loggedCANBuses) { 
             log("SystemStats/CanivoreBuses/" + bus.getName(), bus);
         }
     }
 
     private static void periodicLog() {
+        if (true) return;
         if (options.logExtras()) {
             logCANBuses();
         }
     }
     
     public static void logMetadata(String key, String value) {
+        if (true) return;
         log("/Metadata/" + key, value);
     }
 
     public static void logMetadata(Metadata metadata) {
+        if (true) return;
         logMetadata("RobotName", metadata.robotName);
         logMetadata("ProjectYear", Integer.toString(metadata.year));
         logMetadata("Authors", metadata.authors);

@@ -207,8 +207,9 @@ public class Autos {
         };
         return new TrajectoryBuilder(superstructure, autoFactory.newRoutine("assJKL"))
             .setFlipped(flippedHorizontally)
-            .run(noop)
-            .runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
+            //.run(noop)
+            //.runThenScore(start, new ReefPosition(ReefLevel.L4, ReefBranch.J))
+            .runThenScore(noop, new ReefPosition(ReefLevel.L4, ReefBranch.J))
             .runThenCommandAndScore("Reef J to Coral Assist", Commands.waitSeconds(0.033).andThen(superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral)), new ReefPosition(ReefLevel.L4, ReefBranch.K))
             .runThenCommandAndScore("Reef K to Coral Assist", Commands.waitSeconds(0.033).andThen(superstructure.intakeFromGroundAuton().deadlineFor(new IntakeAssist(superstructure)).until(superstructure::endEffectorHasCoral)), new ReefPosition(ReefLevel.L4, ReefBranch.L))
             .build();
