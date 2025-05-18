@@ -188,6 +188,31 @@ public class DriveToPose extends Command {
             
 
         }
+
+        public static NavToPoseConfig getAutonScoreConfig() {
+            return new NavToPoseConfig(
+                Meters.of(0.015), 
+                Degrees.of(1.5), 
+                MetersPerSecond.of(4.0), 
+                DegreesPerSecond.of(360), 
+                MetersPerSecondPerSecond.of(16.0), 
+                RadiansPerSecondPerSecond.of(9), 
+                MetersPerSecond.of(-0.5),
+                Meters.of(0.01),
+                Meters.of(0.01),
+                Meters.of(0.05),
+                Radians.of(0),
+                Radians.of(0),
+                0.2,
+                0.1,
+                Meters.of(0.3),
+                Degrees.of(15), 
+                new PIDConstants(12.5, 0.1, 0), //9.5
+                new PIDConstants(10.5, 0.2, 0) //
+            );
+            
+
+        }
   }
 
   @Override

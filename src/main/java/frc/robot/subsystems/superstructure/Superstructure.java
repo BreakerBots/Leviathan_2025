@@ -350,11 +350,11 @@ public class Superstructure {
     }
 
     public Command scoreOnReefAuton(ReefPosition reefPosition) {
-        return scoreOnReefMaster(reefPosition, false);
+        return scoreOnReefMaster(reefPosition, false, true);
     }
 
     public Command scoreOnReef(ReefPosition reefPosition) {
-        return scoreOnReefMaster(reefPosition, true);
+        return scoreOnReefMaster(reefPosition, true, false);
     }
 
     private boolean linearVelNearZero() {
@@ -362,9 +362,9 @@ public class Superstructure {
         return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) < 0.005;
     }
 
-    private Command scoreOnReefMaster(ReefPosition reefPosition, boolean proxyDrive) {
+    private Command scoreOnReefMaster(ReefPosition reefPosition, boolean proxyDrive, boolean fastAllign) {
 
-        Command allignCmd = navigateToReef(reefPosition.branch()).raceWith(new TimedWaitUntilCommand(this::linearVelNearZero, 1.0));
+        Command allignCmd = navigateToReef(reefPosition.branch(), fastAllign ? NavToPoseConfig.getAutonScoreConfig() : new NavToPoseConfig()).raceWith(new TimedWaitUntilCommand(this::linearVelNearZero, 1.0));
 
         if (proxyDrive) {
             allignCmd = allignCmd.asProxy();
@@ -402,6 +402,10 @@ public class Superstructure {
     private Command navigateToReef(ReefBranch branch) {
         return Commands.defer(() -> navigateToReef(branch, getAllianceSafe(), new NavToPoseConfig()), Set.of(drivetrain));
     }
+
+    private Command navigateToReef(ReefBranch branch, NavToPoseConfig navConfig) {
+        return Commands.defer(() -> navigateToReef(branch, getAllianceSafe(), new NavToPoseConfig()), Set.of(drivetrain));
+    }
     
     private Command navigateToReef(ReefBranch branch, Alliance alliance, NavToPoseConfig navConfig) {
         Pose2d allignGoal = branch.getAlignPose(alliance);
@@ -434,7 +438,7 @@ public class Superstructure {
             
             double distance = robotPose.getTranslation().getDistance(goalPose.getTranslation());
 
-            return distance <= 2.5;
+            return distance <= 2.0;
         };
         return Commands.waitUntil(canExtend).andThen(setSuperstructureState(reefPosition.level().getExtakeSuperstructureState().withNeutralRollers(), false));
     }
