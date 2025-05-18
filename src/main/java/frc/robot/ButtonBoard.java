@@ -35,7 +35,7 @@ public class ButtonBoard {
         new JoystickButton(hid, ButtonBoardConstants.POTENTIAL_SHORT_BUTTON)
             .onTrue(Commands.runOnce(() -> {
                 potentiallyShorted = true;
-                BreakerLog.log("ButtonBoard/Shorted", potentiallyShorted);
+                
                 Elastic.sendNotification(new Notification(NotificationLevel.WARNING, "ButtonBoard Potentially Shorted", "The button board may be potentially shorted, replug it in and if the problem persists check the wires."));
             }));
         

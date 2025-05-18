@@ -174,7 +174,7 @@ public interface BreakerInputStream2d extends Supplier<BreakerVector2> {
 public default BreakerInputStream2d log(String key) {
     return () -> {
       BreakerVector2 val = this.get();
-      BreakerLog.log(key, val);
+      
       return val;
     };
   }

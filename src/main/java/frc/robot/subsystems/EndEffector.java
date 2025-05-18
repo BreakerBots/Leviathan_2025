@@ -181,17 +181,17 @@ public class EndEffector extends SubsystemBase {
     }
 
     private void refreshLogs() {
-        BreakerLog.log("EndEffector/Wrist/Motor", wrist);
         
-        BreakerLog.log("EndEffector/RollerMotor", rollers);
         
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Satisifed", isAtSetpoint());
-        BreakerLog.log("EndEffector/Wrist/Angle", getWristAngle().in(Degrees));
+        
+        
+        
+        
 
-        BreakerLog.log("EndEffector/HasCoral", hasCoral());
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Angle", setpoint.wristSetpoint.setpoint.in(Degrees));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Tolerence", setpoint.wristSetpoint.tolerence.in(Degrees));
-        BreakerLog.log("EndEffector/Wrist/Setpoint/VelTolerence", setpoint.wristSetpoint.velocityTolerence.in(DegreesPerSecond));
+        
+        
+        
+        
     }
     
     @Override
@@ -204,20 +204,18 @@ public class EndEffector extends SubsystemBase {
             refreshLogs();
         }
         
-        BreakerLog.log("EndEffector/Wrist/Encoder", wristEncoder);
-        BreakerLog.log("EndEffector/Wrist/Setpoint/Error", Math.abs(getWristAngle()
-       .in(Degrees) - setpoint.wristSetpoint.setpoint.in(Degrees)));
+        
        
-        // BreakerLog.log("EndEffector/RollerMotor/Output", rollers.getMotorOutputPercent());
-        // BreakerLog.log("EndEffector/KickerMotor/Output", rollers.getMotorOutputPercent());
+        // 
+        // 
 
         // Color c = algaeSensor.getColor().toWpilibColor();
         // double cd = getColorDelta(c, kAlgaeColor);
-        // BreakerLog.log("EndEffector/AlgaeSensor/SeesAlgae", cd <= kMaxColorDelta);
-        // BreakerLog.log("EndEffector/AlgaeSensor/Color/Delta", cd);
-        // BreakerLog.log("EndEffector/AlgaeSensor/Color/R", c.red);
-        // BreakerLog.log("EndEffector/AlgaeSensor/Color/G", c.green);
-        // BreakerLog.log("EndEffector/AlgaeSensor/Color/B", c.blue);
+        // 
+        // 
+        // 
+        // 
+        // 
     }
 
 

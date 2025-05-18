@@ -46,7 +46,7 @@ public class LoggedAlert extends Alert {
   }
 
   public void log() {
-    BreakerLog.log(logKey, this);
+    
   }
 
   

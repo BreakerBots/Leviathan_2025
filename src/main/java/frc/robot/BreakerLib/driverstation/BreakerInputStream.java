@@ -175,7 +175,7 @@ public interface BreakerInputStream extends DoubleSupplier {
   public default BreakerInputStream log(String key) {
     return () -> {
       double val = this.get();
-      BreakerLog.log(key, val);
+      
       return val;
     };
   }

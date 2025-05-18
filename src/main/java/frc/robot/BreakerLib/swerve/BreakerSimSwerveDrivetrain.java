@@ -100,7 +100,7 @@
 //             }
 //             gyroSim.addYaw(gyroDelta);
 //             gyroSim.setAngularVelocityZ(Units.RadiansPerSecond.of(gyroSimulation.getMeasuredAngularVelocityRadPerSec()));
-//             BreakerLog.log("SwerveDrivetrain/Sim/GroundTruthPose", getSimulatedDriveTrainPose());
+//             
 //         } 
 //     }
 

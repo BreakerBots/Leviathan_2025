@@ -129,12 +129,12 @@ public class Localization extends SubsystemBase implements Localizer {
     @Override
     public void periodic() {
         update();
-        BreakerLog.log("Localization/Estimates/KalmanPoseEstimator", visionFilter.getEstimatedPosition());
-        BreakerLog.log("Localization/Estimates/OdometryFusion", odometryFusion.getEstimatedPosition());
-        BreakerLog.log("Localization/Estimates/PureOdometry", odometryFusion.getPureOdometryPose());
+        
+        
+        
         if (kUseGTSAM) {
-            BreakerLog.log("Localization/Estimates/GTSAM/AtomicPose", gtsam.getAtomicPoseEstimate().getValue());
-            BreakerLog.log("Localization/Estimates/GTSAM/LatencyCompensatedPose", gtsam.getLatencyCompensatedPoseEstimate());
+            
+            
         }
     }
 

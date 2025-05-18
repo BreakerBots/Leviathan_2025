@@ -86,7 +86,7 @@ public class BatteryRFID extends SubsystemBase {
             DEFAULT_BATTERY_INFO.log();
         }
 
-        BreakerLog.log("LoggedBattery/HasRead", batteryInfo.isPresent());
+        
 
             
         if (Robot.isReal() && batteryInfo.isPresent()) {
@@ -143,12 +143,12 @@ public class BatteryRFID extends SubsystemBase {
 
     public static record BatteryInfo(long tagID, int batteryID, int purchaseYear, double chargeAh, BatteryType type, String manufacturer) {
         public void log() {
-            BreakerLog.log("LoggedBattery/BatteryInfo/TagID", tagID);
-            BreakerLog.log("LoggedBattery/BatteryInfo/BatteryID", batteryID);
-            BreakerLog.log("LoggedBattery/BatteryInfo/PurchaseYear", purchaseYear);
-            BreakerLog.log("LoggedBattery/BatteryInfo/ChargeAh", chargeAh);
-            BreakerLog.log("LoggedBattery/BatteryInfo/BatteryType", type);
-            BreakerLog.log("LoggedBattery/BatteryInfo/Manufacturer", manufacturer);
+            
+            
+            
+            
+            
+            
         }
     }
 

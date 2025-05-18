@@ -52,9 +52,9 @@ public class Indexer extends SubsystemBase {
 
         double cycle = currentState.getDutyCycleOut();
 
-        BreakerLog.log("Indexer/State", currentState);
-        BreakerLog.log("Indexer/DutyCycle", cycle);
-        BreakerLog.log("Indexer/Motor", indexer);
+        
+        
+        
 
         indexer.setControl(dutyCycleOut.withOutput(cycle));
     }

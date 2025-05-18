@@ -114,12 +114,12 @@ public class Climb extends SubsystemBase {
     
     @Override
     public void periodic() {
-        BreakerLog.log("Climb/Motor", climbMotor);
-        BreakerLog.log("Climb/Angle", getClimbCoderAngle().in(Degrees));
-        // BreakerLog.log("Climb/MotionMagicVoltagePosition", climbPosition.Position);
+        
+        
+        // 
 
-        BreakerLog.log("Climb/State/Name", currentClimbState);
-        BreakerLog.log("Climb/State/Setpoint", currentClimbState.getAngle().in(Degrees));
+        
+        
 
         if (RobotState.isDisabled()) {
             setStateFunc(ClimbState.STOW);

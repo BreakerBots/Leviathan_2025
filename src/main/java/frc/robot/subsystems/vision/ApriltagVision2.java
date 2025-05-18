@@ -175,7 +175,7 @@ public class ApriltagVision2 {
             for (int i = 0; i < results.size(); i++) {
                 poses[i] = results.get(i).est.estimatedPose;
             }
-            BreakerLog.log("ApriltagVision/" + getName() + "/Poses", poses);
+            
             return results;
 
         }

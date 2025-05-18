@@ -134,7 +134,7 @@ public class ApriltagVision extends SubsystemBase {
                 photonPoseEstimator.setRobotToCameraTransform(camOffsets[i]);
                 for (var result : allResults) {
                     Optional<EstimatedRobotPose> posOpt = photonPoseEstimator.update(result, cam.getCameraMatrix(), cam.getDistCoeffs());
-                    BreakerLog.log("fsdfsd", posOpt.isPresent());
+                    
                     if (posOpt.isPresent()) {
                     EstimatedRobotPose pos = posOpt.get();
                         List<PhotonTrackedTarget> targets = pos.targetsUsed;
@@ -171,7 +171,7 @@ public class ApriltagVision extends SubsystemBase {
                         if (devs.get(0, 0) > 15 || devs.get(1, 0) > 15) {
                             continue;
                         }
-                        BreakerLog.log("ApriltagVision/RawEsts/" + cam.getName(), pos.estimatedPose);
+                        
                         estimatedPoses.add(new BreakerEstimatedPose(pos, devs));
                     }
                 }

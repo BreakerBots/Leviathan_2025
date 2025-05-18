@@ -473,7 +473,7 @@ public class Superstructure {
            boolean willIntakeInterferWithEndEffectorMotionNow = endEffectorHasCoral && willIntakeInterferWithEndEffectorMotion(endEffector.getWristAngle(), mast.endEffectorSetpoint.wristSetpoint().getSetpoint(), intake.getPivotAngle());
            if (RobotBase.isReal()) {
             if (willIntakeInterferWithEndEffectorMotionFuture && willIntakeInterferWithEndEffectorMotionNow) {
-                BreakerLog.log("dsdfsd", 1);
+                
                 var intermedairySP = new MastState(
                     mast.elevatorSetpoint, 
                     new EndEffectorSetpoint(
@@ -496,7 +496,7 @@ public class Superstructure {
                     )
                 );
             } else if (willIntakeInterferWithEndEffectorMotionFuture && !willIntakeInterferWithEndEffectorMotionNow) {
-                BreakerLog.log("dsdfsd", 2);
+                
                 cmd = setMastState(mast, waitForMast)
                 .alongWith(
                     Commands.waitUntil(() -> !willIntakeInterferWithEndEffectorMotion(mast.endEffectorSetpoint, intexer.intakeState))
@@ -505,7 +505,7 @@ public class Superstructure {
                         )
                 );
             } else if (!willIntakeInterferWithEndEffectorMotionFuture && willIntakeInterferWithEndEffectorMotionNow) {
-                BreakerLog.log("dsdfsd", 3);
+                
                 cmd = setIntexerState(intexer, waitForIntexer).alongWith(
                     Commands.waitUntil(() -> !willIntakeInterferWithEndEffectorMotion(mast.endEffectorSetpoint, intexer.intakeState))
                     .andThen(
@@ -513,7 +513,7 @@ public class Superstructure {
                         )
                 );
             } else {
-                BreakerLog.log("dsdfsd", 4);
+                
                 cmd = setMastState(mast, waitForMast).alongWith(setIntexerState(intexer, waitForIntexer));
             }
             } else {
@@ -561,12 +561,12 @@ public class Superstructure {
 
             if (!isSimulation)  {
                 if ((canEndEffectorFlip && doesSetpointAllowFlipping) || flipDirection == EndEffectorFlipDirection.NONE) { // never flip restricted during travle or we dont flip
-                    BreakerLog.log("gsdjgs", 0);
+                    
         
                     cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(elevator.set(elevatorSetpoint, waitForSuccess));
         
                 } else if ((canEndEffectorFlip && !doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.FRONT_TO_BACK) {//We can flip now but wont be able to after moving the elevator
-                    BreakerLog.log("gsdjgs", 1);
+                    
                     cmd = endEffector.set(endEffectorSetpoint, waitForSuccess).alongWith(
                         Commands.waitUntil(() -> isEndEffectorSafe())
                         .andThen(
@@ -575,7 +575,7 @@ public class Superstructure {
                     );
         
                 } else if ((!canEndEffectorFlip && doesSetpointAllowFlipping) && flipDirection == EndEffectorFlipDirection.BACK_TO_FRONT) {//we arnt able to flip now but will be able to after moving the elevator
-                    BreakerLog.log("gsdjgs", 2);
+                    
                     var intermedairySP = new EndEffectorSetpoint(new WristSetpoint(EndEffectorConstants.kMaxElevatorRestrictedSafeAngle.minus(Degrees.of(25))), endEffectorSetpoint.rollerState());
                     cmd = endEffector.set(intermedairySP, false)
                     .andThen(

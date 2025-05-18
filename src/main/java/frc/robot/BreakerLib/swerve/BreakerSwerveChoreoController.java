@@ -58,12 +58,12 @@ public class BreakerSwerveChoreoController implements Consumer<SwerveSample> {
         request.WheelForceFeedforwardsY = u.moduleForcesY();
         drivetrain.setControl(request);
 
-        BreakerLog.log("BreakerSwerveChoreoController/Goal", u);
-        BreakerLog.log("BreakerSwerveChoreoController/Error/X", xController.getError());
-        BreakerLog.log("BreakerSwerveChoreoController/Error/Y", yController.getError());
-        BreakerLog.log("BreakerSwerveChoreoController/Error/Theta", thetaController.getError());
-        BreakerLog.log("BreakerSwerveChoreoController/Outputs/Feedforward", new ChassisSpeeds(xFF, yFF, rotationFF));
-        BreakerLog.log("BreakerSwerveChoreoController/Outputs/Feedback", new ChassisSpeeds(xFeedback, yFeedback, rotationFeedback));
-        BreakerLog.log("BreakerSwerveChoreoController/Outputs/TargetSpeeds", targetSpeeds);
+        
+        
+        
+        
+        
+        
+        
     }
 }

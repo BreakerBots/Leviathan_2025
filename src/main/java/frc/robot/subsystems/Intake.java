@@ -159,15 +159,15 @@ public class Intake extends SubsystemBase{
         if (RobotState.isDisabled()) {
             setClosestNeutral();
         }
-        BreakerLog.log("Intake/HasCoral", hasCoral());
-        BreakerLog.log("Intake/Rollers/Motor", rollers);
-        BreakerLog.log("Intake/Rollers/State", setpoint.getRollerState().toString());
-        BreakerLog.log("Intake/Pivot/Motor", pivot);
-        BreakerLog.log("Intake/Pivot/Encoder", encoder);
-        BreakerLog.log("Intake/Pivot/Setpoint/Name", setpoint.getPivotState().toString());
-        BreakerLog.log("Intake/Pivot/Setpoint/Angle", setpoint.getPivotState().getAngle().in(Degrees));
-        BreakerLog.log("Intake/Pivot/Setpoint/AtSetpoint", atSetpoint());
-        BreakerLog.log("Intake/Pivot/Angle", getPivotAngle().in(Degrees));
+        
+        
+        
+        
+        
+        
+        
+        
+        
     }
 
     private class WaitForCoralGroundIntakeL1AndStopRollersCommand extends Command {

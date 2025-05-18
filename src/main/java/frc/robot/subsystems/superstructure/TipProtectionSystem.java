@@ -73,7 +73,7 @@ public class TipProtectionSystem extends SubsystemBase {
                 limiter.setLimits(kinematicLimits.linearAcceleration(), kinematicLimits.angularAcceleration());
                 
                 var angles = new BreakerVector2(imu.getPitch().getValue().in(Radian), imu.getRoll().getValue().in(Radian));
-                BreakerLog.log("TipProtectionSystem/TipAngle", angles.getMagnitude());
+                
                 if (angles.getMagnitude() > TipProtectionSystemConstants.kTippingThreshold.in(Radian)) {
                     // CommandScheduler
                     //     .getInstance()
@@ -85,8 +85,8 @@ public class TipProtectionSystem extends SubsystemBase {
                 linearVelLim = DriveConstants.MAXIMUM_TRANSLATIONAL_VELOCITY.in(Units.MetersPerSecond);
                 angVelLim = DriveConstants.MAXIMUM_ROTATIONAL_VELOCITY.in(Units.RadiansPerSecond);
             }
-            BreakerLog.log("TipProtectionSystem/LinAccelLim", limiter.getLinearLim());
-            BreakerLog.log("TipProtectionSystem/AngAccelLim", limiter.getRotationalLim());
+            
+            
         }
     }
 }

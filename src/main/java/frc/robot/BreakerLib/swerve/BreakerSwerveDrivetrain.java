@@ -125,14 +125,14 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
     chassisAccels = ChassisAccels.fromDeltaSpeeds(prevChassisSpeeds, state.Speeds, state.OdometryPeriod);
     prevChassisSpeeds = state.Speeds;
     
-    BreakerLog.log("SwerveDrivetrain/State/Movement/Pose", state.Pose);
-    BreakerLog.log("SwerveDrivetrain/State/Movement/Speeds", state.Speeds);
-    BreakerLog.log("SwerveDrivetrain/State/Movement/Accels", chassisAccels);
-    BreakerLog.log("SwerveDrivetrain/State/ModuleStates/RealModuleStates", state.ModuleStates);
-    BreakerLog.log("SwerveDrivetrain/State/ModuleStates/TargetModuleStates", state.ModuleTargets);
-    BreakerLog.log("SwerveDrivetrain/State/Odometry/SuccessfulDAQs", state.SuccessfulDaqs);
-    BreakerLog.log("SwerveDrivetrain/State/Odometry/FailedDAQs", state.FailedDaqs);
-    BreakerLog.log("SwerveDrivetrain/State/Odometry/OdometryPeriod", state.OdometryPeriod);
+    
+    
+    
+    
+    
+    
+    
+    
     
     if (userTelemetryCallback != null) {
       userTelemetryCallback.accept(state);
@@ -140,11 +140,11 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
   }
 
   private void lowFrequencyTelemetry() {
-    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
-    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
-    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
-    BreakerLog.log("SwerveDrivetrain/Modules/FrontLeft", getModules()[0]);
-    BreakerLog.log("SwerveDrivetrain/Pigeon2", getPigeon2());
+    
+    
+    
+    
+    
   }
   
     /**
@@ -274,8 +274,8 @@ public class BreakerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, 
   }
 
   protected void logChoreoPath(Trajectory<SwerveSample> trajectory, boolean isStarting) {
-    BreakerLog.log("Choreo/LastTrajectory", trajectory);
-    BreakerLog.log("Choreo/LastTrajectory/State", isStarting ? "Starting" : "Finishing");
+    
+    
   }
 
   public AutoFactory getAutoFactory() {

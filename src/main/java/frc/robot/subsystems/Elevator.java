@@ -208,15 +208,15 @@ public class Elevator extends SubsystemBase {
     // }
 
     private void refreshLogs() {
-        BreakerLog.log("Elevator/Left/StatorCurrent", left.getStatorCurrent().getValueAsDouble());
-        BreakerLog.log("Elevator/Left/SupplyCurrent", left.getSupplyCurrent().getValueAsDouble());
         
-        BreakerLog.log("Elevator/Motors/Right", right);
+        
+        
+        
 
-        BreakerLog.log("Elevator/Setpoint/Value", setpoint.getHeight().in(Meters));
-        BreakerLog.log("Elevator/Setpoint/ValueNative", setpoint.getNativeSetpoint().in(Rotations));
-        BreakerLog.log("Elevator/Setpoint/Tolerence", setpoint.getTolerence().in(Units.Meters));
-        BreakerLog.log("Elevator/Setpoint/Satisfied", atSetpoint());
+        
+        
+        
+        
     }
 
     public ElevatorSetpoint getSetpoint() {
@@ -233,14 +233,14 @@ public class Elevator extends SubsystemBase {
             refreshLogs();
         }
 
-        BreakerLog.log("Elevator/Motors/Left/Positoin", left.getPosition().getValueAsDouble());
-        BreakerLog.log("Elevator/Motors/Left/Velocity", left.getVelocity().getValueAsDouble());
-        BreakerLog.log("Elevator/Setpoint/Error", Math.abs(getHeight().in(Meters)) -  setpoint.getHeight().in(Meters));
+        
+        
+        
 
-        BreakerLog.log("Elevator/State/NativePosition", getNativePosition());
-        BreakerLog.log("Elevator/State/Height", getHeight().in(Meters));
-        BreakerLog.log("Elevator/State/Velocity", getVelocity().in(MetersPerSecond));
-        // BreakerLog.log("Elevator/State/Acceleration", getAcceleration().in(MetersPerSecondPerSecond));
+        
+        
+        
+        // 
         homeingFailedAlert.log();
     }
 
