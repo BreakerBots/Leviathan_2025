@@ -53,6 +53,21 @@ public class TrajectoryBuilder {
         return this;
     }
 
+    public TrajectoryBuilder runThenCommandAndScore(String traj, Command command, ReefPosition reefPosition, Command... inParallel) {
+        reefPosition = doFlip(reefPosition);
+
+        final var trajectory = loadTrajectory(traj);
+
+        final var cmd = switch (reefPosition.level()) {
+            case L1 -> superstructure.extakeForL1FromIntake(); // FIXME, doesn't align
+            default -> superstructure.scoreOnReefAuton(reefPosition);
+        };
+
+        trajectories.add(new TrajectoryStep(trajectory, command.andThen(cmd), inParallel));
+
+        return this;
+    }
+
     public TrajectoryBuilder runThenScore(String traj, ReefPosition reefPosition, Command... inParallel) {
         reefPosition = doFlip(reefPosition);
 
