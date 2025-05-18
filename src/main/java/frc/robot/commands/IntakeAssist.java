@@ -68,6 +68,7 @@ public class IntakeAssist extends Command{
             // coralTrans = target.position().getPositionFieldSpace(false).toTranslation2d();
             Translation2d targetTransRobot = target.position().getPositionRobotSpace(false).toTranslation2d();
             coralTrans = targetTransRobot;
+            //BreakerLog.log("fhgdgfgd", coralTrans);
             Rotation2d targetAngleCamera = new Rotation2d(target.customValue());
             var tar = targetAngleCamera.minus(new Rotation2d(Constants.DepthVisionConstants.kCameraTransform.getRotation().getMeasureZ()));
         
@@ -109,8 +110,6 @@ public class IntakeAssist extends Command{
         Pair<TrackedObject, Double> best = null;
         System.out.println(detectionResults.getTrackedObjects().size());
         for (TrackedObject obj : detectionResults.getTrackedObjects()) {
-
-            System.out.println("sfsdfs");
             Translation2d objectTrans = obj.position().getPositionFieldSpace(true).toTranslation2d();
             double distance = robotPose.getTranslation().getDistance(objectTrans);
             // if (distance > maxDistance.in(Meters)) {
@@ -126,7 +125,6 @@ public class IntakeAssist extends Command{
             double compositeScore = distScore + angScore;
 
             if (best == null || best.getSecond() < compositeScore) {
-                System.out.println("fdsddfs");
                 best = new Pair<TrackedObject,Double>(obj, compositeScore);
                 continue;
             }
